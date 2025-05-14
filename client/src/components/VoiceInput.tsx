@@ -29,7 +29,7 @@ const VoiceInput: React.FC = () => {
   useEffect(() => {
     console.log(transcript);
     if (transcript && transcript.trim()) {
-      setFullTranscript((prev) => {
+      setFullTranscript((prev: string) => {
         if (prev.endsWith(transcript)) return prev; // Avoid duplication
         return prev + ' ' + transcript;
       });

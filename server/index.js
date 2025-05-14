@@ -1,28 +1,26 @@
-const express = require('express');
-const mongoose = require('mongoose');
-const cors = require('cors');
-const dotenv = require('dotenv');
-const searchRoutes = require('./routes/search');
-
-dotenv.config();
+import express from 'express';
+import fuzzysort from 'fuzzysort';
+import sampleData from './sampleData.js'; // make sure extension is included
 
 const app = express();
-app.use(cors());
-app.use(express.json());
+const PORT = 5000;
 
-// Connect to MongoDB
-mongoose.connect(process.env.MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
-.then(() => console.log('MongoDB connected'))
-.catch((err) => console.error('MongoDB connection error:', err));
+app.get('/search', (req, res) => {
+  const query = req.query.q;
 
-// Routes
-app.use('/search', searchRoutes);
+  if (!query) {
+    return res.status(400).json({ error: 'Query parameter "q" is required.' });
+  }
 
-// Start the server
-const PORT = process.env.PORT || 5000;
+  const results = fuzzysort.go(query, sampleData, {
+    key: 'name',
+    threshold: -10000
+  });
+
+  const formattedResults = results.map(result => result.obj);
+  res.json({ results: formattedResults });
+});
+
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`Server listening on http://localhost:${PORT}`);
 });
