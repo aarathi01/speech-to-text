@@ -1,8 +1,8 @@
-const sampleData = [
-  { id: 1, name: 'Apple iPhone 13' },
-  { id: 2, name: 'Samsung Galaxy S22' },
-  { id: 3, name: 'Google Pixel 7' },
-  { id: 4, name: 'Nokia 1100' }
+ const sampleData = [
+  { id: 1, name: "iPhone 15 Pro Max", category: "Mobile" },
+  { id: 2, name: "iPhone 13 Mini", category: "Mobile" },
+  { id: 3, name: "Samsung Galaxy S23", category: "Mobile" },
+  { id: 4, name: "MacBook Pro M3", category: "Laptop" },
 ];
 
 export default sampleData;
