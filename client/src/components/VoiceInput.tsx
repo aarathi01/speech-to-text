@@ -4,6 +4,7 @@ import SpeechRecognition, {
 } from "react-speech-recognition";
 import microphoneIcon from "../assets/microphone-icon.webp";
 import SearchResults from "./SearchResults";
+import type { Result } from "../types/types";
 
 const VoiceInput: React.FC = () => {
   const {
@@ -13,7 +14,9 @@ const VoiceInput: React.FC = () => {
     browserSupportsSpeechRecognition,
   } = useSpeechRecognition();
   const [fullTranscript, setFullTranscript] = useState("");
-  const [searchResults, setSearchResults] = useState([]);
+  const [searchResults, setSearchResults] = useState<Result[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const handleMicClick = () => {
     if (listening) {
@@ -27,16 +30,7 @@ const VoiceInput: React.FC = () => {
     resetTranscript();
     setFullTranscript("");
     setSearchResults([]);
-  };
-
-  const handleSearch = async () => {
-    if (fullTranscript.trim()) {
-      const response = await fetch(
-        `http://localhost:5000/search?q=${encodeURIComponent(fullTranscript)}`
-      );
-      const data = await response.json();
-      setSearchResults(data.results || []);
-    }
+    setError(null);
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -51,84 +45,105 @@ const VoiceInput: React.FC = () => {
     }
   }, [transcript]);
 
+  useEffect(() => {
+    const fetchSearchResults = async () => {
+      const query = fullTranscript.trim();
+      if (!query) {
+        setSearchResults([]);
+        setError(null);
+        setLoading(false);
+        return;
+      }
+
+      setLoading(true);
+      setError(null);
+
+      try {
+        if (query) {
+          const response = await fetch(
+            `http://localhost:5000/search?q=${encodeURIComponent(query)}`
+          );
+          if (!response.ok) {
+            const errData = await response.json();
+            throw new Error(errData.error || "Failed to fetch");
+          }
+
+          const data = await response.json();
+          if (data.results.length === 0) {
+            setError("No results found");
+          }
+          setSearchResults(data.results || []);
+        }
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+          setError(err.message);
+        } else {
+          setError("An error occurred");
+        }
+        setSearchResults([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    const delayDebounce = setTimeout(fetchSearchResults, 500);
+    return () => clearTimeout(delayDebounce);
+  }, [fullTranscript]);
+
   if (!browserSupportsSpeechRecognition) {
     return <p>Your browser does not support speech recognition.</p>;
   }
 
   return (
-    <div
-      style={{
-        padding: "1rem",
-        maxWidth: "600px",
-        margin: "auto",
-        textAlign: "center",
-      }}
-    >
-      <h1>Voice Search</h1>
-      <div
-        onClick={handleMicClick}
-        style={{ cursor: "pointer", marginBottom: "1rem" }}
-      >
-        <img
-          src={microphoneIcon}
-          alt="Mic"
-          style={{
-            width: "100px",
-            height: "100px",
-            filter: listening ? "drop-shadow(0 0 10px red)" : "none",
-          }}
-        />
-        <div style={{ fontWeight: "bold", marginTop: "0.5rem" }}>
-          {listening ? "Listening..." : "Click to speak"}
+    <div className="split-layout">
+      <div className="voice-panel">
+        <h1>Voice Search</h1>
+        <div
+          onClick={handleMicClick}
+          style={{ cursor: "pointer", marginBottom: "1rem" }}
+        >
+          <img
+            className="microphone-icon"
+            src={microphoneIcon}
+            alt="Mic"
+            style={{
+              width: "100px",
+              height: "100px",
+              filter: listening ? "drop-shadow(0 0 10px red)" : "none",
+            }}
+          />
+          <div className="click-to-speak-text">
+            {listening ? "Listening..." : "Click to speak"}
+          </div>
         </div>
-      </div>
-
-      <textarea
-        placeholder="Type or speak to search"
-        value={fullTranscript}
-        onChange={handleInputChange}
-        rows={4}
-        style={{
-          width: "100%",
-          padding: "1rem",
-          border: "1px solid #ccc",
-          borderRadius: "6px",
-          backgroundColor: "#f9f9f9",
-          resize: "none",
-        }}
-      />
-
-      <div style={{ marginTop: "1rem" }}>
-        <button
-          onClick={handleSearch}
-          style={{
-            marginRight: "1rem",
-            padding: "0.5rem 1.5rem",
-            backgroundColor: "#2196f3",
-            color: "white",
-            border: "none",
-            borderRadius: "4px",
-            fontWeight: "bold",
-          }}
-        >
-          Search
-        </button>
-
-        <button
-          onClick={handleClear}
-          style={{
-            padding: "0.5rem 1.5rem",
-            backgroundColor: "#f44336",
-            color: "white",
-            border: "none",
-            borderRadius: "4px",
-            fontWeight: "bold",
-          }}
-        >
+        <div>
+          <textarea
+            className="transcript-text-area"
+            placeholder="Type or speak here..."
+            value={fullTranscript}
+            onChange={handleInputChange}
+            rows={4}
+          />
+        </div>
+        <button className="clear-button" onClick={handleClear}>
           Clear
         </button>
+        {loading && <p>Loading results...</p>}
+        {error && <p className="error-text">{error}</p>}
       </div>
-      <SearchResults results={searchResults} transcript={fullTranscript} />
+      <div className="results-panel">
+        {loading ? (
+          <p>Loading results...</p>
+        ) : error ? (
+          <p className="error-text">{error}</p>
+        ) : searchResults.length > 0 ? (
+          <SearchResults results={searchResults} transcript={fullTranscript} />
+        ) : (
+          <p style={{ color: "#7777" }}>
+            Start speaking or typing to see results...
+          </p>
+        )}
+      </div>
     </div>
   );
 };

@@ -1,11 +1,5 @@
 import React from 'react';
-
-interface Result {
-  id: number;
-  name: string;
-  category: string;
-  score: number;
-}
+import type { Result } from '../types/types';
 
 interface Props {
   results: Result[];
@@ -23,7 +17,7 @@ const SearchResults: React.FC<Props> = ({ results, transcript }) => {
   if (!results.length) return null;
 
   return (
-    <div style={{ textAlign: 'left', marginTop: '2rem' }}>
+    <div>
       <h3>Search Results:</h3>
       {results.map(result => (
         <div key={result.id} style={{ padding: '0.5rem', borderBottom: '1px solid #ddd' }}>
