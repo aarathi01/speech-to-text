@@ -98,17 +98,12 @@ const VoiceInput: React.FC = () => {
     <div className="split-layout">
       <div className="voice-panel">
         <h1>Voice Search</h1>
-        <div
-          onClick={handleMicClick}
-          style={{ cursor: "pointer", marginBottom: "1rem" }}
-        >
+        <div className="click-cursor" onClick={handleMicClick}>
           <img
             className="microphone-icon"
             src={microphoneIcon}
             alt="Mic"
             style={{
-              width: "100px",
-              height: "100px",
               filter: listening ? "drop-shadow(0 0 10px red)" : "none",
             }}
           />
@@ -116,7 +111,7 @@ const VoiceInput: React.FC = () => {
             {listening ? "Listening..." : "Click to speak"}
           </div>
         </div>
-        <div>
+        <div className="display-area">
           <textarea
             className="transcript-text-area"
             placeholder="Type or speak here..."
@@ -129,7 +124,6 @@ const VoiceInput: React.FC = () => {
           Clear
         </button>
         {loading && <p>Loading results...</p>}
-        {error && <p className="error-text">{error}</p>}
       </div>
       <div className="results-panel">
         {loading ? (
