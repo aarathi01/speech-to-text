@@ -91,6 +91,10 @@
   color: red;
   margin-top: 1rem;
 }
+.search-result {
+  padding: 0.5rem;
+  border-bottom: 1px solid #ddd;
+}
 
 /* Responsive behavior */
 @media (max-width: 768px) {

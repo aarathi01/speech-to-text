@@ -15,12 +15,11 @@ const highlight = (text: string, keyword: string) => {
 
 const SearchResults: React.FC<Props> = ({ results, transcript }) => {
   if (!results.length) return null;
-
   return (
     <div>
       <h3>Search Results:</h3>
       {results.map(result => (
-        <div key={result.id} style={{ padding: '0.5rem', borderBottom: '1px solid #ddd' }}>
+        <div className='search-result' key={result.id}>
           <div><strong>Name:</strong> {highlight(result.name, transcript)}</div>
           <div><strong>Category:</strong> {highlight(result.category, transcript)}</div>
         </div>
@@ -29,4 +28,4 @@ const SearchResults: React.FC<Props> = ({ results, transcript }) => {
   );
 };
 
-export default SearchResults;
+export default React.memo(SearchResults);
