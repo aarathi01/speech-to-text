@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import SpeechRecognition, {
   useSpeechRecognition,
 } from "react-speech-recognition";
@@ -26,23 +26,28 @@ const VoiceInput: React.FC = () => {
     }
   };
 
-  const handleClear = () => {
+  const handleClear = useCallback(() => {
     resetTranscript();
     setFullTranscript("");
     setSearchResults([]);
     setError(null);
-  };
+  }, [resetTranscript]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setFullTranscript(e.target.value);
-  };
+  const handleInputChange = useCallback(
+    (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+      setFullTranscript(e.target.value);
+    },
+    []
+  );
 
   useEffect(() => {
-    if (transcript.trim()) {
-      setFullTranscript((prev) =>
-        prev.endsWith(transcript) ? prev : prev + " " + transcript
-      );
-    }
+    const trimmed = transcript.trim();
+    if (!trimmed) return;
+
+    setFullTranscript((prev) => {
+      if (prev.trim().endsWith(trimmed)) return prev;
+      return `${prev} ${trimmed}`.trim();
+    });
   }, [transcript]);
 
   useEffect(() => {
