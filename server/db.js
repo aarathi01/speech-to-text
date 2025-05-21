@@ -1,20 +1,43 @@
-// server/db.js
-const mongoose = require('mongoose');
-const dotenv = require('dotenv');
+import mongoose from "mongoose";
+import sampleData from "./sampleData.js";
 
-dotenv.config();
+// Define schema
+const itemSchema = new mongoose.Schema({
+  id: Number,
+  name: String,
+  category: String,
+});
 
-const connectDB = async () => {
+// Create model
+export const Item = mongoose.model("Item", itemSchema);
+
+// Connect to DB
+export async function connectToDB(uri) {
   try {
-    await mongoose.connect(process.env.MONGO_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
-    console.log('MongoDB connected ✅');
-  } catch (err) {
-    console.error('MongoDB connection error ❌', err.message);
-    process.exit(1); // Stop the app if the DB connection fails
-  }
-};
+    await mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+    console.log("Connected to MongoDB.");
 
-module.exports = connectDB;
+    // Seed only if DB is empty
+    const count = await Item.countDocuments();
+    if (count === 0) {
+      await Item.insertMany(sampleData);
+      console.log("Sample data inserted into MongoDB.");
+    } else {
+      console.log("Sample data already exists, skipping insert!");
+    }
+  } catch (err) {
+    console.error("MongoDB connection failed:", err);
+    process.exit(1);
+  }
+}
+
+// Search function with fuzzy/partial matching
+export async function searchInDB(query) {
+  const regex = new RegExp(query, "i"); // case-insensitive partial match
+  return await Item.find({
+    $or: [
+      { name: { $regex: regex } },
+      { category: { $regex: regex } },
+    ],
+  }).limit(20);
+}
