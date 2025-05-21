@@ -49,8 +49,13 @@ app.get("/search", async (req, res) => {
 });
 
 const MONGODB_URI = process.env.MONGODB_URI;
-connectToDB(MONGODB_URI);
 
-app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
-});
+connectToDB(MONGODB_URI)
+  .then(() => {
+    app.listen(PORT, () => {
+      console.log(`Server running at http://localhost:${PORT}`);
+    });
+  })
+  .catch((err) => {
+    console.error("Failed to connect to DB", err);
+  });

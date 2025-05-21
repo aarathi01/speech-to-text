@@ -14,7 +14,10 @@ export const Item = mongoose.model("Item", itemSchema);
 // Connect to DB
 export async function connectToDB(uri) {
   try {
-    await mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+    await mongoose.connect(uri, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
     console.log("Connected to MongoDB.");
 
     // Seed only if DB is empty
@@ -33,11 +36,13 @@ export async function connectToDB(uri) {
 
 // Search function with fuzzy/partial matching
 export async function searchInDB(query) {
-  const regex = new RegExp(query, "i"); // case-insensitive partial match
+  const terms = query.trim().split(/\s+/);
+  const regexes = terms.map((term) => new RegExp(term, "i"));
+
   return await Item.find({
-    $or: [
+    $or: regexes.flatMap((regex) => [
       { name: { $regex: regex } },
       { category: { $regex: regex } },
-    ],
+    ]),
   }).limit(20);
 }
