@@ -5,6 +5,7 @@ import SpeechRecognition, {
 import microphoneIcon from "../assets/microphone-icon.webp";
 import SearchResults from "./SearchResults";
 import type { Result } from "../types/types";
+import UnsupportedBrowserFallback from "./UnsupportedBrowserFallback";
 
 const VoiceInput: React.FC = () => {
   const {
@@ -96,7 +97,7 @@ const VoiceInput: React.FC = () => {
   }, [fullTranscript]);
 
   if (!browserSupportsSpeechRecognition) {
-    return <p>Your browser does not support speech recognition.</p>;
+    return <UnsupportedBrowserFallback />;
   }
 
   return (

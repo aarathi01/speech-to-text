@@ -1,5 +1,5 @@
-import React from 'react';
-import VoiceInput from './components/VoiceInput';
+import React from "react";
+import VoiceInput from "./components/VoiceInput";
 
 const App: React.FC = () => {
   return (

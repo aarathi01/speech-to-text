@@ -91,9 +91,24 @@
   color: red;
   margin-top: 1rem;
 }
+
 .search-result {
   padding: 0.5rem;
   border-bottom: 1px solid #ddd;
+}
+
+.unsupported-browser {
+  padding: 2rem;
+  text-align: center;
+  color: #333;
+  background-color: #f8f8f8;
+  border-radius: 8px;
+  margin: 2rem;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.unsupported-browser h2 {
+  color: #c0392b;
 }
 
 /* Responsive behavior */
