@@ -1,9 +1,18 @@
 import dotenv from "dotenv";
+import fs from "fs";
 import express from "express";
 import cors from "cors";
 import { connectToDB, searchInDB } from "./db.js";
 
-dotenv.config();
+const env = process.env.NODE_ENV || "dev";
+const envFile = `${env}.env`;
+
+if (fs.existsSync(envFile)) {
+  dotenv.config({ path: envFile });
+  console.log(`Loaded config from ${envFile}`);
+} else {
+  console.warn(`Env file ${envFile} not found. Defaulting to process.env`);
+}
 
 const app = express();
 const PORT = process.env.PORT || 5000;
