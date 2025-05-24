@@ -13,7 +13,7 @@ export function highlightText(text, words) {
   let highlighted = text;
   words.forEach((word) => {
     const regex = new RegExp(`(${word})`, "gi");
-    highlighted = highlighted.replace(regex, "<mark>$1</mark>");
+    highlighted = highlighted.replace(regex, "$1");
   });
 
   return highlighted;
