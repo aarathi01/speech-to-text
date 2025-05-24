@@ -1,8 +1,9 @@
-import dotenv from "dotenv";
-import fs from "fs";
 import express from "express";
 import cors from "cors";
+import dotenv from "dotenv";
+import fs from "fs";
 import { connectToDB, searchInDB } from "./db.js";
+import { extractWords, highlightText } from "./highlightUtils.js";
 
 const env = process.env.NODE_ENV || "dev";
 const envFile = `${env}.env`;
@@ -18,30 +19,23 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 app.use(cors());
 
-function highlightMatch(text, query) {
-  const index = text.toLowerCase().indexOf(query.toLowerCase());
-  if (index === -1) return text;
-  return (
-    text.slice(0, index) +
-    "<b>" + text.slice(index, index + query.length) + "</b>" +
-    text.slice(index + query.length)
-  );
-}
-
 app.get("/search", async (req, res) => {
   const query = req.query.q?.trim();
   if (!query) return res.status(400).json({ error: "Query 'q' is required" });
 
+  const queryWords = extractWords(query);
+  if (!queryWords.length) return res.json({ results: [] });
+
   try {
-    const results = await searchInDB(query);
-    res.json({
-      results: results.map((doc) => ({
-        id: doc.id,
-        name: doc.name,
-        category: doc.category,
-        highlights: { name: highlightMatch(doc.name, query) },
-      })),
-    });
+    const results = await searchInDB(queryWords);
+    const matchedWords = extractWords(query);
+    const highlighted = results.map((doc) => ({
+      id: doc.id,
+      name: highlightText(doc.name, queryWords),
+      category: highlightText(doc.category, queryWords),
+      matchedWords,
+    }));
+    res.json({ results: highlighted });
   } catch (err) {
     console.error("Search error:", err);
     res.status(500).json({ error: "Internal Server Error" });

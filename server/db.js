@@ -35,14 +35,11 @@ export async function connectToDB(uri) {
 }
 
 // Search function with fuzzy/partial matching
-export async function searchInDB(query) {
-  const terms = query.trim().split(/\s+/);
-  const regexes = terms.map((term) => new RegExp(term, "i"));
+export async function searchInDB(words) {
+  if (!Array.isArray(words)) throw new Error("Expected words to be an array");
 
+  const regexes = words.map((word) => new RegExp(word, "i"));
   return await Item.find({
-    $or: regexes.flatMap((regex) => [
-      { name: { $regex: regex } },
-      { category: { $regex: regex } },
-    ]),
+    $or: [{ name: { $in: regexes } }, { category: { $in: regexes } }],
   }).limit(20);
 }
