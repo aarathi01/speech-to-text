@@ -2,13 +2,13 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import fs from "fs";
-import { connectToDB, searchInDB } from "./db.js";
-import { extractWords, highlightText } from "./highlightUtils.js";
 import multer from "multer";
 import ffmpegPath from "ffmpeg-static";
 import ffmpeg from "fluent-ffmpeg";
 import path from "path";
 import { createRequire } from "module";
+import { connectToDB, searchInDB } from "./db.js";
+import { extractWords, highlightText } from "./highlightUtils.js";
 
 const require = createRequire(import.meta.url); // Use CommonJS require
 const vosk = require("vosk"); // Load native Vosk bindings using require

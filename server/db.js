@@ -11,7 +11,6 @@ const itemSchema = new mongoose.Schema({
 // Create model
 export const Item = mongoose.model("Item", itemSchema);
 
-// Connect to DB
 export async function connectToDB(uri) {
   try {
     await mongoose.connect(uri, {
