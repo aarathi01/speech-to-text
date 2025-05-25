@@ -1,54 +1,182 @@
-# React + TypeScript + Vite
+# 🔊 react-voice-search-widget
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A **plug-and-play** React component that lets users **search** either by typing or using **voice input** (speech-to-text). Built for reusability, flexibility, and quick integration into any modern React application.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## ✨ Features
 
-## Expanding the ESLint configuration
+- 🎤 **Voice Input Support**  
+  Capture audio from the microphone and transcribe it using a backend speech-to-text service (e.g., Vosk).
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- ⌨️ **Text Input Support**  
+  Supports both voice and manual text input in the same field.
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+- 🔍 **Real-Time Search**  
+  Automatically queries a backend search API as you speak or type (with debounce).
+
+- 🎯 **Keyword Highlighting**  
+  Matched words are highlighted in the search results and transcript text.
+
+- ⚛️ **Modular and Reusable**  
+  Packaged as a standalone React component that can be embedded in any React app.
+
+- 💬 **Error Handling**  
+  Includes fallback for unsupported browsers and clear messages when audio isn't captured or no results are found.
+
+---
+
+## 📦 Installation
+
+Install the component via NPM:
+
+```bash
+npm install react-voice-search-widget
+# or
+yarn add react-voice-search-widget
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+---
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## 🚀 Usage
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
+```tsx
+import React from 'react';
+import VoiceInput from 'react-voice-search-widget';
+
+function App() {
+  return (
+    <div style={{ maxWidth: 800, margin: '0 auto', padding: '1rem' }}>
+      <VoiceInput />
+    </div>
+  );
+}
+
+export default App;
 ```
+
+---
+
+## 🧱 Component Overview
+
+### `VoiceInput.tsx`
+
+The main component that handles:
+- Microphone access
+- Recording and sending audio to the backend
+- Typing + voice input management
+- Displaying real-time search results
+
+### `SearchResults.tsx`
+
+Displays the result list and highlights matched keywords.
+
+### `UnsupportedBrowserFallback.tsx`
+
+Renders a fallback message if the browser doesn't support `MediaRecorder` or microphone access.
+
+---
+
+## 🛠️ Backend API Expectations
+
+Your backend should expose two endpoints:
+
+### `/api/transcribe` (POST)
+
+- Accepts an audio file (`multipart/form-data`) and returns a JSON `{ text: "transcribed text" }`.
+
+### `/search?q=query` (GET)
+
+- Accepts a search query and returns results in the following format:
+
+```json
+{
+  "results": [
+    {
+      "id": "1",
+      "name": "<highlighted text>",
+      "category": "<highlighted category>",
+      "matchedWords": ["keyword1", "keyword2"]
+    }
+  ]
+}
+```
+
+🔗 Example backend repo: [speech-to-text (GitHub)](https://github.com/aarathi01/speech-to-text)
+
+---
+
+## 🧪 Development & Build
+
+To work locally and customize:
+
+```bash
+# Start dev server
+npm run dev
+
+# Lint the code
+npm run lint
+
+# Build for production
+npm run build
+```
+
+---
+
+## 🧩 Project Structure
+
+```
+react-voice-search-widget/
+├── src/
+│   ├──components/
+│   │    ├── VoiceInput.tsx
+│   │    ├── SearchResults.tsx
+│   │    ├── UnsupportedBrowserFallback.tsx
+│   ├── types/
+│   │   └── types.ts
+│   └── assets/
+│   │    └── microphone-icon.webp
+│   ├── App.tsx
+│   ├── main.tsx
+│   ├── style.css
+├── dist/              # Compiled output
+├── package.json
+├── tsconfig.json
+├── vite.config.ts
+└── README.md
+```
+
+---
+
+## 🎨 Styling
+
+Tailwind CSS is used for styling. If your host app uses Tailwind, styles will integrate seamlessly. Otherwise, you may want to adjust or override styles accordingly.
+
+---
+
+## 📌 Customization (Coming Soon)
+
+Planned for future versions:
+- Props to override API endpoints
+- Custom result renderers
+- Adjustable debounce delay
+- Theming via CSS variables
+
+---
+
+## 📃 License
+
+MIT License
+
+---
+
+## 🙋‍♀️ Maintainer
+
+**[@aarathi01](https://github.com/aarathi01)**  
+_Contributions and feedback are welcome!_
+
+---
+
+## 🌐 Related Projects
+
+- 🔧 [speech-to-text (Backend Repo)](https://github.com/aarathi01/speech-to-text) – Node.js + Vosk + MongoDB backend for voice search
