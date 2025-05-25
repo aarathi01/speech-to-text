@@ -1,38 +1,91 @@
-import React, { useCallback, useEffect, useState } from "react";
-import SpeechRecognition, {
-  useSpeechRecognition,
-} from "react-speech-recognition";
+import React, { useCallback, useEffect, useState, useRef } from "react";
 import microphoneIcon from "../assets/microphone-icon.webp";
 import SearchResults from "./SearchResults";
 import type { Result } from "../types/types";
 import UnsupportedBrowserFallback from "./UnsupportedBrowserFallback";
 
 const VoiceInput: React.FC = () => {
-  const {
-    transcript,
-    listening,
-    resetTranscript,
-    browserSupportsSpeechRecognition,
-  } = useSpeechRecognition();
   const [fullTranscript, setFullTranscript] = useState("");
   const [searchResults, setSearchResults] = useState<Result[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [listening, setListening] = useState(false);
+  const mediaRecorder = useRef<MediaRecorder | null>(null);
+  const audioChunks = useRef<BlobPart[]>([]);
 
   const handleMicClick = () => {
     if (listening) {
-      SpeechRecognition.stopListening();
+      // Stop recording
+      mediaRecorder.current?.stop();
+      setListening(false);
     } else {
-      SpeechRecognition.startListening({ continuous: true, language: "en-IN" });
+      // Start recording
+      setError(null);
+      audioChunks.current = [];
+      navigator.mediaDevices
+        .getUserMedia({ audio: true })
+        .then((stream) => {
+          mediaRecorder.current = new MediaRecorder(stream);
+          mediaRecorder.current.ondataavailable = (e) => {
+            audioChunks.current.push(e.data);
+          };
+          mediaRecorder.current.onstop = () => {
+            const audioBlob = new Blob(audioChunks.current, {
+              type: "audio/wav",
+            });
+            sendAudioToBackend(audioBlob);
+            stream.getTracks().forEach((track) => track.stop());
+          };
+          mediaRecorder.current.start();
+          setListening(true);
+        })
+        .catch(() => setError("Microphone access denied or not supported"));
+    }
+  };
+
+  const sendAudioToBackend = async (audioBlob: Blob) => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const formData = new FormData();
+      formData.append("audio", audioBlob, "recording.wav");
+
+      const response = await fetch("http://localhost:5000/api/transcribe", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errData = await response.json();
+        throw new Error(errData.error || "Failed to transcribe audio");
+      }
+
+      const data = await response.json();
+      const text = data.text || "";
+
+      if (text.trim() === "") {
+        setError("No speech detected");
+        setSearchResults([]);
+        setLoading(false);
+        return;
+      }
+
+      setFullTranscript((prev) => (prev ? prev + " " + text : text));
+    } catch (err: unknown) {
+      if (err instanceof Error) setError(err.message);
+      else setError("An error occurred");
+      setSearchResults([]);
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleClear = useCallback(() => {
-    resetTranscript();
     setFullTranscript("");
     setSearchResults([]);
     setError(null);
-  }, [resetTranscript]);
+  }, []);
 
   const handleInputChange = useCallback(
     (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -40,16 +93,6 @@ const VoiceInput: React.FC = () => {
     },
     []
   );
-
-  useEffect(() => {
-    const trimmed = transcript.trim();
-    if (!trimmed) return;
-
-    setFullTranscript((prev) => {
-      if (prev.trim().endsWith(trimmed)) return prev;
-      return `${prev} ${trimmed}`.trim();
-    });
-  }, [transcript]);
 
   useEffect(() => {
     const fetchSearchResults = async () => {
@@ -65,21 +108,19 @@ const VoiceInput: React.FC = () => {
       setError(null);
 
       try {
-        if (query) {
-          const response = await fetch(
-            `http://localhost:5000/search?q=${encodeURIComponent(query)}`
-          );
-          if (!response.ok) {
-            const errData = await response.json();
-            throw new Error(errData.error || "Failed to fetch");
-          }
-
-          const data = await response.json();
-          if (data.results.length === 0) {
-            setError("No results found");
-          }
-          setSearchResults(data.results || []);
+        const response = await fetch(
+          `http://localhost:5000/search?q=${encodeURIComponent(query)}`
+        );
+        if (!response.ok) {
+          const errData = await response.json();
+          throw new Error(errData.error || "Failed to fetch");
         }
+
+        const data = await response.json();
+        if (data.results.length === 0) {
+          setError("No results found");
+        }
+        setSearchResults(data.results || []);
       } catch (err: unknown) {
         if (err instanceof Error) {
           setError(err.message);
@@ -96,7 +137,7 @@ const VoiceInput: React.FC = () => {
     return () => clearTimeout(delayDebounce);
   }, [fullTranscript]);
 
-  if (!browserSupportsSpeechRecognition) {
+  if (!navigator.mediaDevices || !window.MediaRecorder) {
     return <UnsupportedBrowserFallback />;
   }
 
@@ -109,9 +150,7 @@ const VoiceInput: React.FC = () => {
             className="microphone-icon"
             src={microphoneIcon}
             alt="Mic"
-            style={{
-              filter: listening ? "drop-shadow(0 0 10px red)" : "none",
-            }}
+            style={{ filter: listening ? "drop-shadow(0 0 10px red)" : "none" }}
           />
           <div className="click-to-speak-text">
             {listening ? "Listening..." : "Click to speak"}
@@ -130,6 +169,7 @@ const VoiceInput: React.FC = () => {
           Clear
         </button>
         {loading && <p>Loading results...</p>}
+        {error && <p className="error-text">{error}</p>}
       </div>
       <div className="results-panel">
         {loading ? (
