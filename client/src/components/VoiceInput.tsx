@@ -169,7 +169,6 @@ const VoiceInput: React.FC = () => {
           Clear
         </button>
         {loading && <p>Loading results...</p>}
-        {error && <p className="error-text">{error}</p>}
       </div>
       <div className="results-panel">
         {loading ? (
