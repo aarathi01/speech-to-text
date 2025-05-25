@@ -1,0 +1,57 @@
+{
+  "name": "react-voice-search-widget",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "private": false,
+  "description": "A plug-and-play React voice search widget using speech-to-text.",
+  "keywords": [
+    "react",
+    "voice",
+    "search",
+    "speech-to-text",
+    "widget"
+  ],
+  "author": "Aarathi Ajith",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/aarathi01/speech-to-text.git"
+  },
+  "homepage": "https://github.com/aarathi01/speech-to-text#readme",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "lint": "eslint .",
+    "preview": "vite preview",
+    "prepublishOnly": "npm run build"
+  },
+  "peerDependencies": {
+    "react": "^17.0.0 || ^18.0.0 || ^19.0.0",
+    "react-dom": "^17.0.0 || ^18.0.0 || ^19.0.0"
+  },
+  "dependencies": {
+    "axios": "1.9.0",
+    "fuzzysort": "3.1.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "9.25.0",
+    "@types/react": "19.1.2",
+    "@types/react-dom": "19.1.2",
+    "@vitejs/plugin-react": "4.4.1",
+    "autoprefixer": "10.4.21",
+    "eslint": "9.25.0",
+    "eslint-plugin-react-hooks": "5.2.0",
+    "eslint-plugin-react-refresh": "0.4.19",
+    "globals": "16.0.0",
+    "postcss": "8.5.3",
+    "tailwindcss": "4.1.6",
+    "typescript": "5.8.3",
+    "typescript-eslint": "8.30.1",
+    "vite": "6.3.5"
+  }
+}
