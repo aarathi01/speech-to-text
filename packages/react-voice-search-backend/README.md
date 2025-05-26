@@ -71,6 +71,7 @@ models/
 ### 4. Configure environment
 
 Create a `.env` file in the `server` directory or use the existing `dev.env`:
+Only an IP address you add to your Access List will be able to connect to your project's clusters. You can manage existing IP entries via the Network Access Page in https://cloud.mongodb.com/.
 
 ```bash
 MONGODB_URI=mongodb://[specified user name: specified password@]host 1[:specified port number 1][,….. host N][:specified port number N] 
