@@ -3,6 +3,6 @@
   "private": true,
   "workspaces": [
     "react-voice-search-widget",
-    "backend"
+    "react-voice-search-backend"
   ]
 }

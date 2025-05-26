@@ -1,5 +1,5 @@
 {
-  "name": "speech-to-text-backend",
+  "name": "react-voice-search-backend",
   "version": "1.0.0",
   "type": "module",
   "main": "index.js",

@@ -9,7 +9,7 @@ A plug-and-play monorepo for voice-driven search using offline speech recognitio
 ```
 speech-to-text/
 ├── react-voice-search-widget/   # Frontend React component (published to NPM)
-├── backend/                      # Backend Node.js + Express + Vosk
+├── react-voice-search-backend/  # Backend Node.js + Express + Vosk
 └── README.md                    # Project root readme
 ```
 
@@ -24,7 +24,7 @@ speech-to-text/
 - Tailwind CSS for styling
 - Written in TypeScript
 
-### ✅ Backend (`backend/`)
+### ✅ Backend (`react-voice-search-backend`)
 - Node.js + Express API
 - Vosk for offline speech-to-text
 - MongoDB integration with fuzzy search
@@ -91,7 +91,7 @@ npm publish --access public
 ### 📦 Install dependencies
 
 ```bash
-cd backend
+cd react-voice-search-backend
 npm install
 ```
 
