@@ -20,6 +20,11 @@
   ],
   "author": "Aarathi Ajith",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/aarathi01/speech-to-text.git"
+  },
+  "homepage": "https://github.com/aarathi01/speech-to-text#readme",
   "dependencies": {
     "body-parser": "^2.2.0",
     "cors": "^2.8.5",
