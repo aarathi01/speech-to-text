@@ -1,0 +1,8 @@
+{
+  "name": "speech-to-text-monorepo",
+  "private": true,
+  "workspaces": [
+    "react-voice-search-widget",
+    "backend"
+  ]
+}
