@@ -43,8 +43,8 @@ const VoiceInput: React.FC = () => {
         wsRef.current.binaryType = "arraybuffer";
       }
 
-      // AudioContext with 16000Hz for Vosk
-      audioContextRef.current = new AudioContext({ sampleRate: 16000 });
+      audioContextRef.current = new AudioContext(); // Let browser decide sample rate
+      const actualSampleRate = audioContextRef.current.sampleRate;
 
       sourceRef.current =
         audioContextRef.current.createMediaStreamSource(stream);
@@ -91,18 +91,19 @@ const VoiceInput: React.FC = () => {
           return;
 
         const inputBuffer = event.inputBuffer.getChannelData(0);
-        const pcmData = downsampleBuffer(
-          inputBuffer,
-          audioContextRef.current!.sampleRate,
-          16000
-        );
+        const pcmData = downsampleBuffer(inputBuffer, actualSampleRate, 16000);
         if (pcmData) {
           wsRef.current.send(pcmData);
         }
       };
     } catch (err: unknown) {
       console.error("Microphone access error", err);
-      setError("Microphone access denied or not supported");
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("An error occurred");
+      }
+
       setListening(false);
       setLoading(false);
     }
