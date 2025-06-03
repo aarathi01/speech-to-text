@@ -2,76 +2,78 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import fs from "fs";
-import multer from "multer";
-import ffmpegPath from "ffmpeg-static";
-import ffmpeg from "fluent-ffmpeg";
 import path from "path";
+import http from "http";
+import { WebSocketServer } from "ws";
 import { createRequire } from "module";
 import { connectToDB, searchInDB } from "./db.js";
 import { extractWords, highlightText } from "./highlightUtils.js";
 
-const require = createRequire(import.meta.url); // Use CommonJS require
-const vosk = require("vosk"); // Load native Vosk bindings using require
+const require = createRequire(import.meta.url);
+const vosk = require("vosk");
 
 const env = process.env.NODE_ENV || "dev";
 const envFile = `${env}.env`;
 
 if (fs.existsSync(envFile)) {
   dotenv.config({ path: envFile });
-  console.log(`Loaded config from ${envFile}`);
 } else {
   console.warn(`Env file ${envFile} not found. Defaulting to process.env`);
 }
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const server = http.createServer(app);
+const wss = new WebSocketServer({ server, path: "/ws/transcribe" });
+
 app.use(cors());
 
-ffmpeg.setFfmpegPath(ffmpegPath);
-
+const PORT = process.env.PORT || 5000;
 const SAMPLE_RATE = 16000;
 const MODEL_PATH = path.resolve(process.cwd(), "models/vosk");
-const upload = multer({ dest: "uploads/" });
 
 if (!fs.existsSync(MODEL_PATH)) {
   console.error(
-    'Please download the model from https://alphacephei.com/vosk/models and unpack as "vosk" inside the "models" directory.'
+    'Please download the model from https://alphacephei.com/vosk/models and unpack it as "vosk" inside the "models" directory.'
   );
   process.exit(1);
 }
 
 const model = new vosk.Model(MODEL_PATH);
 
-app.post("/api/transcribe", upload.single("audio"), (req, res) => {
-  const audioPath = req.file.path;
-  const wavPath = audioPath + ".wav";
+wss.on("connection", (ws) => {
+  const recognizer = new vosk.Recognizer({ model, sampleRate: SAMPLE_RATE });
+  let transcript = "";
 
-  ffmpeg(audioPath)
-    .audioCodec("pcm_s16le")
-    .audioChannels(1)
-    .audioFrequency(SAMPLE_RATE)
-    .format("wav")
-    .on("end", () => {
-      const wfStream = fs.createReadStream(wavPath);
-      const rec = new vosk.Recognizer({ model, sampleRate: SAMPLE_RATE });
+  ws.on("message", (data, isBinary) => {
+    if (!isBinary) {
+      console.warn("Received non-binary data. Ignored.");
+      return;
+    }
 
-      wfStream.on("data", (data) => {
-        rec.acceptWaveform(data);
-      });
+    const isFinal = recognizer.acceptWaveform(data);
 
-      wfStream.on("end", () => {
-        const result = rec.finalResult();
-        rec.free();
-        fs.unlinkSync(audioPath);
-        fs.unlinkSync(wavPath);
-        res.json(result);
-      });
-    })
-    .on("error", (err) => {
-      console.error("FFmpeg error:", err);
-      res.status(500).send("Audio processing error");
-    })
-    .save(wavPath);
+    if (isFinal) {
+      const result = recognizer.result();
+      if (result.text && result.text.trim()) {
+        transcript += (transcript ? " " : "") + result.text.trim();
+      }
+
+      ws.send(JSON.stringify({ final: result.text }));
+    } else {
+      const partial = recognizer.partialResult();
+      
+      if (partial.partial) {
+        ws.send(JSON.stringify({ partial: partial.partial }));
+      }
+    }
+  });
+
+  ws.on("close", () => {
+    if (!transcript.trim()) {
+      console.warn("No speech detected during session");
+    }
+    recognizer.free();
+  });
 });
 
 app.get("/search", async (req, res) => {
@@ -100,8 +102,11 @@ const MONGODB_URI = process.env.MONGODB_URI;
 
 connectToDB(MONGODB_URI)
   .then(() => {
-    app.listen(PORT, () => {
+    server.listen(PORT, () => {
       console.log(`Server running at http://localhost:${PORT}`);
+      console.log(
+        `WebSocket endpoint at ws://localhost:${PORT}/ws/transcribe`
+      );
     });
   })
   .catch((err) => {

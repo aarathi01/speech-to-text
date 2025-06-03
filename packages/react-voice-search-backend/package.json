@@ -30,12 +30,11 @@
     "cors": "2.8.5",
     "dotenv": "16.5.0",
     "express": "5.1.0",
-    "ffmpeg-static": "5.2.0",
     "fluent-ffmpeg": "2.1.2",
     "fuzzysort": "3.1.0",
     "mongoose": "8.15.0",
-    "multer": "1.4.5-lts.1",
-    "vosk": "0.3.38"
+    "vosk": "0.3.38",
+    "ws": "^8.18.2"
   },
   "devDependencies": {
     "@types/cors": "2.8.18",
