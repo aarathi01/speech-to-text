@@ -29,93 +29,97 @@ const VoiceInput: React.FC = () => {
   };
 
   const startListening = async () => {
-  setError(null);
-  setListening(true);
-  setLoading(true);
-  setFullTranscript("");
+    setError(null);
+    setListening(true);
+    setLoading(true);
+    setFullTranscript("");
+    setSearchResults([]);
 
-  try {
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
 
-    // Avoid reinitializing WebSocket if already open
-    if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
-      wsRef.current = new WebSocket(WS_URL);
-      wsRef.current.binaryType = "arraybuffer";
-    }
-
-    // AudioContext with 16000Hz for Vosk
-    audioContextRef.current = new AudioContext({ sampleRate: 16000 });
-
-    sourceRef.current = audioContextRef.current.createMediaStreamSource(stream);
-    processorRef.current = audioContextRef.current.createScriptProcessor(4096, 1, 1);
-
-    wsRef.current.onopen = () => {
-      setLoading(false);
-      sourceRef.current?.connect(processorRef.current!);
-      processorRef.current?.connect(audioContextRef.current!.destination);
-    };
-
-    wsRef.current.onmessage = (event) => {
-      try {
-        const message = JSON.parse(event.data);
-
-        if (message.final) {
-          setFullTranscript((prev) =>
-            prev ? prev + " " + message.final : message.final
-          );
-        } else if (message.error === "No speech detected") {
-          setError("No speech detected. Please try again.");
-          setFullTranscript("");
-          setSearchResults([]);
-        }
-      } catch {
-        setError("Invalid response from server");
+      if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
+        wsRef.current = new WebSocket(WS_URL);
+        wsRef.current.binaryType = "arraybuffer";
       }
-    };
 
-    wsRef.current.onerror = (err) => {
-      console.error("WebSocket error", err);
-      setError("WebSocket error");
-      stopListening();
-    };
+      // AudioContext with 16000Hz for Vosk
+      audioContextRef.current = new AudioContext({ sampleRate: 16000 });
 
-    wsRef.current.onclose = () => {
-      stopListening();
-    };
-
-    processorRef.current.onaudioprocess = (event) => {
-      if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) return;
-
-      const inputBuffer = event.inputBuffer.getChannelData(0);
-      const pcmData = downsampleBuffer(
-        inputBuffer,
-        audioContextRef.current!.sampleRate,
-        16000
+      sourceRef.current =
+        audioContextRef.current.createMediaStreamSource(stream);
+      processorRef.current = audioContextRef.current.createScriptProcessor(
+        4096,
+        1,
+        1
       );
-      if (pcmData) {
-        wsRef.current.send(pcmData);
-      }
-    };
-  } catch (err: unknown) {
-    console.error("Microphone access error", err);
-    setError("Microphone access denied or not supported");
-    setListening(false);
-    setLoading(false);
-  }
-};
+
+      wsRef.current.onopen = () => {
+        setLoading(false);
+        sourceRef.current?.connect(processorRef.current!);
+        processorRef.current?.connect(audioContextRef.current!.destination);
+      };
+
+      wsRef.current.onmessage = (event) => {
+        try {
+          const message = JSON.parse(event.data);
+          if (message.error) {
+            setError(message.error);
+            stopListening();
+          } else if (message.final) {
+            setFullTranscript((prev) =>
+              prev ? prev + " " + message.final : message.final
+            );
+          }
+        } catch {
+          setError("Invalid response from server");
+        }
+      };
+
+      wsRef.current.onerror = (err) => {
+        console.error("WebSocket error", err);
+        setError("WebSocket error");
+        stopListening();
+      };
+
+      wsRef.current.onclose = () => {
+        stopListening();
+      };
+
+      processorRef.current.onaudioprocess = (event) => {
+        if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN)
+          return;
+
+        const inputBuffer = event.inputBuffer.getChannelData(0);
+        const pcmData = downsampleBuffer(
+          inputBuffer,
+          audioContextRef.current!.sampleRate,
+          16000
+        );
+        if (pcmData) {
+          wsRef.current.send(pcmData);
+        }
+      };
+    } catch (err: unknown) {
+      console.error("Microphone access error", err);
+      setError("Microphone access denied or not supported");
+      setListening(false);
+      setLoading(false);
+    }
+  };
 
   const stopListening = () => {
     setListening(false);
     setLoading(false);
-    if (!fullTranscript.trim()) {
-      setError("No speech detected. Please try again.");
-    }
-
     processorRef.current?.disconnect();
     sourceRef.current?.disconnect();
     audioContextRef.current?.close();
-
-    wsRef.current?.close();
+    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+      wsRef.current?.close();
+      if (!fullTranscript.trim() && fullTranscript !== null) {
+        setError("No speech detected during session");
+      }
+    }
 
     processorRef.current = null;
     sourceRef.current = null;
@@ -156,7 +160,6 @@ const VoiceInput: React.FC = () => {
         count++;
       }
       const avg = accum / count;
-      // Clamp and scale float [-1,1] to Int16
       const s = Math.max(-1, Math.min(1, avg));
       result[offsetResult] = s < 0 ? s * 0x8000 : s * 0x7fff;
       offsetResult++;
@@ -194,7 +197,6 @@ const VoiceInput: React.FC = () => {
     const fetchSearchResults = async () => {
       const query = fullTranscript.trim();
       if (!query) {
-        setSearchResults([]);
         setError(null);
         setLoading(false);
         return;
@@ -214,16 +216,16 @@ const VoiceInput: React.FC = () => {
 
         const data = await response.json();
         if (data.results.length === 0) {
+          setSearchResults([]);
           setError("No results found");
         }
-        setSearchResults(data.results || []);
+        setSearchResults(data.results);
       } catch (err: unknown) {
         if (err instanceof Error) {
           setError(err.message);
         } else {
           setError("An error occurred");
         }
-        setSearchResults([]);
       } finally {
         setLoading(false);
       }
@@ -264,7 +266,6 @@ const VoiceInput: React.FC = () => {
         <button className="clear-button" onClick={handleClear}>
           Clear
         </button>
-        {loading && <p>Loading results...</p>}
       </div>
       <div className="results-panel">
         {loading ? (
