@@ -210,12 +210,10 @@ const VoiceInput: React.FC = () => {
         const response = await fetch(
           `${SEARCH_API_URL}?q=${encodeURIComponent(query)}`
         );
-        if (!response.ok) {
-          const errData = await response.json();
-          throw new Error(errData.error || "Failed to fetch");
-        }
-
         const data = await response.json();
+        if (!response.ok) {
+          throw new Error(data.error || "Failed to fetch");
+        }
         if (data.results.length === 0) {
           setSearchResults([]);
           setError("No results found");
