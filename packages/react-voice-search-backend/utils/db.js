@@ -1,14 +1,12 @@
 import mongoose from "mongoose";
-import sampleData from "./sampleData.js";
+import sampleData from "../sampleData.js";
 
-// Define schema
 const itemSchema = new mongoose.Schema({
   id: Number,
   name: String,
   category: String,
 });
 
-// Create model
 export const Item = mongoose.model("Item", itemSchema);
 
 export async function connectToDB(uri) {
@@ -33,7 +31,6 @@ export async function connectToDB(uri) {
   }
 }
 
-// Search function with fuzzy/partial matching
 export async function searchInDB(words) {
   if (!Array.isArray(words)) throw new Error("Expected words to be an array");
 
@@ -42,3 +39,5 @@ export async function searchInDB(words) {
     $or: [{ name: { $in: regexes } }, { category: { $in: regexes } }],
   }).limit(20);
 }
+
+export default connectToDB;
