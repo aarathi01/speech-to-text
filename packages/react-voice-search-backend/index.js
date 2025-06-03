@@ -14,6 +14,12 @@ const vosk = require("vosk");
 
 const env = process.env.NODE_ENV || "dev";
 const envFile = `${env}.env`;
+const PORT = process.env.PORT ? Number(process.env.PORT) : 5000;
+const SAMPLE_RATE = process.env.SAMPLE_RATE
+  ? Number(process.env.SAMPLE_RATE)
+  : 16000;
+
+const BASE_URL = process.env.BASE_URL || "localhost";
 
 if (fs.existsSync(envFile)) {
   dotenv.config({ path: envFile });
@@ -27,8 +33,6 @@ const wss = new WebSocketServer({ server, path: "/ws/transcribe" });
 
 app.use(cors());
 
-const PORT = process.env.PORT || 5000;
-const SAMPLE_RATE = 16000;
 const MODEL_PATH = path.resolve(process.cwd(), "models/vosk");
 
 if (!fs.existsSync(MODEL_PATH)) {
@@ -61,7 +65,7 @@ wss.on("connection", (ws) => {
       ws.send(JSON.stringify({ final: result.text }));
     } else {
       const partial = recognizer.partialResult();
-      
+
       if (partial.partial) {
         ws.send(JSON.stringify({ partial: partial.partial }));
       }
@@ -100,15 +104,21 @@ app.get("/search", async (req, res) => {
 
 const MONGODB_URI = process.env.MONGODB_URI;
 
+if (!MONGODB_URI) {
+  console.error("Error: MONGODB_URI environment variable is not set.");
+  process.exit(1);
+}
+
 connectToDB(MONGODB_URI)
   .then(() => {
     server.listen(PORT, () => {
-      console.log(`Server running at http://localhost:${PORT}`);
+      console.log(`Server running at http://${BASE_URL}:${PORT}`);
       console.log(
-        `WebSocket endpoint at ws://localhost:${PORT}/ws/transcribe`
+        `WebSocket endpoint at ws://${BASE_URL}:${PORT}/ws/transcribe`
       );
     });
   })
   .catch((err) => {
     console.error("Failed to connect to DB", err);
+    process.exit(1);
   });
