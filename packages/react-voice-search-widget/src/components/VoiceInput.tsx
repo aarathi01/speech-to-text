@@ -4,81 +4,177 @@ import SearchResults from "./SearchResults";
 import type { Result } from "../types/types";
 import UnsupportedBrowserFallback from "./UnsupportedBrowserFallback";
 
+const WS_URL = import.meta.env.VITE_WS_URL || "ws://localhost:5000/ws";
+const SEARCH_API_URL =
+  import.meta.env.REACT_APP_SEARCH_API_URL || "http://localhost:5000/search";
+
 const VoiceInput: React.FC = () => {
   const [fullTranscript, setFullTranscript] = useState("");
   const [searchResults, setSearchResults] = useState<Result[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [listening, setListening] = useState(false);
-  const mediaRecorder = useRef<MediaRecorder | null>(null);
-  const audioChunks = useRef<BlobPart[]>([]);
+
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const processorRef = useRef<ScriptProcessorNode | null>(null);
+  const sourceRef = useRef<MediaStreamAudioSourceNode | null>(null);
+  const wsRef = useRef<WebSocket | null>(null);
 
   const handleMicClick = () => {
     if (listening) {
-      // Stop recording
-      mediaRecorder.current?.stop();
-      setListening(false);
+      stopListening();
     } else {
-      // Start recording
-      setError(null);
-      audioChunks.current = [];
-      navigator.mediaDevices
-        .getUserMedia({ audio: true })
-        .then((stream) => {
-          mediaRecorder.current = new MediaRecorder(stream);
-          mediaRecorder.current.ondataavailable = (e) => {
-            audioChunks.current.push(e.data);
-          };
-          mediaRecorder.current.onstop = () => {
-            const audioBlob = new Blob(audioChunks.current, {
-              type: "audio/wav",
-            });
-            sendAudioToBackend(audioBlob);
-            stream.getTracks().forEach((track) => track.stop());
-          };
-          mediaRecorder.current.start();
-          setListening(true);
-        })
-        .catch(() => setError("Microphone access denied or not supported"));
+      startListening();
     }
   };
 
-  const sendAudioToBackend = async (audioBlob: Blob) => {
-    setLoading(true);
-    setError(null);
+  const startListening = async () => {
+  setError(null);
+  setListening(true);
+  setLoading(true);
+  setFullTranscript("");
 
-    try {
-      const formData = new FormData();
-      formData.append("audio", audioBlob, "recording.wav");
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
 
-      const response = await fetch("http://localhost:5000/api/transcribe", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!response.ok) {
-        const errData = await response.json();
-        throw new Error(errData.error || "Failed to transcribe audio");
-      }
-
-      const data = await response.json();
-      const text = data.text || "";
-
-      if (text.trim() === "") {
-        setError("No speech detected");
-        setSearchResults([]);
-        setLoading(false);
-        return;
-      }
-
-      setFullTranscript((prev) => (prev ? prev + " " + text : text));
-    } catch (err: unknown) {
-      if (err instanceof Error) setError(err.message);
-      else setError("An error occurred");
-      setSearchResults([]);
-    } finally {
-      setLoading(false);
+    // Avoid reinitializing WebSocket if already open
+    if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
+      wsRef.current = new WebSocket(WS_URL);
+      wsRef.current.binaryType = "arraybuffer";
     }
+
+    // AudioContext with 16000Hz for Vosk
+    audioContextRef.current = new AudioContext({ sampleRate: 16000 });
+
+    sourceRef.current = audioContextRef.current.createMediaStreamSource(stream);
+    processorRef.current = audioContextRef.current.createScriptProcessor(4096, 1, 1);
+
+    wsRef.current.onopen = () => {
+      setLoading(false);
+      sourceRef.current?.connect(processorRef.current!);
+      processorRef.current?.connect(audioContextRef.current!.destination);
+    };
+
+    wsRef.current.onmessage = (event) => {
+      try {
+        const message = JSON.parse(event.data);
+
+        if (message.final) {
+          setFullTranscript((prev) =>
+            prev ? prev + " " + message.final : message.final
+          );
+        } else if (message.error === "No speech detected") {
+          setError("No speech detected. Please try again.");
+          setFullTranscript("");
+          setSearchResults([]);
+        }
+      } catch {
+        setError("Invalid response from server");
+      }
+    };
+
+    wsRef.current.onerror = (err) => {
+      console.error("WebSocket error", err);
+      setError("WebSocket error");
+      stopListening();
+    };
+
+    wsRef.current.onclose = () => {
+      stopListening();
+    };
+
+    processorRef.current.onaudioprocess = (event) => {
+      if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) return;
+
+      const inputBuffer = event.inputBuffer.getChannelData(0);
+      const pcmData = downsampleBuffer(
+        inputBuffer,
+        audioContextRef.current!.sampleRate,
+        16000
+      );
+      if (pcmData) {
+        wsRef.current.send(pcmData);
+      }
+    };
+  } catch (err: unknown) {
+    console.error("Microphone access error", err);
+    setError("Microphone access denied or not supported");
+    setListening(false);
+    setLoading(false);
+  }
+};
+
+  const stopListening = () => {
+    setListening(false);
+    setLoading(false);
+    if (!fullTranscript.trim()) {
+      setError("No speech detected. Please try again.");
+    }
+
+    processorRef.current?.disconnect();
+    sourceRef.current?.disconnect();
+    audioContextRef.current?.close();
+
+    wsRef.current?.close();
+
+    processorRef.current = null;
+    sourceRef.current = null;
+    audioContextRef.current = null;
+    wsRef.current = null;
+  };
+
+  // Downsample Float32Array audio buffer to target sampleRate and convert to Int16 ArrayBuffer
+  const downsampleBuffer = (
+    buffer: Float32Array,
+    sampleRate: number,
+    outSampleRate: number
+  ): ArrayBuffer | null => {
+    if (outSampleRate === sampleRate) {
+      return convertFloat32ToInt16(buffer);
+    }
+    if (outSampleRate > sampleRate) {
+      console.warn(
+        "Downsampling rate should be smaller than original sample rate"
+      );
+      return null;
+    }
+    const sampleRateRatio = sampleRate / outSampleRate;
+    const newLength = Math.round(buffer.length / sampleRateRatio);
+    const result = new Int16Array(newLength);
+    let offsetResult = 0;
+    let offsetBuffer = 0;
+    while (offsetResult < newLength) {
+      const nextOffsetBuffer = Math.round((offsetResult + 1) * sampleRateRatio);
+      let accum = 0,
+        count = 0;
+      for (
+        let i = offsetBuffer;
+        i < nextOffsetBuffer && i < buffer.length;
+        i++
+      ) {
+        accum += buffer[i];
+        count++;
+      }
+      const avg = accum / count;
+      // Clamp and scale float [-1,1] to Int16
+      const s = Math.max(-1, Math.min(1, avg));
+      result[offsetResult] = s < 0 ? s * 0x8000 : s * 0x7fff;
+      offsetResult++;
+      offsetBuffer = nextOffsetBuffer;
+    }
+    return result.buffer;
+  };
+
+  // Convert Float32Array [-1..1] to Int16 ArrayBuffer
+  const convertFloat32ToInt16 = (buffer: Float32Array): ArrayBuffer => {
+    const l = buffer.length;
+    const buf = new ArrayBuffer(l * 2);
+    const view = new DataView(buf);
+    for (let i = 0; i < l; i++) {
+      const s = Math.max(-1, Math.min(1, buffer[i]));
+      view.setInt16(i * 2, s < 0 ? s * 0x8000 : s * 0x7fff, true);
+    }
+    return buf;
   };
 
   const handleClear = useCallback(() => {
@@ -109,7 +205,7 @@ const VoiceInput: React.FC = () => {
 
       try {
         const response = await fetch(
-          `http://localhost:5000/search?q=${encodeURIComponent(query)}`
+          `${SEARCH_API_URL}?q=${encodeURIComponent(query)}`
         );
         if (!response.ok) {
           const errData = await response.json();
@@ -137,7 +233,7 @@ const VoiceInput: React.FC = () => {
     return () => clearTimeout(delayDebounce);
   }, [fullTranscript]);
 
-  if (!navigator.mediaDevices || !window.MediaRecorder) {
+  if (!navigator.mediaDevices || !window.AudioContext) {
     return <UnsupportedBrowserFallback />;
   }
 
