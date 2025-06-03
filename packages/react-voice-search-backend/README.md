@@ -16,7 +16,7 @@ This is the backend server for the `react-voice-search-widget`, responsible for 
 ## 📁 Folder Structure
 
 ```
-server/
+react-voice-search-backend/
 ├── db.js                 # MongoDB connection and search logic
 ├── highlightUtils.js    # Utility to extract words and highlight them
 ├── index.js             # Main server file (Express, Vosk integration)
@@ -43,7 +43,7 @@ server/
 
 ```bash
 git clone https://github.com/aarathi01/speech-to-text.git
-cd speech-to-text/server
+cd speech-to-text/packages/react-voice-search-backend/
 ```
 
 ### 2. Install dependencies
@@ -70,7 +70,7 @@ models/
 
 ### 4. Configure environment
 
-Create a `.env` file in the `server` directory or use the existing `dev.env`:
+Create a `.env` file in the `react-voice-search-backend` directory or use the existing `dev.env`:
 Only an IP address you add to your Access List will be able to connect to your project's clusters. You can manage existing IP entries via the Network Access Page in https://cloud.mongodb.com/.
 
 ```bash
