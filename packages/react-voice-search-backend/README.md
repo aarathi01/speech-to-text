@@ -1,4 +1,4 @@
-# 🧠 Voice Search Backend (Node.js + Express + Vosk + MongoDB)
+# 🧠 Voice Search Backend (Node.js + Express + Vosk + MongoDB Atlas)
 
 This is the backend server for the `react-voice-search-widget`, responsible for handling audio transcription and fuzzy database search. It uses the open-source Vosk speech recognition toolkit for offline transcription and MongoDB for storage.
 
@@ -6,8 +6,8 @@ This is the backend server for the `react-voice-search-widget`, responsible for 
 
 ## 🚀 Features
 
-- 🎤 Accepts audio input and converts it to text using Vosk.
-- 🔍 Performs fuzzy search on a MongoDB collection using keywords extracted from the input.
+- 🎤 Real-time transcription using WebSocket and Vosk.
+- 🔍  Performs full-text search on a MongoDB Atlas collection using extracted keywords.
 - 💡 Returns highlighted matches to the frontend.
 - 🧱 Modular, plug-and-play backend suitable for integration with multiple applications.
 
@@ -17,11 +17,18 @@ This is the backend server for the `react-voice-search-widget`, responsible for 
 
 ```
 react-voice-search-backend/
-├── db.js                 # MongoDB connection and search logic
-├── highlightUtils.js    # Utility to extract words and highlight them
-├── index.js             # Main server file (Express, Vosk integration)
-├── models/              # Directory to place the downloaded Vosk model
-└── uploads/             # Temp directory for audio uploads
+├── controllers/
+│   └── searchController.js     # Handles search route logic
+├── routes/
+│   └── searchRoutes.js         # Search endpoint routing
+├── services/
+│   └── transcriptionService.js # WebSocket speech-to-text service
+├── utils/
+│   ├── db.js                   # MongoDB connection and Atlas search logic
+│   └── highlightUtils.js      # Word extraction and highlighting utils
+├── models/                    # Vosk model directory (download required)
+├── dev.env                    # Example development env file
+└── index.js                   # Server entry point
 ```
 
 ---
@@ -30,9 +37,8 @@ react-voice-search-backend/
 
 - **Node.js + Express** – Backend framework
 - **Vosk** – Offline speech recognition engine
-- **MongoDB** – Data store
-- **ffmpeg/fluent-ffmpeg** – Audio processing
-- **Multer** – File uploads
+- **MongoDB Atlas** – Cloud database with full-text search
+- **WebSocket (ws)** – Real-time speech recognition
 - **CORS & Dotenv** – Cross-origin and environment config
 
 ---
@@ -54,31 +60,38 @@ npm install
 
 ### 3. Download Vosk Model
 
-Download a Vosk model (e.g. `vosk-model-small-en-in-0.4`) from:
+Download a model from: https://alphacephei.com/vosk/models
 
-🔗 https://alphacephei.com/vosk/models
-
-Then, unzip and place it inside the `models/vosk` directory:
+Unzip into:
 
 ```
 models/
 └── vosk/
     ├── am
     ├── conf
-    └── ...etc
+    └── ...
 ```
 
 ### 4. Configure environment
 
 Create a `.env` file in the `react-voice-search-backend` directory or use the existing `dev.env`:
+
+```
+MONGODB_URI=your-mongodb-atlas-uri
+PORT=5000
+SAMPLE_RATE=16000
+BASE_URL=localhost
+```
+> You can also use separate env files per environment like `dev.env`, `prod.env`, etc.
+
+⚠️ Make sure your IP is whitelisted in MongoDB Atlas under Network Access.
 Only an IP address you add to your Access List will be able to connect to your project's clusters. You can manage existing IP entries via the Network Access Page in https://cloud.mongodb.com/.
+
 
 ```bash
 MONGODB_URI=mongodb://[specified user name: specified password@]host 1[:specified port number 1][,….. host N][:specified port number N] 
 PORT=5000
 ```
-
-> You can also use separate env files per environment like `dev.env`, `prod.env`, etc.
 
 ### 5. Start the server
 
@@ -86,32 +99,21 @@ PORT=5000
 node index.js
 ```
 
-The server should be running at:
+## 🔌 WebSocket Endpoint
+### ws://localhost:5000/ws/transcribe
 
-```
-http://localhost:5000
+- Accepts audio stream and returns live transcribed text (partial + final).
+
+**Message Format:**
+
+```json
+{ "partial": "text" }
+{ "final": "complete sentence" }
 ```
 
 ---
 
 ## 🛠 API Endpoints
-
-### POST `/api/transcribe`
-
-Accepts an audio file and returns the transcribed text.
-
-**Request:**
-
-- `multipart/form-data`
-- field: `audio` (file: .wav)
-
-**Response:**
-
-```json
-{ "text": "your transcribed text here" }
-```
-
----
 
 ### GET `/search?q=...`
 
@@ -135,14 +137,27 @@ Performs a fuzzy search in the database using the provided query.
   ]
 }
 ```
+---
+
+## ✅ Audio Privacy
+
+- Audio is streamed temporarily and not stored.
+- No persistent storage of user voice data beyond real-time processing.
+
 
 ---
 
 ## 🧪 Testing
 
 1. Use the `react-voice-search-widget` frontend to type or record input.
-2. Confirm results appear automatically or with highlights.
-3. Check the server console/logs for transcription and query debug info.
+2. Watch results update in real-time..
+3. Confirm correct highlighting and matches in output.
+
+---
+## ❗️Known Limitations
+
+- MongoDB Atlas Search may require additional tuning to match prefixes (e.g., "sam" → "Samsung").
+- Ensure Atlas indexes are properly configured (`autocomplete`, `text`, etc.).
 
 ---
 
