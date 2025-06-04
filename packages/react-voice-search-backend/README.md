@@ -144,7 +144,6 @@ Performs a fuzzy search in the database using the provided query.
 - Audio is streamed temporarily and not stored.
 - No persistent storage of user voice data beyond real-time processing.
 
-
 ---
 
 ## 🧪 Testing
@@ -152,6 +151,14 @@ Performs a fuzzy search in the database using the provided query.
 1. Use the `react-voice-search-widget` frontend to type or record input.
 2. Watch results update in real-time..
 3. Confirm correct highlighting and matches in output.
+
+📦 Unit Tests
+
+- Run all tests:
+
+  ```bash
+  npm test
+  ```
 
 ---
 ## ❗️Known Limitations

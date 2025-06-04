@@ -23,7 +23,7 @@ export default defineConfig([
   {
     files: ["packages/react-voice-search-backend/**/*.{js,mjs,cjs}"],
     plugins: { js },
-    extends: ["js/recommended"],
+    extends: ["eslint:recommended", "js/recommended"],
     languageOptions: {
       globals: {
         ...globals.node,
