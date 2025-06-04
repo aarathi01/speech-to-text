@@ -12,6 +12,6 @@
     "resolveJsonModule": true,
     "types": ["vite/client", "node"]
   },
-  "include": ["src"],
+  "include": ["src", "setupTests.ts"],
   "exclude": ["node_modules", "dist", "example", "**/*.test.tsx"]
 }
