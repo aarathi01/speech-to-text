@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import sampleData from "../sampleData.js";
+import { highlightField } from "./highlightUtils.js";
 
 const itemSchema = new mongoose.Schema({
   id: Number,
@@ -31,13 +32,58 @@ export async function connectToDB(uri) {
   }
 }
 
-export async function searchInDB(words) {
-  if (!Array.isArray(words)) throw new Error("Expected words to be an array");
+export async function searchInDB(filteredQuery, queryWords) {
+  const results = await Item.aggregate([
+    {
+      $search: {
+        index: "indexName", // your index name here
+        compound: {
+          should: [
+            {
+              autocomplete: {
+                query: filteredQuery,
+                path: "name",
+                fuzzy: {
+                  maxEdits: 1,
+                  prefixLength: 1
+                }
+              }
+            },
+            {
+              autocomplete: {
+                query: filteredQuery,
+                path: "category",
+                fuzzy: {
+                  maxEdits: 1,
+                  prefixLength: 1
+                }
+              }
+            }
+          ]
+        },
+        highlight: {
+          path: ["name", "category"]
+        }
+      }
+    },
+    { $limit: 20 },
+    {
+      $project: {
+        id: 1,
+        name: 1,
+        category: 1,
+        highlights: { $meta: "searchHighlights" },
+        score: { $meta: "searchScore" }
+      }
+    }
+  ]);
 
-  const regexes = words.map((word) => new RegExp(word, "i"));
-  return await Item.find({
-    $or: [{ name: { $in: regexes } }, { category: { $in: regexes } }],
-  }).limit(20);
+  return results.map(doc => ({
+    id: doc.id,
+    name: highlightField(doc.name, doc.highlights, "name"),
+    category: highlightField(doc.category, doc.highlights, "category"),
+    matchedWords: queryWords
+  }));
 }
 
 export default connectToDB;

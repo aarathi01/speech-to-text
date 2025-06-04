@@ -7,14 +7,14 @@ export function extractWords(text) {
     .filter((word) => word.length >= 3);
 }
 
-export function highlightText(text, words) {
-  if (!Array.isArray(words)) return text;
+export function highlightField(text, highlights, path) {
+  const fieldHighlight = highlights?.find(h => h.path === path);
+  if (!fieldHighlight || !fieldHighlight.texts) return text;
 
-  let highlighted = text;
-  words.forEach((word) => {
-    const regex = new RegExp(`(${word})`, "gi");
-    highlighted = highlighted.replace(regex, "$1");
-  });
-
-  return highlighted;
+  return fieldHighlight.texts.map(t => {
+    if (t.type === "hit") {
+      return `${t.value}`;
+    }
+    return t.value;
+  }).join("");
 }

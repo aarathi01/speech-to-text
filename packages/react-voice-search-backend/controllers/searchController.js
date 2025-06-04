@@ -1,4 +1,4 @@
-import { extractWords, highlightText } from "../utils/highlightUtils.js";
+import { extractWords, highlightField } from "../utils/highlightUtils.js";
 import { searchInDB } from "../utils/db.js";
 
 export const searchHandler = async (req, res, next) => {
@@ -12,8 +12,8 @@ export const searchHandler = async (req, res, next) => {
     const results = await searchInDB(queryWords);
     const highlighted = results.map((doc) => ({
       id: doc.id,
-      name: highlightText(doc.name, queryWords),
-      category: highlightText(doc.category, queryWords),
+      name: highlightField(doc.name, queryWords),
+      category: highlightField(doc.category, queryWords),
       matchedWords: queryWords,
     }));
 
