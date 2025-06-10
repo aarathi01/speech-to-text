@@ -23,9 +23,9 @@ export const login = async (req, res) => {
 export const register = async (req, res) => {
   const { username, password } = req.body;
   try {
-    if(!username){
-       return res.status(500).json({ error: "Username cant be empty!" });
-    } else if(!password){
+    if (!username) {
+      return res.status(500).json({ error: "Username cant be empty!" });
+    } else if (!password) {
       return res.status(500).json({ error: "Password cant be empty!" });
     }
     const existingUser = await User.findOne({ username });
@@ -33,7 +33,7 @@ export const register = async (req, res) => {
       return res.status(409).json({ error: "Username already exist!" });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10); 
+    const hashedPassword = await bcrypt.hash(password, 10);
     const user = await User.create({ username, password: hashedPassword });
 
     const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: "1h" });
