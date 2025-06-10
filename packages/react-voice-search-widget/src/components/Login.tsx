@@ -58,9 +58,9 @@ const Login: React.FC = () => {
       </div>
 
       {isRegistering ? (
-        <button onClick={handleRegister}>Register</button>
+        <button onClick={handleRegister}>Sign-Up</button>
       ) : (
-        <button onClick={handleLogin}>Login</button>
+        <button onClick={handleLogin}>Sign-In</button>
       )}
       <p className="toggle" onClick={() => setIsRegistering(!isRegistering)}>
         {isRegistering
