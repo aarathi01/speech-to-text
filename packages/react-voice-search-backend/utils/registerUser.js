@@ -3,7 +3,7 @@ import User from "../models/User.js";
 import bcrypt from "bcryptjs";
 import { MONGODB_URI } from "../utils/config.js";
 
-const run = async () => {
+const registerUser = async () => {
   await mongoose.connect(MONGODB_URI);
   const existing = await User.findOne({ username: "admin" });
   if (existing) {
@@ -18,4 +18,4 @@ const run = async () => {
   process.exit(0);
 };
 
-run();
+registerUser();

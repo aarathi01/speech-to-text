@@ -1,4 +1,3 @@
-// __tests__/searchController.test.js
 import { jest } from '@jest/globals';
 import { searchHandler } from '../controllers/searchController.js';
 
