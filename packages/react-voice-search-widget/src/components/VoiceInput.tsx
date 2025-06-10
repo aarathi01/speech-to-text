@@ -4,9 +4,7 @@ import SearchResults from "./SearchResults";
 import type { Result } from "../types/types";
 import UnsupportedBrowserFallback from "./UnsupportedBrowserFallback";
 
-const WS_URL = import.meta.env.VITE_WS_URL || "ws://localhost:5000/ws";
-const SEARCH_API_URL =
-  import.meta.env.REACT_APP_SEARCH_API_URL || "http://localhost:5000/search";
+const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 const VoiceInput: React.FC = () => {
   const [fullTranscript, setFullTranscript] = useState("");
@@ -19,6 +17,8 @@ const VoiceInput: React.FC = () => {
   const processorRef = useRef<ScriptProcessorNode | null>(null);
   const sourceRef = useRef<MediaStreamAudioSourceNode | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
+
+  const token = localStorage.getItem("token");
 
   const handleMicClick = () => {
     if (listening) {
@@ -39,11 +39,14 @@ const VoiceInput: React.FC = () => {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
 
       if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
-        wsRef.current = new WebSocket(WS_URL);
+        const wsUrlWithToken = `${BASE_URL}/ws/transcribe?token=${encodeURIComponent(
+          token || ""
+        )}`;
+        wsRef.current = new WebSocket(wsUrlWithToken);
         wsRef.current.binaryType = "arraybuffer";
       }
 
-      audioContextRef.current = new AudioContext(); // Let browser decide sample rate
+      audioContextRef.current = new AudioContext();
       const actualSampleRate = audioContextRef.current.sampleRate;
 
       sourceRef.current =
@@ -98,12 +101,7 @@ const VoiceInput: React.FC = () => {
       };
     } catch (err: unknown) {
       console.error("Microphone access error", err);
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError("An error occurred");
-      }
-
+      setError(err instanceof Error ? err.message : "An error occurred");
       setListening(false);
       setLoading(false);
     }
@@ -115,9 +113,10 @@ const VoiceInput: React.FC = () => {
     processorRef.current?.disconnect();
     sourceRef.current?.disconnect();
     audioContextRef.current?.close();
-    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
-      wsRef.current?.close();
-      if (!fullTranscript.trim() && fullTranscript !== null) {
+
+    if (wsRef.current?.readyState === WebSocket.OPEN) {
+      wsRef.current.close();
+      if (!fullTranscript.trim()) {
         setError("No speech detected during session");
       }
     }
@@ -134,9 +133,7 @@ const VoiceInput: React.FC = () => {
     sampleRate: number,
     outSampleRate: number
   ): ArrayBuffer | null => {
-    if (outSampleRate === sampleRate) {
-      return convertFloat32ToInt16(buffer);
-    }
+    if (outSampleRate === sampleRate) return convertFloat32ToInt16(buffer);
     if (outSampleRate > sampleRate) {
       console.warn(
         "Downsampling rate should be smaller than original sample rate"
@@ -171,10 +168,9 @@ const VoiceInput: React.FC = () => {
 
   // Convert Float32Array [-1..1] to Int16 ArrayBuffer
   const convertFloat32ToInt16 = (buffer: Float32Array): ArrayBuffer => {
-    const l = buffer.length;
-    const buf = new ArrayBuffer(l * 2);
+    const buf = new ArrayBuffer(buffer.length * 2);
     const view = new DataView(buf);
-    for (let i = 0; i < l; i++) {
+    for (let i = 0; i < buffer.length; i++) {
       const s = Math.max(-1, Math.min(1, buffer[i]));
       view.setInt16(i * 2, s < 0 ? s * 0x8000 : s * 0x7fff, true);
     }
@@ -208,7 +204,13 @@ const VoiceInput: React.FC = () => {
 
       try {
         const response = await fetch(
-          `${SEARCH_API_URL}?q=${encodeURIComponent(query)}`
+          `${BASE_URL}/search?q=${encodeURIComponent(query)}`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
         );
         const data = await response.json();
         if (!response.ok) {
@@ -217,14 +219,11 @@ const VoiceInput: React.FC = () => {
         if (data.results.length === 0) {
           setSearchResults([]);
           setError("No results found");
-        }
-        setSearchResults(data.results);
-      } catch (err: unknown) {
-        if (err instanceof Error) {
-          setError(err.message);
         } else {
-          setError("An error occurred");
+          setSearchResults(data.results);
         }
+      } catch (err: unknown) {
+        setError(err instanceof Error ? err.message : "An error occurred");
       } finally {
         setLoading(false);
       }
@@ -232,7 +231,7 @@ const VoiceInput: React.FC = () => {
 
     const delayDebounce = setTimeout(fetchSearchResults, 500);
     return () => clearTimeout(delayDebounce);
-  }, [fullTranscript]);
+  }, [fullTranscript, token]);
 
   if (!navigator.mediaDevices || !window.AudioContext) {
     return <UnsupportedBrowserFallback />;
