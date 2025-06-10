@@ -1,12 +1,9 @@
 import { createRequire } from "module";
 const require = createRequire(import.meta.url);
 const vosk = require("vosk");
+import { SAMPLE_RATE } from "../utils/config.js";
 
-const SAMPLE_RATE = process.env.SAMPLE_RATE
-  ? Number(process.env.SAMPLE_RATE)
-  : 16000;
-
-export const initializeWebSocket = (wss,model )=> {
+export const initializeWebSocket = (wss, model) => {
   wss.on("connection", (ws) => {
     const recognizer = new vosk.Recognizer({ model, sampleRate: SAMPLE_RATE });
     let transcript = "";
