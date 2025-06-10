@@ -17,8 +17,9 @@ const Login: React.FC = () => {
       });
       localStorage.setItem("token", res.data.token);
       navigate("/");
-    } catch (err: unknown) {
-      const errorMsg = err instanceof Error ? err.message : "Login failed";
+    } catch (err) {
+       const errorMsg = err?.response?.data?.error
+      || (err instanceof Error ? err.message: "Login failed");
       alert(`Login Failed: ${errorMsg}`);
     }
   };
@@ -31,9 +32,9 @@ const Login: React.FC = () => {
       });
       localStorage.setItem("token", res.data.token);
       alert("Registration Successfull.");
-    } catch (err: unknown) {
-      const errorMsg =
-        err instanceof Error ? err.message : "Registration failed";
+    } catch (err) {
+        const errorMsg = err?.response?.data?.error
+      || (err instanceof Error ? err.message : "Registration failed");
       alert(`Registration Failed: ${errorMsg}`);
     }
   };
@@ -41,18 +42,21 @@ const Login: React.FC = () => {
   return (
     <div className="login-container">
       <h2>{isRegistering ? "Register" : "Login"}</h2>
-      <input
-        type="text"
-        placeholder="Username"
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
-      />
-      <input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
+      <div className="user-text-area">
+        <input
+          type="text"
+          placeholder="Username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+        />
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+      </div>
+
       {isRegistering ? (
         <button onClick={handleRegister}>Register</button>
       ) : (

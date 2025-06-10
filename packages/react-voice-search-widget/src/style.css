@@ -176,7 +176,9 @@
   margin-bottom: 10px;
   text-align: center;
 }
-
+.user-text-area { 
+  width: 90%;
+}
 
 /* Responsive behavior */
 @media (max-width: 768px) {
