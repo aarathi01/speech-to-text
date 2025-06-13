@@ -49,14 +49,23 @@ const RegisterPage: React.FC = () => {
         password: formData.password,
       };
 
-      await axios.post(`${BASE_URL}/auth/register`, payload);
-      alert("Registered successfully! Please login using your email.");
-      navigate("/login");
+      const response = await axios.post(`${BASE_URL}/auth/register`, payload);
+      const { token } = response.data;
+      if (token) {
+        localStorage.setItem("token", token);
+        alert("Registration successful! You are now logged in.");
+        navigate("/");
+      } else {
+        alert("Registered successfully! Please login manually.");
+        navigate("/login");
+      }
     } catch (err) {
       const errorMsg =
         err?.response?.data?.error ||
-        (err instanceof Error ? err.message : "Registration failed");
-      alert(`Registration Failed: ${errorMsg}`);
+        (err instanceof Error
+          ? err.message
+          : "Registration failed. Please try again.");
+      alert(`Registration Failed: ${errorMsg}. Please try again.`);
     }
   };
 
