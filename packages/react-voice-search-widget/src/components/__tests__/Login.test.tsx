@@ -24,7 +24,7 @@ describe("Login Component", () => {
 
   it("renders login form", () => {
     renderWithRouter();
-    expect(screen.getByPlaceholderText("Username")).toBeInTheDocument();
+    expect(screen.getByPlaceholderText("email")).toBeInTheDocument();
     expect(screen.getByPlaceholderText("Password")).toBeInTheDocument();
     expect(screen.getByText("Sign-In")).toBeInTheDocument();
   });
@@ -42,7 +42,7 @@ describe("Login Component", () => {
     const alertSpy = vi.spyOn(window, "alert").mockImplementation(() => {});
     mockedAxios.post.mockRejectedValueOnce({
       response: {
-        data: { error: "Username already exists" },
+        data: { error: "email already exists" },
       },
     });
 
@@ -50,16 +50,16 @@ describe("Login Component", () => {
 
     fireEvent.click(screen.getByText("Don't have an account? Register"));
 
-    await userEvent.clear(screen.getByPlaceholderText("Username"));
+    await userEvent.clear(screen.getByPlaceholderText("email"));
     await userEvent.clear(screen.getByPlaceholderText("Password"));
-    await userEvent.type(screen.getByPlaceholderText("Username"), "newuser");
+    await userEvent.type(screen.getByPlaceholderText("email"), "newuser");
     await userEvent.type(screen.getByPlaceholderText("Password"), "newpass");
 
     fireEvent.click(screen.getByText("Sign-Up"));
 
     await waitFor(() => {
       expect(alertSpy).toHaveBeenCalledWith(
-        "Registration Failed: Username already exists"
+        "Registration Failed: email already exists"
       );
     });
   });
@@ -72,7 +72,7 @@ describe("Login Component", () => {
 
     renderWithRouter();
 
-    await user.type(screen.getByPlaceholderText("Username"), "newuser");
+    await user.type(screen.getByPlaceholderText("email"), "newuser");
     await user.type(screen.getByPlaceholderText("Password"), "newpass");
     await user.click(screen.getByRole("button", { name: /Sign-In/i }));
 
@@ -80,7 +80,7 @@ describe("Login Component", () => {
     await waitFor(() => {
       expect(mockedAxios.post).toHaveBeenCalledWith(
         "http://localhost:5000/auth/login",
-        { username: "newuser", password: "newpass" }
+        { email: "newuser", password: "newpass" }
       );
 
       expect(localStorage.getItem("token")).toBe(token);
@@ -94,7 +94,7 @@ describe("Login Component", () => {
     vi.spyOn(window, "alert").mockImplementation(() => {});
 
     renderWithRouter();
-    await userEvent.type(screen.getByPlaceholderText("Username"), "wronguser");
+    await userEvent.type(screen.getByPlaceholderText("email"), "wronguser");
     await userEvent.type(screen.getByPlaceholderText("Password"), "wrongpass");
     fireEvent.click(screen.getByText("Sign-In"));
 

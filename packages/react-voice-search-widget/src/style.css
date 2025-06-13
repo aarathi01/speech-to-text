@@ -111,73 +111,9 @@
   color: #c0392b;
 }
 
-.login-container {
-  max-width: 400px;
-  margin: 100px auto;
-  padding: 30px;
-  background-color: #ffffff;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  border-radius: 12px;
-  font-family: 'Segoe UI', sans-serif;
-}
-
-.login-container h2 {
-  margin-bottom: 20px;
-  text-align: center;
-  color: #333;
-}
-
-.login-container input {
-  width: 100%;
-  padding: 12px 14px;
-  margin-bottom: 15px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  font-size: 14px;
-  transition: border 0.3s ease;
-}
-
-.login-container input:focus {
-  border-color: #3d3f41;
-  outline: none;
-}
-
-.login-container button {
-  width: 100%;
-  padding: 12px;
-  background-color: #010101;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 16px;
-  cursor: pointer;
-  transition: background 0.3s ease;
-}
-
-.login-container button:hover {
-  background-color: #363b42;
-}
-
-.login-container .toggle {
-  margin-top: 10px;
-  text-align: center;
-  color: #161819;
-  cursor: pointer;
-  font-size: 14px;
-}
-
-.login-container .toggle:hover {
-  text-decoration: underline;
-}
-
-.login-container .error {
-  color: #e53935;
-  font-size: 14px;
-  margin-bottom: 10px;
-  text-align: center;
-}
-.user-text-area { 
-  width: 93%;
+.error {
+  color: red;
+  font-size: 0.5rem;
 }
 
 /* Responsive behavior */
