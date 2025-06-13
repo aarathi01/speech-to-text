@@ -4,13 +4,14 @@ import jwt from "jsonwebtoken";
 import { JWT_SECRET } from "../utils/config.js";
 
 export const login = async (req, res) => {
-  const { username, password } = req.body;
+  const email = req.body.email?.trim().toLowerCase();
+  const { password } = req.body;
   try {
     let isMatch;
-    const user = await User.findOne({ username });
+    const user = await User.findOne({ email });
     if (user) isMatch = await bcrypt.compare(password, user.password);
     if (!user || !isMatch) {
-      return res.status(401).json({ error: "Invalid username or password" });
+      return res.status(401).json({ error: "Invalid email or password" });
     }
     const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: "1h" });
     res.json({ token });
@@ -21,20 +22,22 @@ export const login = async (req, res) => {
 };
 
 export const register = async (req, res) => {
-  const { username, password } = req.body;
+  const { username, email, password, phone, country } = req.body;
+
   try {
-    if (!username) {
-      return res.status(500).json({ error: "Username cant be empty!" });
-    } else if (!password) {
-      return res.status(500).json({ error: "Password cant be empty!" });
-    }
-    const existingUser = await User.findOne({ username });
+    const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(409).json({ error: "Username already exist!" });
+      return res.status(409).json({ error: "Email already exist!" });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const user = await User.create({ username, password: hashedPassword });
+    const user = await User.create({
+      username,
+      password: hashedPassword,
+      email,
+      phone,
+      country,
+    });
 
     const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: "1h" });
     res.status(201).json({ token });

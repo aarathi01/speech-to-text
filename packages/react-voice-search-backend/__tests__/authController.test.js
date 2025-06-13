@@ -1,4 +1,4 @@
-import { jest } from '@jest/globals';
+import { jest } from "@jest/globals";
 import request from "supertest";
 import express from "express";
 import bodyParser from "body-parser";
@@ -33,17 +33,22 @@ describe("Auth Controller", () => {
       jwt.sign.mockReturnValue(mockToken);
 
       const res = await request(app).post("/auth/register").send({
-        username: "testuser",
+        email: "testuser.gmail.com",
         password: "testpass",
+        username: "testuser",
+        phone: "1234567890",
+        country: "India",
       });
 
       expect(res.status).toBe(201);
       expect(res.body.token).toBe(mockToken);
-      expect(User.findOne).toHaveBeenCalledWith({ username: "testuser" });
+      expect(User.findOne).toHaveBeenCalledWith({
+        email: "testuser@gmail.com",
+      });
       expect(User.create).toHaveBeenCalled();
     });
 
-    it("fails if username is missing", async () => {
+    it("fails if email is missing", async () => {
       const res = await request(app).post("/auth/register").send({
         password: "testpass",
       });
@@ -52,11 +57,11 @@ describe("Auth Controller", () => {
       expect(res.body.error).toBe("Username cant be empty!");
     });
 
-    it("fails if username already exists", async () => {
-      User.findOne.mockResolvedValue({ username: "testuser" });
+    it("fails if email already exists", async () => {
+      User.findOne.mockResolvedValue({ email: "testuser@gmail.com" });
 
       const res = await request(app).post("/auth/register").send({
-        username: "testuser",
+        email: "testuser@gmail.com",
         password: "testpass",
       });
 
@@ -72,7 +77,7 @@ describe("Auth Controller", () => {
       jwt.sign.mockReturnValue(mockToken);
 
       const res = await request(app).post("/auth/login").send({
-        username: "testuser",
+        email: "testuser@gmail.com",
         password: "testpass",
       });
 
@@ -85,19 +90,19 @@ describe("Auth Controller", () => {
       bcrypt.compare.mockResolvedValue(false);
 
       const res = await request(app).post("/auth/login").send({
-        username: "testuser",
+        email: "testuser@gmail.com",
         password: "wrongpass",
       });
 
       expect(res.status).toBe(401);
-      expect(res.body.error).toBe("Invalid username or password");
+      expect(res.body.error).toBe("Invalid email or password");
     });
 
     it("fails if user does not exist", async () => {
       User.findOne.mockResolvedValue(null);
 
       const res = await request(app).post("/auth/login").send({
-        username: "nouser",
+        email: "nouser@gmail.com",
         password: "testpass",
       });
 
