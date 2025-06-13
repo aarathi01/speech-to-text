@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import sampleData from "../sampleData.js";
-import { highlightField } from "./highlightUtils.js";
+
+let dbConnection = null;
 
 const itemSchema = new mongoose.Schema({
   id: Number,
@@ -12,20 +13,34 @@ export const Item = mongoose.model("Item", itemSchema);
 
 export async function connectToDB(uri) {
   try {
-    await mongoose.connect(uri, {
+    if (!uri) throw new Error("MongoDB URI not provided");
+    const conn = await mongoose.connect(uri, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
+
+    dbConnection = conn.connection;
     console.log("Connected to MongoDB.");
 
-    // Seed only if DB is empty
+    // Insert sample data only if empty
     const count = await Item.countDocuments();
     if (count === 0) {
       await Item.insertMany(sampleData);
-      console.log("Sample data inserted into MongoDB.");
+      console.log("Sample data inserted.");
     } else {
-      console.log("Sample data already exists, skipping insert!");
+      console.log("Sample data already exists. Skipping insert.");
     }
+
+    // Graceful shutdown
+    process.on("SIGINT", async () => {
+      await closeDBConnection();
+      process.exit(0);
+    });
+
+    process.on("SIGTERM", async () => {
+      await closeDBConnection();
+      process.exit(0);
+    });
   } catch (err) {
     console.error("MongoDB connection failed:", err);
     process.exit(1);
@@ -45,9 +60,9 @@ export async function searchInDB(filteredQuery, queryWords) {
                 path: "name",
                 fuzzy: {
                   maxEdits: 1,
-                  prefixLength: 1
-                }
-              }
+                  prefixLength: 1,
+                },
+              },
             },
             {
               autocomplete: {
@@ -55,16 +70,16 @@ export async function searchInDB(filteredQuery, queryWords) {
                 path: "category",
                 fuzzy: {
                   maxEdits: 1,
-                  prefixLength: 1
-                }
-              }
-            }
-          ]
+                  prefixLength: 1,
+                },
+              },
+            },
+          ],
         },
         highlight: {
-          path: ["name", "category"]
-        }
-      }
+          path: ["name", "category"],
+        },
+      },
     },
     { $limit: 20 },
     {
@@ -73,17 +88,28 @@ export async function searchInDB(filteredQuery, queryWords) {
         name: 1,
         category: 1,
         highlights: { $meta: "searchHighlights" },
-        score: { $meta: "searchScore" }
-      }
-    }
+        score: { $meta: "searchScore" },
+      },
+    },
   ]);
 
-  return results.map(doc => ({
+  return results.map((doc) => ({
     id: doc.id,
-    name: highlightField(doc.name, doc.highlights, "name"),
-    category: highlightField(doc.category, doc.highlights, "category"),
-    matchedWords: queryWords
+    name: doc.name,
+    category: doc.category,
+    matchedWords: queryWords,
   }));
+}
+
+export async function closeDBConnection() {
+  try {
+    if (dbConnection) {
+      await dbConnection.close();
+      console.log("MongoDB connection closed.");
+    }
+  } catch (err) {
+    console.error("Error while closing DB connection:", err);
+  }
 }
 
 export default connectToDB;

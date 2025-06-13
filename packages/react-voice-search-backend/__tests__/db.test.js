@@ -50,7 +50,7 @@ describe('searchInDB', () => {
     expect(result).toEqual([
       {
         id: 2,
-        name: "Samsung A51", // highlighted text returned by highlightField (no special markup in your util)
+        name: "Samsung A51",
         category: "Mobile",
         matchedWords: queryWords
       }
