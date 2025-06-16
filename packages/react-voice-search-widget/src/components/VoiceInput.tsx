@@ -3,8 +3,8 @@ import microphoneIcon from "../assets/microphone-icon.webp";
 import SearchResults from "./SearchResults";
 import type { Result } from "../types/types";
 import UnsupportedBrowserFallback from "./UnsupportedBrowserFallback";
-
-const BASE_URL = import.meta.env.VITE_BASE_URL;
+import { searchText } from "../services/searchService";
+import { BASE_URL } from "../config/apiConfig";
 
 const VoiceInput: React.FC = () => {
   const [fullTranscript, setFullTranscript] = useState("");
@@ -39,9 +39,10 @@ const VoiceInput: React.FC = () => {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
 
       if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
-        const wsUrlWithToken = `${BASE_URL}/ws/transcribe?token=${encodeURIComponent(
-          token || ""
-        )}`;
+        const wsUrlWithToken = `${BASE_URL.replace("/api", "").replace(
+          /^http/,
+          "ws"
+        )}/api/ws/transcribe?token=${encodeURIComponent(token || "")}`;
         wsRef.current = new WebSocket(wsUrlWithToken);
         wsRef.current.binaryType = "arraybuffer";
       }
@@ -203,20 +204,10 @@ const VoiceInput: React.FC = () => {
       setError(null);
 
       try {
-        const response = await fetch(
-          `${BASE_URL}/search?q=${encodeURIComponent(query)}`,
-          {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        const data = await response.json();
-        if (!response.ok) {
-          throw new Error(data.error || "Failed to fetch");
-        }
-        if (data.results.length === 0) {
+        const response = await searchText(query);
+        const data = response.data;
+
+        if (!data?.results?.length) {
           setSearchResults([]);
           setError("No results found");
         } else {
