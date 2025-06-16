@@ -1,11 +1,15 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import microphoneIcon from "../assets/microphone-icon.webp";
 import SearchResults from "./SearchResults";
 import UnsupportedBrowserFallback from "./UnsupportedBrowserFallback";
 import { useVoiceRecorder } from "../hooks/useVoiceRecorder";
 import { useSearch } from "../hooks/useSearch";
+import { logout } from "../services/authService";
+import { showSuccess } from "../utils/errorHandler";
 
 const VoiceInput: React.FC = () => {
+  const navigate = useNavigate();
   const {
     fullTranscript,
     listening,
@@ -20,6 +24,11 @@ const VoiceInput: React.FC = () => {
     return <UnsupportedBrowserFallback />;
   }
 
+  const handleLogout = () => {
+    logout();
+    showSuccess("Logged out successfully");
+    navigate("/login");
+  };
   return (
     <div className="split-layout">
       <div className="voice-panel">
@@ -47,6 +56,9 @@ const VoiceInput: React.FC = () => {
         <button className="clear-button" onClick={handleClear}>
           Clear
         </button>
+         <button onClick={handleLogout} className="logout-button">
+        Logout
+      </button>
       </div>
       <div className="results-panel">
         {loading ? (
@@ -61,6 +73,7 @@ const VoiceInput: React.FC = () => {
           </p>
         )}
       </div>
+     
     </div>
   );
 };

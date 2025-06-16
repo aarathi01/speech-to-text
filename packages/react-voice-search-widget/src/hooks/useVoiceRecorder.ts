@@ -12,7 +12,11 @@ export const useVoiceRecorder = () => {
   const wsRef = useRef<WebSocket | null>(null);
   const token = localStorage.getItem("token");
 
-  const downsampleBuffer = (buffer: Float32Array, sampleRate: number, outRate: number): ArrayBuffer | null => {
+  const downsampleBuffer = (
+    buffer: Float32Array,
+    sampleRate: number,
+    outRate: number
+  ): ArrayBuffer | null => {
     const ratio = sampleRate / outRate;
     const newLength = Math.round(buffer.length / ratio);
     const result = new Int16Array(newLength);
@@ -33,14 +37,20 @@ export const useVoiceRecorder = () => {
   };
 
   const handleClear = () => {
-    setFullTranscript("");
+    if (fullTranscript) setFullTranscript("");
+    else {
+      showError("Nothing to clear.");
+    }
   };
 
   const startListening = async () => {
     setListening(true);
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
 
-    const wsUrl = `${BASE_URL.replace("/api", "").replace(/^http/, "ws")}/api/ws/transcribe?token=${encodeURIComponent(token || "")}`;
+    const wsUrl = `${BASE_URL.replace("/api", "").replace(
+      /^http/,
+      "ws"
+    )}/api/ws/transcribe?token=${encodeURIComponent(token || "")}`;
     wsRef.current = new WebSocket(wsUrl);
     wsRef.current.binaryType = "arraybuffer";
 
@@ -48,7 +58,11 @@ export const useVoiceRecorder = () => {
     const sampleRate = audioContextRef.current.sampleRate;
 
     sourceRef.current = audioContextRef.current.createMediaStreamSource(stream);
-    processorRef.current = audioContextRef.current.createScriptProcessor(4096, 1, 1);
+    processorRef.current = audioContextRef.current.createScriptProcessor(
+      4096,
+      1,
+      1
+    );
 
     wsRef.current.onopen = () => {
       sourceRef.current?.connect(processorRef.current!);
@@ -58,7 +72,9 @@ export const useVoiceRecorder = () => {
     wsRef.current.onmessage = (event) => {
       const message = JSON.parse(event.data);
       if (message.final) {
-        setFullTranscript((prev) => (prev ? `${prev} ${message.final}` : message.final));
+        setFullTranscript((prev) =>
+          prev ? `${prev} ${message.final}` : message.final
+        );
       }
     };
 
@@ -76,10 +92,10 @@ export const useVoiceRecorder = () => {
     processorRef.current?.disconnect();
     sourceRef.current?.disconnect();
     audioContextRef.current?.close();
-     if (wsRef.current?.readyState === WebSocket.OPEN) {
+    if (wsRef.current?.readyState === WebSocket.OPEN) {
       wsRef.current.close();
       if (!fullTranscript.trim()) {
-       showError("No speech detected during session");
+        showError("No speech detected during session");
       }
     }
 
