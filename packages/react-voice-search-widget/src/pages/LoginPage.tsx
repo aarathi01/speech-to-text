@@ -1,26 +1,40 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 import styles from "./LoginPage.module.css";
-import config from "../config/apiConfig";
+import { login } from "../services/authService";
+import { validateField } from "../utils/validators";
+import { showError, showSuccess } from "../utils/errorHandler";
 
 const Login: React.FC = () => {
-  const [email, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
-  const BASE_URL = config.BASE_URL;
+
+  const validateInputs = (): boolean => {
+    if (!email || !password) {
+      showError("Email and password are required.");
+      return false;
+    }
+
+    const emailError = validateField("email", email);
+    if (emailError) {
+      showError(emailError);
+      return false;
+    }
+
+    return true;
+  };
 
   const handleLogin = async () => {
+    if (!validateInputs()) return;
+
     try {
-      const res = await axios.post(`${BASE_URL}/auth/login`, {
-        email,
-        password,
-      });
-      localStorage.setItem("token", res.data.token);
+      const response = await login({ email, password });
+      localStorage.setItem("token", response.data.token);
+      showSuccess("Login successful");
       navigate("/");
     } catch (err) {
-      const errorMsg = err?.response?.data?.error || "Login failed";
-      alert(`Login Failed: ${errorMsg}`);
+      console.error(err);
     }
   };
 
@@ -29,27 +43,27 @@ const Login: React.FC = () => {
       <div className={styles.box}>
         <h2 className={styles.title}>Login</h2>
         <div className={styles.userTextArea}>
-        <input
-          className={styles.inputField}
-          type="text"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setUsername(e.target.value)}
-        />
-        <input
-          className={styles.inputField}
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-         </div>
+          <input
+            className={styles.inputField}
+            type="text"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+          <input
+            className={styles.inputField}
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+        </div>
         <button className={styles.button} onClick={handleLogin}>
           Sign-In
         </button>
         <p className={styles.toggle} onClick={() => navigate("/register")}>
           Don’t have an account? Register
-        </p>       
+        </p>
       </div>
     </div>
   );
