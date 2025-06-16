@@ -38,30 +38,36 @@ const Login: React.FC = () => {
     }
   };
 
-  
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    handleLogin();
+  };
+
   return (
     <div className={styles.container}>
       <div className={styles.box}>
         <h2 className={styles.title}>Login</h2>
-        <div className={styles.userTextArea}>
-          <input
-            className={styles.inputField}
-            type="text"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-          <input
-            className={styles.inputField}
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </div>
-        <button className={styles.button} onClick={handleLogin}>
-          Sign-In
-        </button>
+        <form onSubmit={handleSubmit}>
+          <div className={styles.userTextArea}>
+            <input
+              className={styles.inputField}
+              type="text"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+            <input
+              className={styles.inputField}
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </div>
+          <button className={styles.button} type="submit">
+            Sign-In
+          </button>
+        </form>
         <p className={styles.toggle} onClick={() => navigate("/register")}>
           Don’t have an account? Register
         </p>

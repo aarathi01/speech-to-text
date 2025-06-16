@@ -26,7 +26,7 @@ const RegisterPage: React.FC = () => {
     setErrors((prev) => ({ ...prev, [name]: error }));
   };
 
-  const handleSubmit = async () => {
+  const validateInputs = (): boolean => {
     const { name, email, password, country, phone } = formData;
     if (!name || !email || !password || !country || !phone) {
       showError("All fields are required.");
@@ -41,8 +41,14 @@ const RegisterPage: React.FC = () => {
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
-      return;
+      return false;
     }
+
+    return true;
+  };
+
+  const handleRegister = async () => {
+    if (!validateInputs()) return;
 
     try {
       const payload = {
@@ -72,31 +78,38 @@ const RegisterPage: React.FC = () => {
     }
   };
 
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    handleRegister();
+  };
+
   return (
     <div className={styles.container}>
       <div className={styles.box}>
         <h2 className={styles.title}>Register</h2>
-        <div className={styles.userTextArea}>
-          {["name", "email", "country", "phone", "password"].map((field) => (
-            <div key={field}>
-              <input
-                className={styles.inputField}
-                type={field === "password" ? "password" : "text"}
-                placeholder={field[0].toUpperCase() + field.slice(1)}
-                name={field}
-                value={formData[field as keyof typeof formData]}
-                onChange={handleChange}
-              />
-              {errors[field] && (
-                <div className={styles.error}>{errors[field]}</div>
-              )}
-            </div>
-          ))}
-        </div>
+        <form onSubmit={handleSubmit}>
+          <div className={styles.userTextArea}>
+            {["name", "email", "country", "phone", "password"].map((field) => (
+              <div key={field}>
+                <input
+                  className={styles.inputField}
+                  type={field === "password" ? "password" : "text"}
+                  placeholder={field[0].toUpperCase() + field.slice(1)}
+                  name={field}
+                  value={formData[field as keyof typeof formData]}
+                  onChange={handleChange}
+                />
+                {errors[field] && (
+                  <div className={styles.error}>{errors[field]}</div>
+                )}
+              </div>
+            ))}
+          </div>
 
-        <button className={styles.button} onClick={handleSubmit}>
-          Sign-Up
-        </button>
+          <button className={styles.button} type="submit">
+            Sign-Up
+          </button>
+        </form>
         <p className={styles.toggle} onClick={() => navigate("/login")}>
           Already have an account? Login
         </p>
