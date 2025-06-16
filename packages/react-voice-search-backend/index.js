@@ -9,7 +9,7 @@ import { createRequire } from "module";
 import connectToDB from "./utils/db.js";
 import searchRoutes from "./routes/searchRoutes.js";
 import { initializeWebSocket } from "./services/transcriptionService.js";
-import errorHandler from "./middlewares/errorHandler.js";
+import { errorHandler } from "./middlewares/errorHandler.js";
 import authRoutes from "./routes/authRoutes.js";
 import { MONGODB_URI, PORT, BASE_URL } from "./utils/config.js";
 
@@ -19,8 +19,8 @@ const wss = new WebSocketServer({ server, path: "/ws/transcribe" });
 
 app.use(cors());
 app.use(express.json());
-app.use("/auth", authRoutes);
-app.use("/search", searchRoutes);
+app.use("/api", authRoutes);
+app.use("/api", searchRoutes);
 app.use(errorHandler);
 
 let vosk;
