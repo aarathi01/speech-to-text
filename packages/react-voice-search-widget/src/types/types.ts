@@ -5,3 +5,16 @@ export interface Result {
   category: string;
   score: number;
 }
+
+export interface LoginPayload {
+  email: string;
+  password: string;
+}
+
+export interface RegisterPayload {
+  username: string;
+  email: string;
+  password: string;
+  country: string;
+  phone: number;
+}
