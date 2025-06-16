@@ -16,11 +16,8 @@ export const initializeWebSocket = (wss, model) => {
       return;
     }
 
-    let decoded;
     try {
-      decoded = jwt.verify(token, JWT_SECRET);
-      ws.user = decoded.id; //req.user = decoded full JWT payload , for future use
-      console.log(`WebSocket connected for user: ${decoded.email || "Unknown"}`);
+      jwt.verify(token, JWT_SECRET);
     } catch (err) {
       console.warn("WebSocket rejected: Invalid or expired token.");
       ws.close(4002, "Invalid or expired token");
