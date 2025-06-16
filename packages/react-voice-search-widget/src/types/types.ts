@@ -1,4 +1,4 @@
-export interface Result {
+export type Result = {
   matchedWords: string[];
   id: number;
   name: string;
@@ -6,15 +6,25 @@ export interface Result {
   score: number;
 }
 
-export interface LoginPayload {
+export type LoginPayload =  {
   email: string;
   password: string;
 }
 
-export interface RegisterPayload {
+export type RegisterPayload = {
   username: string;
   email: string;
   password: string;
   country: string;
   phone: number;
 }
+
+export type ErrorWithMessage = {
+  message?: string;
+  response?: {
+    data?: {
+      message?: string;
+    };
+  };
+};
+
