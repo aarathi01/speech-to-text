@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 import styles from "./RegisterPage.module.css";
-import config from "../config/apiConfig";
 import { validateField } from "../utils/validators";
+import { register } from "../services/authService";
+import { showSuccess } from "../utils/errorHandler";
 
 const RegisterPage: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -11,12 +11,11 @@ const RegisterPage: React.FC = () => {
     email: "",
     country: "",
     password: "",
-    phone: "",
+    phone: null,
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const navigate = useNavigate();
-  const BASE_URL = config.BASE_URL;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -48,15 +47,14 @@ const RegisterPage: React.FC = () => {
         phone: formData.phone,
         password: formData.password,
       };
-
-      const response = await axios.post(`${BASE_URL}/auth/register`, payload);
+      const response = await register(payload);
       const { token } = response.data;
       if (token) {
         localStorage.setItem("token", token);
-        alert("Registration successful! You are now logged in.");
+        showSuccess("Registration successful! You are now logged in.");
         navigate("/");
       } else {
-        alert("Registered successfully! Please login manually.");
+        showSuccess("Registered successfully! Please login manually.");
         navigate("/login");
       }
     } catch (err) {
@@ -65,7 +63,7 @@ const RegisterPage: React.FC = () => {
         (err instanceof Error
           ? err.message
           : "Registration failed. Please try again.");
-      alert(`Registration Failed: ${errorMsg}. Please try again.`);
+      console.error(`Registration Failed: ${errorMsg}. Please try again.`);
     }
   };
 
