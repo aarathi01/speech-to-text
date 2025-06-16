@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import styles from "./RegisterPage.module.css";
 import { validateField } from "../utils/validators";
 import { register } from "../services/authService";
-import { showSuccess } from "../utils/errorHandler";
+import { showError, showSuccess } from "../utils/errorHandler";
 
 const RegisterPage: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -27,6 +27,11 @@ const RegisterPage: React.FC = () => {
   };
 
   const handleSubmit = async () => {
+    const { name, email, password, country, phone } = formData;
+    if (!name || !email || !password || !country || !phone) {
+      showError("All fields are required.");
+      return false;
+    }
     const newErrors: Record<string, string> = {};
 
     Object.entries(formData).forEach(([key, value]) => {
