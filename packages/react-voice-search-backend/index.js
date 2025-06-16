@@ -15,7 +15,7 @@ import { MONGODB_URI, PORT, BASE_URL } from "./utils/config.js";
 
 const app = express();
 const server = http.createServer(app);
-const wss = new WebSocketServer({ server, path: "/ws/transcribe" });
+const wss = new WebSocketServer({ server, path: "/api/ws/transcribe" });
 
 app.use(cors());
 app.use(express.json());
