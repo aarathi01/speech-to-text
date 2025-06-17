@@ -1,15 +1,17 @@
 export type Result = {
+  text: unknown;
+  title: unknown;
   matchedWords: string[];
   id: number;
   name: string;
   category: string;
   score: number;
-}
+};
 
-export type LoginPayload =  {
+export type LoginPayload = {
   email: string;
   password: string;
-}
+};
 
 export type RegisterPayload = {
   username: string;
@@ -17,7 +19,7 @@ export type RegisterPayload = {
   password: string;
   country: string;
   phone: number;
-}
+};
 
 export type ErrorWithMessage = {
   message?: string;
@@ -32,3 +34,14 @@ export type JwtPayload = {
   exp: number;
   [key: string]: unknown;
 };
+
+export type HistoryPayload = {
+  query: string;
+  response: Result[];
+};
+
+export type HistoryEntry =  {
+  query: string;
+  response: string;
+  timestamp: string;
+}
