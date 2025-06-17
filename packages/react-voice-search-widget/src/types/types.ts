@@ -28,3 +28,7 @@ export type ErrorWithMessage = {
   };
 };
 
+export type JwtPayload = {
+  exp: number;
+  [key: string]: unknown;
+};

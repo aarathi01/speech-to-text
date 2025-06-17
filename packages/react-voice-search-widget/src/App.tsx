@@ -1,17 +1,18 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import VoiceInput from "./components/VoiceInput";
 import Login from "./pages/LoginPage";
 import Register from "./pages/RegisterPage";
 import PrivateRoute from "./components/PrivateRoute";
-import PublicRoute from "./components/PublicRoute"; 
-import 'react-toastify/dist/ReactToastify.css';
+import PublicRoute from "./components/PublicRoute";
+import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
+import TokenExpiryWatcher from "./components/TokenExpiryWatcher";
 
 const App: React.FC = () => {
   return (
     <>
-    <Router>
+      <TokenExpiryWatcher />
       <Routes>
         <Route
           path="/"
@@ -38,9 +39,8 @@ const App: React.FC = () => {
           }
         />
       </Routes>
-    </Router>
       <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
-      </>
+    </>
   );
 };
 
