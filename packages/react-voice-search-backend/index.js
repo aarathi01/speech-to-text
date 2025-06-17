@@ -8,6 +8,7 @@ import { WebSocketServer } from "ws";
 import { createRequire } from "module";
 import connectToDB from "./utils/db.js";
 import searchRoutes from "./routes/searchRoutes.js";
+import historyRoutes from "./routes/historyRoutes.js"
 import { initializeWebSocket } from "./services/transcriptionService.js";
 import { errorHandler } from "./middlewares/errorHandler.js";
 import authRoutes from "./routes/authRoutes.js";
@@ -19,8 +20,9 @@ const wss = new WebSocketServer({ server, path: "/api/ws/transcribe" });
 
 app.use(cors());
 app.use(express.json());
-app.use("/api", authRoutes);
-app.use("/api", searchRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/search", searchRoutes);
+app.use("/api/history", historyRoutes);
 app.use(errorHandler);
 
 let vosk;
