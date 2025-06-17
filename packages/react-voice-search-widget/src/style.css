@@ -19,6 +19,8 @@ body {
   align-items: center;
   background-color: #ffffff;
   border-bottom: 1px solid #e0e0e0;
+  margin-top: 8px;
+  margin-right: 8px;
 }
 
 .main-layout {
@@ -28,11 +30,17 @@ body {
 }
 
 .sidebar {
-  width: 220px;
-  max-height: 460px;
-  padding: 10px;
-  background-color: #f7f7f7;
+  max-width: 220px;
   border-right: 1px solid #ddd;
+  flex: 1;
+  padding: 16px;
+  margin-top: 20px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  margin-left: 20px;
+  margin-right: 20px;
+  background-color: #f7f7f8;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
 }
 
 .content {
@@ -204,7 +212,7 @@ body {
   height: 20px;
   cursor: pointer;
   transition: transform 0.2s ease;
-  padding-bottom: 5px;
+  padding-bottom: 25px;
 }
 
 .logout-icon:hover {

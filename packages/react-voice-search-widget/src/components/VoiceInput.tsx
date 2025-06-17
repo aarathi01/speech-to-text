@@ -10,7 +10,7 @@ import { useVoiceRecorder } from "../hooks/useVoiceRecorder";
 import { useSearch } from "../hooks/useSearch";
 import { logout } from "../services/authService";
 import { showSuccess } from "../utils/errorHandler";
-import { useSaveSearch } from "../hooks/useSearchLogger";
+import { useSaveSearch } from "../hooks/useSaveSearch";
 import { useSearchHistory } from "../hooks/useSearchHistory";
 
 const VoiceInput: React.FC = () => {
