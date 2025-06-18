@@ -2,8 +2,6 @@ import SearchHistory from "../models/SearchHistory.js";
 
 export const saveSearchQuery = async (req, res) => {
   const { query, response } = req.body;
-  console.log(".............");
-  console.log(response);
   const userId = req.user.id;
 
   if (!query || !response) {
