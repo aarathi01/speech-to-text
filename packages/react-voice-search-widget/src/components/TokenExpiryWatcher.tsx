@@ -12,7 +12,7 @@ const TokenExpiryWatcher: React.FC = () => {
       localStorage.removeItem("token");
       navigate("/login");
     }
-  });
+  }, [navigate]); 
 
   return null; 
 };
