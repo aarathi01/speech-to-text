@@ -45,3 +45,12 @@ export type HistoryEntry =  {
   response: string;
   timestamp: string;
 }
+
+export type  ResponseItem = {
+  name: string;
+  category: string;
+}
+
+export type  Item = {
+  response: ResponseItem[];
+}

@@ -53,15 +53,14 @@ const VoiceInput: React.FC = () => {
             {history.length > 0 ? (
               history.map((item, index) => (
                 <li key={index} className="history-item">
-                  <div className="query-text">
-                     {item.query}
-                  </div>                  
+                  <div className="query-text">{item.query}</div>
                   <ul className="response-list">
-                    {item.response.map((r, idx: number) => (
-                      <li key={idx}>
-                        {r.name} – {r.category}
-                      </li>
-                    ))}
+                    {Array.isArray(item.response) &&
+                      item.response.map((r, idx: number) => (
+                        <li key={idx}>
+                          {r.name} – {r.category}
+                        </li>
+                      ))}
                   </ul>
                   <div className="timestamp">
                     <small>{new Date(item.timestamp).toLocaleString()}</small>
