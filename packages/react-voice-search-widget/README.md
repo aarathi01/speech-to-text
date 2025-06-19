@@ -15,6 +15,9 @@ A **plug-and-play** React component that lets users **search** either by typing 
 - 🔍 **Real-Time Search**  
   Automatically queries a backend search API as you speak or type (with debounce).
 
+- 💾 Search History
+  Users can view their past queries and associated results.
+
 - 🎯 **Keyword Highlighting**  
   Matched words are highlighted in the search results and transcript text.
 
@@ -122,28 +125,47 @@ npm run build
 ```
 
 ---
+## 🧪 Testing
+We are using Vitest and React Testing Library for unit tests.
+
+✅ Login & Register Pages covered
+
+✅ VoiceInput tested with mocked voice + text flows
+
+✅ All hooks (useSearch, useSearchHistory, useSaveSearch, useVoiceRecorder) tested
+
+✅ App.tsx, ToastHandler, and Validation Utils covered
+
+✅ Target: 80%+ test coverage
+
+```bash
+#  Run tests
+npm run test
+
 
 ## 🧩 Project Structure
 
 ```
 react-voice-search-widget/
 ├── src/
-│   ├──components/
-│   │    ├── VoiceInput.tsx
-│   │    ├── SearchResults.tsx
-│   │    ├── UnsupportedBrowserFallback.tsx
+│   ├── components/
+│   ├── hooks/
+│   ├── pages/
+│   ├── services/
 │   ├── types/
-│   │   └── types.ts
-│   └── assets/
-│   │    └── microphone-icon.webp
+│   ├── utils/
 │   ├── App.tsx
-│   ├── main.tsx
-│   ├── style.css
-├── dist/              # Compiled output
-├── package.json
-├── tsconfig.json
+│   └── main.tsx
+├── tests/
+│   ├── App.test.tsx
+│   ├── hooks/
+│   ├── pages/
+│   └── utils/
+├── public/
 ├── vite.config.ts
+├── tsconfig.json
 └── README.md
+
 ```
 
 ---
