@@ -1,7 +1,5 @@
 import { renderHook, act } from '@testing-library/react';
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { useVoiceRecorder } from '../../hooks/useVoiceRecorder';
-import * as errorHandler from '../../utils/errorHandler';
 
 // Mock global WebSocket
 global.WebSocket = vi.fn(() => ({
@@ -28,7 +26,7 @@ class MockAudioContext {
   destination = {};
   close = vi.fn();
 }
-vi.stubGlobal('AudioContext', MockAudioContext as any);
+vi.stubGlobal('AudioContext', MockAudioContext as unknown);
 
 // Mock getUserMedia
 vi.stubGlobal('navigator', {

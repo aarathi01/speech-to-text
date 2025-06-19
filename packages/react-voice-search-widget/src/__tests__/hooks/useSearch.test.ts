@@ -1,5 +1,4 @@
 import { renderHook, act } from "@testing-library/react";
-import { describe, it, vi, beforeEach, afterEach, expect } from "vitest";
 import { useSearch } from "../../hooks/useSearch";
 import * as searchService from "../../services/searchService";
 

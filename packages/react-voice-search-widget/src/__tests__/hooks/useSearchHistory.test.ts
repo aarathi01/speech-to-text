@@ -1,5 +1,4 @@
 import { renderHook, act } from "@testing-library/react";
-import { describe, it, vi, expect, beforeEach } from "vitest";
 import { useSearchHistory } from "../../hooks/useSearchHistory";
 import * as historyService from "../../services/historyService";
 import { HistoryEntry } from "../../types/types";
@@ -15,8 +14,8 @@ describe("useSearchHistory", () => {
 
   it("fetches and sets history data successfully", async () => {
     const mockHistory: HistoryEntry[] = [
-      { query: "apple", timestamp: "2024-06-10T12:00:00Z", response: [] },
-      { query: "banana", timestamp: "2024-06-11T13:00:00Z", response: [] },
+      { query: "apple", timestamp: "2024-06-10T12:00:00Z", response: "" },
+      { query: "banana", timestamp: "2024-06-11T13:00:00Z", response: ""},
     ];
     mockGetHistory.mockResolvedValueOnce(mockHistory);
 
