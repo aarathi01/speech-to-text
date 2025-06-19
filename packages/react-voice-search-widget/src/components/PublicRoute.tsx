@@ -6,14 +6,8 @@ interface Props {
 }
 
 const PublicRoute: React.FC<Props> = ({ children }) => {
-  const token = localStorage.getItem("token");
-
-  if (token) {
-    // User is already logged in, redirect to home
-    return <Navigate to="/" replace />;
-  }
-
-  return children;
+  const isAuthenticated = localStorage.getItem("isAuthenticated") === "true";
+  return isAuthenticated ? <Navigate to="/" replace /> : <>{children}</>;
 };
 
 export default PublicRoute;

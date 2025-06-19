@@ -58,23 +58,21 @@ const RegisterPage: React.FC = () => {
         phone: formData.phone,
         password: formData.password,
       };
-      const response = await register(payload);
-      const { token } = response.data;
-      if (token) {
-        localStorage.setItem("token", token);
-        showSuccess("Registration successful! You are now logged in.");
-        navigate("/");
-      } else {
-        showSuccess("Registered successfully! Please login manually.");
-        navigate("/login");
-      }
+
+      await register(payload);
+
+      // Set auth flag to allow navigation to protected routes
+      localStorage.setItem("isAuthenticated", "true");
+
+      showSuccess("Registration successful! You are now logged in.");
+      navigate("/");
     } catch (err) {
       const errorMsg =
         err?.response?.data?.error ||
         (err instanceof Error
           ? err.message
           : "Registration failed. Please try again.");
-      console.error(`Registration Failed: ${errorMsg}. Please try again.`);
+      showError(errorMsg);
     }
   };
 

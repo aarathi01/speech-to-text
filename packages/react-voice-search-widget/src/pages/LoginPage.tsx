@@ -29,8 +29,8 @@ const Login: React.FC = () => {
     if (!validateInputs()) return;
 
     try {
-      const response = await login({ email, password });
-      localStorage.setItem("token", response.data.token);
+      await login({ email, password });
+       localStorage.setItem("isAuthenticated", "true");
       showSuccess("Login successful");
       navigate("/");
     } catch (err) {

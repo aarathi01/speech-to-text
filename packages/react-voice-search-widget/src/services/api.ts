@@ -6,6 +6,7 @@ const api = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
+  withCredentials: true, // Send cookies
 });
 
 // Use a consistent toast ID to prevent duplicates
@@ -41,7 +42,7 @@ api.interceptors.response.use(
         break;
       case 401:
         showToast("Unauthorized. Please log in again.");
-        localStorage.removeItem("token");
+        localStorage.removeItem("isAuthenticated");
         window.location.href = "/login";
         break;
       case 403:
