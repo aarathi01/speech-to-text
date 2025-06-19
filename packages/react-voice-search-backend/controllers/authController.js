@@ -15,7 +15,14 @@ export const login = async (req, res, next) => {
       return res.status(400).json({ message: "Invalid email or password" });
     }
     const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: "1h" });
-    res.json({ token });
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: true, // true in prod (use HTTPS)
+      sameSite: "Strict",
+      maxAge: 60 * 60 * 1000, // 1 hour
+    });
+
+    res.status(200).json({ message: "Login successful" });
   } catch (err) {
     console.error("Login error:", err);
     next({ statusCode: 500, message: "Internal server error" });
@@ -40,7 +47,14 @@ export const register = async (req, res, next) => {
     });
 
     const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: "1h" });
-    res.status(201).json({ token });
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "Strict",
+      maxAge: 60 * 60 * 1000,
+    });
+
+    res.status(201).json({ message: "Registered and logged in successfully" });
   } catch (err) {
     console.error("Registration error:", err);
     next({ statusCode: 500, message: "Internal server error" });

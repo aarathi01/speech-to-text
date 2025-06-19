@@ -13,13 +13,22 @@ import { initializeWebSocket } from "./services/transcriptionService.js";
 import { errorHandler } from "./middlewares/errorHandler.js";
 import authRoutes from "./routes/authRoutes.js";
 import { MONGODB_URI, PORT, BASE_URL } from "./utils/config.js";
+import cookieParser from "cookie-parser";
 
+
+dotenv.config();
+export const CLIENT_ORIGIN = process.env.CLIENT_ORIGIN;
 const app = express();
 const server = http.createServer(app);
 const wss = new WebSocketServer({ server, path: "/api/ws/transcribe" });
+const corsOptions = {
+  origin: CLIENT_ORIGIN,
+  credentials: true,               // allow cookies to be sent
+};
 
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(express.json());
+app.use(cookieParser());
 app.use("/api/auth", authRoutes);
 app.use("/api/search", searchRoutes);
 app.use("/api/history", historyRoutes);

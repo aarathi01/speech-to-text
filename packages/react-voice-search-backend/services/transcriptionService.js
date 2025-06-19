@@ -20,7 +20,7 @@ export const initializeWebSocket = (wss, model) => {
       jwt.verify(token, JWT_SECRET);
     } catch (err) {
       console.warn("WebSocket rejected: Invalid or expired token.");
-      ws.close(402, "Invalid or expired token");
+      ws.close(401, "Invalid or expired token");
       return;
     }
 
