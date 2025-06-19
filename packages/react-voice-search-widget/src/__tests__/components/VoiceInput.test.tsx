@@ -34,9 +34,11 @@ vi.mock("../../hooks/useVoiceRecorder", () => ({
 }));
 
 const mockUseSearch = {
-  searchResults: [],
+  searchResults: [
+    {}
+  ],
   loading: false,
-  error: null,
+  error: "",
 };
 vi.mock("../../hooks/useSearch", () => ({
   useSearch: () => mockUseSearch,
@@ -116,7 +118,7 @@ describe("VoiceInput component", () => {
 
   it("shows hint when no results and no error", () => {
     mockUseSearch.loading = false;
-    mockUseSearch.error = null;
+    mockUseSearch.error = "";
     mockUseSearch.searchResults = [];
     render(<VoiceInput />, { wrapper: BrowserRouter });
     expect(screen.getByText("Start speaking or typing to see results...")).toBeInTheDocument();

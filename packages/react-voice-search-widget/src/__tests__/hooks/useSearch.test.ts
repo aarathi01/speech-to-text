@@ -54,7 +54,13 @@ describe("useSearch hook", () => {
   });
 
   it("should show error when no results found", async () => {
-    mockSearchText.mockResolvedValueOnce({ data: { results: [] } });
+    mockSearchText.mockResolvedValueOnce({
+      data: { results: [] },
+      status: 0,
+      statusText: "",
+      headers: undefined,
+      config: undefined
+    });
 
     const { result } = renderHook(() => useSearch("xyz"));
 
