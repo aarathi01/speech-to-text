@@ -1,3 +1,5 @@
+/// <reference types="vitest/globals" />
+
 import { render, screen } from "@testing-library/react";
 import SearchResults from "../../components/SearchResults";
 import { Result } from "../../types/types";

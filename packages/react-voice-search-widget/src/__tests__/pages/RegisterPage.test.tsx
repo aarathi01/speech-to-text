@@ -1,5 +1,6 @@
+/// <reference types="vitest/globals" />
+
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import { describe, it, expect, vi, beforeEach } from "vitest";
 import RegisterPage from "../../pages/RegisterPage";
 import { MemoryRouter } from "react-router-dom";
 
