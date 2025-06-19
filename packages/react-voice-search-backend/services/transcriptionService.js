@@ -12,7 +12,7 @@ export const initializeWebSocket = (wss, model) => {
 
     if (!token) {
       console.warn("WebSocket rejected: Missing token.");
-      ws.close(4001, "Missing authentication token");
+      ws.close(401, "Missing authentication token");
       return;
     }
 
@@ -20,7 +20,7 @@ export const initializeWebSocket = (wss, model) => {
       jwt.verify(token, JWT_SECRET);
     } catch (err) {
       console.warn("WebSocket rejected: Invalid or expired token.");
-      ws.close(4002, "Invalid or expired token");
+      ws.close(402, "Invalid or expired token");
       return;
     }
 
