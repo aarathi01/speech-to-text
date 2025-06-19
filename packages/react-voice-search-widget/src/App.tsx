@@ -7,12 +7,10 @@ import PrivateRoute from "./components/PrivateRoute";
 import PublicRoute from "./components/PublicRoute";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
-import TokenExpiryWatcher from "./components/TokenExpiryWatcher";
 
 const App: React.FC = () => {
   return (
     <>
-      <TokenExpiryWatcher />
       <Routes>
         <Route
           path="/"
