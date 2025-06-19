@@ -1,6 +1,6 @@
-import React from "react";
+/// <reference types="vitest/globals" />
+
 import { render, screen, fireEvent } from "@testing-library/react";
-import { describe, it, expect, vi, beforeEach } from "vitest";
 import VoiceInput from "../../components/VoiceInput";
 import { BrowserRouter } from "react-router-dom";
 import { HistoryEntry } from "../../types/types";
