@@ -14,6 +14,7 @@ import { errorHandler } from "./middlewares/errorHandler.js";
 import authRoutes from "./routes/authRoutes.js";
 import { MONGODB_URI, PORT, BASE_URL } from "./utils/config.js";
 import cookieParser from "cookie-parser";
+import vosk from "vosk";
 
 dotenv.config();
 export const CLIENT_ORIGIN = process.env.CLIENT_ORIGIN;
@@ -33,14 +34,6 @@ app.use("/api/search", searchRoutes);
 app.use("/api/history", historyRoutes);
 app.use(errorHandler);
 
-let vosk;
-try {
-  const require = createRequire(import.meta.url);
-  vosk = require("vosk");
-} catch (err) {
-  console.error("Failed to load Vosk:", err);
-  process.exit(1);
-}
 const MODEL_PATH = path.resolve(process.cwd(), "models/vosk");
 
 if (!fs.existsSync(MODEL_PATH)) {

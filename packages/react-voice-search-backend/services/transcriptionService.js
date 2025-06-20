@@ -1,8 +1,6 @@
 import { createRequire } from "module";
 import cookie from "cookie";
-const require = createRequire(import.meta.url);
-const vosk = require("vosk");
-
+import vosk from "vosk"; 
 import jwt from "jsonwebtoken";
 import { SAMPLE_RATE, JWT_SECRET } from "../utils/config.js";
 
