@@ -1,4 +1,5 @@
 import { createRequire } from "module";
+import cookie from "cookie";
 const require = createRequire(import.meta.url);
 const vosk = require("vosk");
 
@@ -7,8 +8,8 @@ import { SAMPLE_RATE, JWT_SECRET } from "../utils/config.js";
 
 export const initializeWebSocket = (wss, model) => {
   wss.on("connection", (ws, req) => {
-    const url = new URL(req.url, `http://${req.headers.host}`);
-    const token = url.searchParams.get("token");
+    const cookies = cookie.parse(req.headers.cookie || "");
+    const token = cookies.token;
 
     if (!token) {
       console.warn("WebSocket rejected: Missing token.");
