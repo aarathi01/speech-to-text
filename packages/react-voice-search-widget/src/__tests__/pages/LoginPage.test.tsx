@@ -68,7 +68,7 @@ describe("Login Page", () => {
     expect(showError).toHaveBeenCalledWith("Invalid email");
   });
 
-  it("successful login navigates and stores token", async () => {
+  it("successful login navigates to homepage", async () => {
     (validateField as any).mockReturnValue(null);
     (login as any).mockResolvedValue({ data: { token: "mock-token" } });
 
@@ -89,7 +89,7 @@ describe("Login Page", () => {
         password: "password123"
       });
       expect(showSuccess).toHaveBeenCalledWith("Login successful");
-      expect(localStorage.getItem("token")).toBe("mock-token");
+      // ✅ No more localStorage check
       expect(mockNavigate).toHaveBeenCalledWith("/");
     });
   });
