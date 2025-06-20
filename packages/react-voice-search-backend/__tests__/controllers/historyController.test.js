@@ -23,6 +23,7 @@ app.get("/history", historyController.getSearchHistory);
 describe("History Controller", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+     jest.spyOn(console, "error").mockImplementation(() => {});
   });
 
   describe("saveSearchQuery", () => {

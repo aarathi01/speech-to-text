@@ -22,6 +22,7 @@ const mockToken = "mocked-token";
 describe("Auth Controller", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+     jest.spyOn(console, "error").mockImplementation(() => {});
   });
 
   describe("POST /api/auth/register", () => {
