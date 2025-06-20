@@ -10,7 +10,6 @@ export const useVoiceRecorder = () => {
   const processorRef = useRef<ScriptProcessorNode | null>(null);
   const sourceRef = useRef<MediaStreamAudioSourceNode | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
-  const token = localStorage.getItem("token");
 
   const downsampleBuffer = (
     buffer: Float32Array,
@@ -47,10 +46,8 @@ export const useVoiceRecorder = () => {
     setListening(true);
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
 
-    const wsUrl = `${BASE_URL.replace("/api", "").replace(
-      /^http/,
-      "ws"
-    )}/api/ws/transcribe?token=${encodeURIComponent(token || "")}`;
+    const wsUrl = `${BASE_URL.replace("/api", "").replace(/^http/, "ws")}/api/ws/transcribe`;
+
     wsRef.current = new WebSocket(wsUrl);
     wsRef.current.binaryType = "arraybuffer";
 
