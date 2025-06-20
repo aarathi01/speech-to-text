@@ -47,7 +47,7 @@ const VoiceInput: React.FC = () => {
     <div className="app-container">
       <div className="main-layout">
         <div className="sidebar">
-          <h4>Recent Searches</h4>
+          <h3>Recent Searches</h3>
 
           <ul className="history-list">
             {history.length > 0 ? (
