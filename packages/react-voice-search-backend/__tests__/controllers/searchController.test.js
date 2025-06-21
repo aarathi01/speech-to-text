@@ -6,23 +6,40 @@ import { searchInDB } from "../../utils/db.js";
 
 jest.mock("../../utils/db.js");
 
+const PORT = 5557;
+const baseURL = `http://localhost:${PORT}`;
+
+let server;
+
+// Real server setup
 const app = express();
 app.use(bodyParser.json());
 app.get("/search", searchController.searchHandler);
 
-describe("Search Controller", () => {
+describe("Search Controller (Full Server)", () => {
+  beforeAll((done) => {
+    server = app.listen(PORT, () => {
+      console.log(`Test server running on port ${PORT}`);
+      done();
+    });
+  });
+
+  afterAll((done) => {
+    server.close(done);
+  });
+
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
   it("should return 400 if query is missing", async () => {
-    const res = await request(app).get("/search");
+    const res = await request(baseURL).get("/search");
     expect(res.status).toBe(400);
     expect(res.body.error).toBe("Query 'q' is required");
   });
 
   it("should return empty array if query has no valid words", async () => {
-    const res = await request(app).get("/search?q=to an it is!");
+    const res = await request(baseURL).get("/search?q=to an it is!");
     expect(res.status).toBe(200);
     expect(res.body.results).toEqual([]);
   });
@@ -35,10 +52,11 @@ describe("Search Controller", () => {
 
     searchInDB.mockResolvedValue(mockResults);
 
-    const res = await request(app).get("/search?q=Sample test");
+    const res = await request(baseURL).get("/search?q=Sample test");
 
     expect(res.status).toBe(200);
     expect(res.body.results.length).toBe(2);
+
     expect(res.body.results[0]).toMatchObject({
       id: 1,
       name: "Sample One",
@@ -52,7 +70,7 @@ describe("Search Controller", () => {
   it("should handle DB errors gracefully", async () => {
     searchInDB.mockRejectedValue(new Error("DB error"));
 
-    const res = await request(app).get("/search?q=test");
+    const res = await request(baseURL).get("/search?q=test");
 
     expect(res.status).toBe(500);
   });

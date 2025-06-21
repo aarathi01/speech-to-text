@@ -1,14 +1,20 @@
 import request from "supertest";
 import express from "express";
 import bodyParser from "body-parser";
+import cookieParser from "cookie-parser";
 import * as authController from "../../controllers/authController.js";
 import User from "../../models/User.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
-// Setup express app
+let server;
+const PORT = 5555; // Any available test port
+const baseURL = `http://localhost:${PORT}`;
+
+// Setup real app instance
 const app = express();
 app.use(bodyParser.json());
+app.use(cookieParser());
 app.post("/api/auth/login", authController.login);
 app.post("/api/auth/register", authController.register);
 
@@ -19,10 +25,24 @@ jest.mock("jsonwebtoken");
 
 const mockToken = "mocked-token";
 
-describe("Auth Controller", () => {
-  beforeEach(() => {
+describe("Auth Controller - Full Server Flow", () => {
+  const testEmail = "e2euser@test.com";
+
+  beforeAll((done) => {
+    server = app.listen(PORT, () => {
+      console.log(`Test server running on ${PORT}`);
+      done();
+    });
+  });
+
+  afterAll((done) => {
+    server.close(done);
+  });
+
+  beforeEach(async () => {
     jest.clearAllMocks();
-     jest.spyOn(console, "error").mockImplementation(() => {});
+    await User.deleteMany?.({ email: testEmail });
+    jest.spyOn(console, "error").mockImplementation(() => {});
   });
 
   describe("POST /api/auth/register", () => {
@@ -32,7 +52,7 @@ describe("Auth Controller", () => {
       User.create.mockResolvedValue({ _id: "user123" });
       jwt.sign.mockReturnValue(mockToken);
 
-      const res = await request(app).post("/api/auth/register").send({
+      const res = await request(baseURL).post("/api/auth/register").send({
         email: "testuser@gmail.com",
         password: "testpass",
         username: "testuser",
@@ -48,7 +68,7 @@ describe("Auth Controller", () => {
     it("should return 409 if email already exists", async () => {
       User.findOne.mockResolvedValue({ email: "testuser@gmail.com" });
 
-      const res = await request(app).post("/api/auth/register").send({
+      const res = await request(baseURL).post("/api/auth/register").send({
         email: "testuser@gmail.com",
         password: "testpass",
         username: "testuser",
@@ -63,7 +83,7 @@ describe("Auth Controller", () => {
     it("should handle registration errors", async () => {
       User.findOne.mockRejectedValue(new Error("DB error"));
 
-      const res = await request(app).post("/api/auth/register").send({
+      const res = await request(baseURL).post("/api/auth/register").send({
         email: "fail@gmail.com",
         password: "pass",
         username: "failuser",
@@ -81,7 +101,7 @@ describe("Auth Controller", () => {
       bcrypt.compare.mockResolvedValue(true);
       jwt.sign.mockReturnValue(mockToken);
 
-      const res = await request(app).post("/api/auth/login").send({
+      const res = await request(baseURL).post("/api/auth/login").send({
         email: "testuser@gmail.com",
         password: "testpass",
       });
@@ -95,7 +115,7 @@ describe("Auth Controller", () => {
       User.findOne.mockResolvedValue({ _id: "user123", password: "hashedpass" });
       bcrypt.compare.mockResolvedValue(false);
 
-      const res = await request(app).post("/api/auth/login").send({
+      const res = await request(baseURL).post("/api/auth/login").send({
         email: "testuser@gmail.com",
         password: "wrongpass",
       });
@@ -107,7 +127,7 @@ describe("Auth Controller", () => {
     it("should fail login when user not found", async () => {
       User.findOne.mockResolvedValue(null);
 
-      const res = await request(app).post("/api/auth/login").send({
+      const res = await request(baseURL).post("/api/auth/login").send({
         email: "nouser@gmail.com",
         password: "testpass",
       });
@@ -119,7 +139,7 @@ describe("Auth Controller", () => {
     it("should handle login errors", async () => {
       User.findOne.mockRejectedValue(new Error("DB down"));
 
-      const res = await request(app).post("/api/auth/login").send({
+      const res = await request(baseURL).post("/api/auth/login").send({
         email: "fail@gmail.com",
         password: "test",
       });

@@ -1,18 +1,24 @@
 import request from "supertest";
 import express from "express";
 import bodyParser from "body-parser";
+import cookieParser from "cookie-parser";
 import * as historyController from "../../controllers/historyController.js";
 import SearchHistory from "../../models/SearchHistory.js";
 
-// Mock the model
 jest.mock("../../models/SearchHistory.js");
 
+let server;
+const PORT = 5556; // use a different test port
+const baseURL = `http://localhost:${PORT}`;
+
+// Set up express app
 const app = express();
 app.use(bodyParser.json());
+app.use(cookieParser());
 
-// Middleware to mock authentication and inject req.user
+// Fake auth middleware
 app.use((req, res, next) => {
-  req.user = { id: "mock-user-id" }; // Fake user ID for tests
+  req.user = { id: "mock-user-id" };
   next();
 });
 
@@ -20,15 +26,26 @@ app.use((req, res, next) => {
 app.post("/history", historyController.saveSearchQuery);
 app.get("/history", historyController.getSearchHistory);
 
-describe("History Controller", () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-     jest.spyOn(console, "error").mockImplementation(() => {});
+describe("History Controller (Full Server)", () => {
+  beforeAll((done) => {
+    server = app.listen(PORT, () => {
+      console.log(`Test server running on port ${PORT}`);
+      done();
+    });
   });
 
-  describe("saveSearchQuery", () => {
+  afterAll((done) => {
+    server.close(done);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    jest.spyOn(console, "error").mockImplementation(() => {});
+  });
+
+  describe("POST /history", () => {
     it("should return 400 if query or response is missing", async () => {
-      const res = await request(app).post("/history").send({ query: "test" });
+      const res = await request(baseURL).post("/history").send({ query: "test" });
       expect(res.status).toBe(400);
       expect(res.body.error).toBe("Missing query or response");
     });
@@ -51,7 +68,7 @@ describe("History Controller", () => {
 
       SearchHistory.create.mockResolvedValue(expectedSaved);
 
-      const res = await request(app).post("/history").send({
+      const res = await request(baseURL).post("/history").send({
         query: "test query",
         response: mockResponse,
       });
@@ -68,7 +85,7 @@ describe("History Controller", () => {
     it("should return 500 on DB error", async () => {
       SearchHistory.create.mockRejectedValue(new Error("DB error"));
 
-      const res = await request(app).post("/history").send({
+      const res = await request(baseURL).post("/history").send({
         query: "test",
         response: [{ title: "Res", score: 1 }],
       });
@@ -78,7 +95,7 @@ describe("History Controller", () => {
     });
   });
 
-  describe("getSearchHistory", () => {
+  describe("GET /history", () => {
     it("should return search history list", async () => {
       const mockHistory = [
         { _id: "1", query: "test1", response: [], timestamp: "2025-06-20T06:43:17.083Z" },
@@ -90,7 +107,7 @@ describe("History Controller", () => {
         limit: jest.fn().mockResolvedValue(mockHistory),
       });
 
-      const res = await request(app).get("/history");
+      const res = await request(baseURL).get("/history");
 
       expect(res.status).toBe(200);
       expect(res.body).toEqual(mockHistory);
@@ -104,7 +121,7 @@ describe("History Controller", () => {
         }),
       }));
 
-      const res = await request(app).get("/history");
+      const res = await request(baseURL).get("/history");
       expect(res.status).toBe(500);
       expect(res.body.error).toBe("Failed to fetch history");
     });

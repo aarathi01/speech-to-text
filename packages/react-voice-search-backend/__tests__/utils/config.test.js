@@ -1,4 +1,3 @@
-import * as config from "../../utils/config.js";
 import fs from "fs";
 import dotenv from "dotenv";
 
