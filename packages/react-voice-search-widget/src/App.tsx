@@ -3,19 +3,21 @@ import { Routes, Route, useNavigate } from "react-router-dom";
 import VoiceInput from "./components/VoiceInput";
 import Login from "./pages/LoginPage";
 import Register from "./pages/RegisterPage";
+import UserManagementPanel from "./pages/UserManagementPanel";
+import AuthProvider from "./context/AuthProvider";
 import PrivateRoute from "./components/PrivateRoute";
 import PublicRoute from "./components/PublicRoute";
-import "react-toastify/dist/ReactToastify.css";
 import { IdleTimerProvider } from "react-idle-timer";
 import { ToastContainer } from "react-toastify";
 import { logout } from "./services/authService";
 import { showError } from "./utils/errorHandler";
+import "react-toastify/dist/ReactToastify.css";
 
 const App: React.FC = () => {
   const navigate = useNavigate();
 
   const handleIdle = () => {
-    logout(); 
+    logout();
     showError("Logged out due to inactivity.");
     navigate("/login");
   };
@@ -26,8 +28,9 @@ const App: React.FC = () => {
       onIdle={handleIdle}
       crossTab // sync across tabs
     >
-      <>
+      <AuthProvider>
         <Routes>
+          {/* Default Route (User Voice Search) */}
           <Route
             path="/"
             element={
@@ -36,6 +39,18 @@ const App: React.FC = () => {
               </PrivateRoute>
             }
           />
+
+          {/* Admin Panel Route (role-based protection) */}
+          <Route
+            path="/admin"
+            element={
+              <PrivateRoute role={["admin", "superadmin"]}>
+                <UserManagementPanel />
+              </PrivateRoute>
+            }
+          />
+
+          {/* Login */}
           <Route
             path="/login"
             element={
@@ -44,6 +59,7 @@ const App: React.FC = () => {
               </PublicRoute>
             }
           />
+          {/* Registration */}
           <Route
             path="/register"
             element={
@@ -54,7 +70,7 @@ const App: React.FC = () => {
           />
         </Routes>
         <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
-      </>
+      </AuthProvider>
     </IdleTimerProvider>
   );
 };
