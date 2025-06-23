@@ -5,10 +5,11 @@ import fs from "fs";
 import path from "path";
 import http from "http";
 import { WebSocketServer } from "ws";
-import { createRequire } from "module";
 import connectToDB from "./utils/db.js";
 import searchRoutes from "./routes/searchRoutes.js";
 import historyRoutes from "./routes/historyRoutes.js";
+import adminRoutes from "./routes/adminRoutes.js";
+import { initSuperAdmin } from "./utils/initSuperAdmin.js";
 import { initializeWebSocket } from "./services/transcriptionService.js";
 import { errorHandler } from "./middlewares/errorHandler.js";
 import authRoutes from "./routes/authRoutes.js";
@@ -29,6 +30,7 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(cookieParser());
+app.use("/api/admin", adminRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/search", searchRoutes);
 app.use("/api/history", historyRoutes);
@@ -52,7 +54,8 @@ if (!MONGODB_URI) {
 }
 
 connectToDB(MONGODB_URI)
-  .then(() => {
+  .then(async () => {
+    await initSuperAdmin();
     server.listen(PORT, () => {
       console.log(`Server running at http://${BASE_URL}:${PORT}`);
       console.log(
