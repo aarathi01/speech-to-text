@@ -1,0 +1,20 @@
+import express from "express";
+import {
+  listUsers,
+  promoteUserToAdmin,
+  deleteUserById,
+} from "../controllers/adminController.js";
+import { requireSuperAdmin } from "../middlewares/authMiddleware.js";
+
+const router = express.Router();
+
+// GET /api/admin/users - List all users (superadmin only)
+router.get("/users", requireSuperAdmin, listUsers);
+
+// PUT /api/admin/users/:id/promote - Promote user to admin
+router.put("/users/:id/promote", requireSuperAdmin, promoteUserToAdmin);
+
+// DELETE /api/admin/users/:id - Delete a user
+router.delete("/users/:id", requireSuperAdmin, deleteUserById);
+
+export default router;

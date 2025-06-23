@@ -1,7 +1,6 @@
 import User from "../models/User.js";
 import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
-import { JWT_SECRET } from "../utils/config.js";
+import { generateToken } from "../utils/jwt.js";
 
 export const login = async (req, res, next) => {
   try {
@@ -14,15 +13,24 @@ export const login = async (req, res, next) => {
     if (!user || !isMatch) {
       return res.status(400).json({ message: "Invalid email or password" });
     }
-    const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: "1h" });
+
+    const token = generateToken({ _id: user._id, role: user.role });
+
     res.cookie("token", token, {
       httpOnly: true,
-      secure: true, // true in prod (use HTTPS)
+      secure: true,
       sameSite: "Strict",
-      maxAge: 60 * 60 * 1000, // 1 hour
+      maxAge: 60 * 60 * 1000,
     });
 
-    res.status(200).json({ message: "Login successful" });
+    res.status(200).json({
+      message: "Login successful",
+      user: {
+        _id: user._id,
+        email: user.email,
+        role: user.role,
+      },
+    });
   } catch (err) {
     console.error("Login error:", err);
     next({ statusCode: 500, message: "Internal server error" });
@@ -32,6 +40,8 @@ export const login = async (req, res, next) => {
 export const register = async (req, res, next) => {
   try {
     const { username, email, password, phone, country } = req.body;
+    const role = "user";
+
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(409).json({ message: "Email already exists!" });
@@ -40,13 +50,15 @@ export const register = async (req, res, next) => {
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = await User.create({
       username,
-      password: hashedPassword,
       email,
+      password: hashedPassword,
       phone,
       country,
+      role,
     });
 
-    const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: "1h" });
+    const token = generateToken({ _id: user._id, role });
+
     res.cookie("token", token, {
       httpOnly: true,
       secure: true,
