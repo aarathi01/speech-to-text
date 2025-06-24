@@ -12,12 +12,16 @@ import { logout } from "../services/authService";
 import { showError, showSuccess } from "../utils/errorHandler";
 import { useNavigate } from "react-router-dom";
 import styles from "./UserManagementPanel.module.css";
+import { User } from "../types/userTypes";
 
 const UserManagementPanel: React.FC = () => {
   const navigate = useNavigate();
-  const [users, setUsers] = useState([]);
-  const [editingUserId, setEditingUserId] = useState<string | null>(null);
-  const [editedPhone, setEditedPhone] = useState<string>(null);
+  const [users, setUsers] = useState<User[]>([]);
+  const [editingField, setEditingField] = useState<{
+    userId: string;
+    field: keyof User;
+  } | null>(null);
+  const [editedValue, setEditedValue] = useState<string>("");
 
   const fetchUsers = async () => {
     try {
@@ -55,18 +59,6 @@ const UserManagementPanel: React.FC = () => {
     navigate("/login");
   };
 
-  const handleUpdatePhone = async (userId: string, newPhone: string) => {
-    try {
-      await updateUser(userId, { phone: newPhone });
-      showSuccess("Phone number updated");
-      setEditingUserId(null);
-      fetchUsers(); // Refresh list
-    } catch (err) {
-      showError("Failed to update phone number");
-      console.error(err);
-    }
-  };
-
   const handleBlockToggle = async (
     userId: string,
     currentlyBlocked: boolean
@@ -85,130 +77,154 @@ const UserManagementPanel: React.FC = () => {
     }
   };
 
+  const handleEditStart = (
+    userId: string,
+    field: keyof User,
+    currentValue: string
+  ) => {
+    setEditingField({ userId, field });
+    setEditedValue(currentValue || "");
+  };
+
+  const handleUpdate = async (
+    userId: string,
+    field: keyof User,
+    value: string
+  ) => {
+    try {
+      await updateUser(userId, { [field]: value });
+      showSuccess(`${field} updated`);
+      setEditingField(null);
+      fetchUsers();
+    } catch (err) {
+      showError(`Failed to update ${field}`);
+      console.error(err);
+    }
+  };
+
   useEffect(() => {
     fetchUsers();
   }, []);
 
+  const renderEditableCell = (
+    user: User,
+    field: keyof User,
+    className: string
+  ) => {
+    const isEditing =
+      editingField?.userId === user._id && editingField.field === field;
+    return (
+      <td className={className}>
+        {isEditing ? (
+          <input
+            className={styles.editInput}
+            value={editedValue}
+            onChange={(e) => setEditedValue(e.target.value)}
+            autoFocus
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                const confirmApply = window.confirm("Apply changes?");
+                if (confirmApply) {
+                  handleUpdate(user._id, field, editedValue);
+                }
+              } else if (e.key === "Escape") {
+                setEditingField(null);
+              }
+            }}
+            onBlur={() => setEditingField(null)}
+          />
+        ) : (
+          <span
+            onClick={() =>
+              handleEditStart(user._id, field, user[field] as string)
+            }
+            style={{
+              cursor: "pointer",
+              display: "inline-block",
+              width: "100%",
+            }}
+            title="Click to edit"
+          >
+            {user[field] || "-"}
+          </span>
+        )}
+      </td>
+    );
+  };
+
   return (
-    <>
-      <div className="content">
-        <div className="header-row">
-          <h2 className="header-title">All Users</h2>
-          <div className="icon-with-tooltip">
-            <img
-              className="logout-icon"
-              src={LogoutIcon}
-              alt="Logout"
-              onClick={handleLogout}
-            />
-            <span className="tooltip-text-bottom">Logout</span>
-          </div>
-        </div>
-        <div className={styles.container}>
-          <div>
-            <table className={styles.userTable}>
-              <thead>
-                <tr className="bg-gray-100">
-                  <th className="p-2 border">Username</th>
-                  <th className="p-2 border">Email</th>
-                  <th className="p-2 border">Phone</th>
-                  <th className="p-2 border">Country</th>
-                  <th className="p-2 border">Role</th>
-                  <th className="p-2 border">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {users.length === 0 ? (
-                  <tr>
-                    <td colSpan={4} className="text-center p-4">
-                      No users found
-                    </td>
-                  </tr>
-                ) : (
-                  users.map((user) => (
-                    <tr key={user.id}>
-                      <td className={styles.userName}>{user.username}</td>
-                      <td className={styles.email}>{user.email}</td>
-
-                      <td className={styles.phoneNumber}>
-                        {editingUserId === user._id ? (
-                          <input
-                            className={styles.editInput}
-                            type="text"
-                            value={editedPhone}
-                            onChange={(e) => setEditedPhone(e.target.value)}
-                            onKeyDown={(e) => {
-                              if (e.key === "Enter") {
-                                const confirmApply =
-                                  window.confirm("Apply changes?");
-                                if (confirmApply) {
-                                  handleUpdatePhone(user._id, editedPhone);
-                                }
-                                setEditingUserId(null);
-                              } else if (e.key === "Escape") {
-                                setEditingUserId(null);
-                              }
-                            }}
-                            onBlur={() => setEditingUserId(null)}
-                            autoFocus
-                          />
-                        ) : (
-                          <span
-                            onClick={() => {
-                              setEditingUserId(user._id);
-                              setEditedPhone(user.phone || "");
-                            }}
-                            style={{
-                              cursor: "pointer",
-                              display: "inline-block",
-                              width: "100%",
-                            }}
-                            title="Click to edit"
-                          >
-                            {user.phone || "-"}
-                          </span>
-                        )}
-                      </td>
-
-                      <td className={styles.country}>{user.country}</td>
-                      <td className={styles.role}>{user.role}</td>
-                      <td className={styles.actions}>
-                        <button
-                          onClick={() => handlePromote(user._id)}
-                          className="px-2 py-1 bg-green-600 text-white rounded"
-                          disabled={
-                            user.role === "admin" || user.role === "superadmin"
-                          }
-                        >
-                          Promote
-                        </button>
-                        <button
-                          onClick={() => handleDelete(user._id)}
-                          className="px-2 py-1 bg-red-600 text-white rounded"
-                          disabled={user.role === "superadmin"}
-                        >
-                          Delete
-                        </button>
-                        <button
-                          onClick={() =>
-                            handleBlockToggle(user._id, user.isBlocked)
-                          }
-                          className={
-                            user.isBlocked ? "bg-blue-600" : "bg-yellow-600"
-                          }
-                        >
-                          {user.isBlocked ? "Unblock" : "Block"}
-                        </button>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
+    <div className="content">
+      <div className="header-row">
+        <h2 className="header-title">All Users</h2>
+        <div className="icon-with-tooltip">
+          <img
+            className="logout-icon"
+            src={LogoutIcon}
+            alt="Logout"
+            onClick={handleLogout}
+          />
+          <span className="tooltip-text-bottom">Logout</span>
         </div>
       </div>
-    </>
+      <div className={styles.container}>
+        <table className={styles.userTable}>
+          <thead>
+            <tr>
+              <th>Username</th>
+              <th>Email</th>
+              <th>Phone</th>
+              <th>Country</th>
+              <th>Role</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {users.length === 0 ? (
+              <tr>
+                <td className="text-center p-4">No users found</td>
+              </tr>
+            ) : (
+              users.map((user) => (
+                <tr key={user._id}>
+                  {renderEditableCell(user, "username", styles.userName)}
+                  <td className={styles.email}>{user.email}</td>
+                  {renderEditableCell(user, "phone", styles.phoneNumber)}
+                  {renderEditableCell(user, "country", styles.country)}
+                  <td className={styles.role}>{user.role}</td>
+                  <td className={styles.actions}>
+                    <button
+                      onClick={() => handlePromote(user._id)}
+                      className="px-2 py-1 bg-green-600 text-white rounded"
+                      disabled={["admin", "superadmin"].includes(user.role)}
+                    >
+                      Promote
+                    </button>
+                    <button
+                      onClick={() => handleDelete(user._id)}
+                      className="px-2 py-1 bg-red-600 text-white rounded"
+                      disabled={user.role === "superadmin"}
+                    >
+                      Delete
+                    </button>
+                    <button
+                      onClick={() =>
+                        handleBlockToggle(user._id, user.isBlocked)
+                      }
+                      className={`px-2 py-1 text-white rounded ${
+                        user.isBlocked ? "bg-blue-600" : "bg-yellow-600"
+                      }`}
+                      disabled={user.role === "superadmin"}
+                    >
+                      {user.isBlocked ? "Unblock" : "Block"}
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
   );
 };
 
