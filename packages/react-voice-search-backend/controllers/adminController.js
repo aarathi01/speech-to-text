@@ -31,11 +31,22 @@ export const deleteUserById = async (req, res) => {
 
 export const updateUserByAdmin = async (req, res) => {
   try {
-    const user = await User.findByIdAndUpdate(
-      req.params.id,
-      { phone: req.body.phone },
-      { new: true }
-    );
+    const allowedFields = ["phone", "username", "country"];
+    const updates = {};
+
+    // Filter only allowed fields from the request body
+    for (const key of allowedFields) {
+      if (req.body[key] !== undefined) {
+        updates[key] = req.body[key];
+      }
+    }
+
+    if (Object.keys(updates).length === 0) {
+      return res.status(400).json({ message: "No valid fields to update" });
+    }
+
+    const user = await User.findByIdAndUpdate(req.params.id, updates, { new: true });
+
     if (!user) return res.status(404).json({ message: "User not found" });
     res.json({ message: "User updated successfully", user });
   } catch (err) {
