@@ -27,9 +27,9 @@ const UserManagementPanel: React.FC = () => {
     }
   };
 
-  const handlePromote = async (id: string) => {
+  const handlePromote = async (userId: string) => {
     try {
-      await promoteToAdmin(id);
+      await promoteToAdmin(userId);
       showSuccess("User promoted to admin");
       fetchUsers();
     } catch {
@@ -37,9 +37,9 @@ const UserManagementPanel: React.FC = () => {
     }
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (userId: string) => {
     try {
-      await deleteUser(id);
+      await deleteUser(userId);
       showSuccess("User deleted");
       fetchUsers();
     } catch {
@@ -154,7 +154,7 @@ const UserManagementPanel: React.FC = () => {
                       <td  className={styles.role}>{user.role}</td>
                       <td className={styles.actions}>
                         <button
-                          onClick={() => handlePromote(user.id)}
+                          onClick={() => handlePromote(user._id)}
                           className="px-2 py-1 bg-green-600 text-white rounded"
                           disabled={
                             user.role === "admin" || user.role === "superadmin"
@@ -163,7 +163,7 @@ const UserManagementPanel: React.FC = () => {
                           Promote
                         </button>
                         <button
-                          onClick={() => handleDelete(user.id)}
+                          onClick={() => handleDelete(user._id)}
                           className="px-2 py-1 bg-red-600 text-white rounded"
                           disabled={user.role === "superadmin"}
                         >
