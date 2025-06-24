@@ -4,10 +4,9 @@ import {
   promoteToAdmin,
   deleteUser,
 } from "../services/userService";
-import { toast } from "react-toastify";
 import LogoutIcon from "../assets/logout.svg";
 import { logout } from "../services/authService";
-import { showSuccess } from "../utils/errorHandler";
+import { showError, showSuccess } from "../utils/errorHandler";
 import { useNavigate } from "react-router-dom";
 import styles from "./UserManagementPanel.module.css";
 
@@ -21,27 +20,27 @@ const UserManagementPanel: React.FC = () => {
       setUsers(res.data);
     } catch (err) {
       console.error(err);
-      toast.error("Failed to fetch users");
+      showError("Failed to fetch users");
     }
   };
 
   const handlePromote = async (id: string) => {
     try {
       await promoteToAdmin(id);
-      toast.success("User promoted to admin");
+      showSuccess("User promoted to admin");
       fetchUsers();
     } catch {
-      toast.error("Failed to promote user");
+      showError("Failed to promote user");
     }
   };
 
   const handleDelete = async (id: string) => {
     try {
       await deleteUser(id);
-      toast.success("User deleted");
+      showSuccess("User deleted");
       fetchUsers();
     } catch {
-      toast.error("Failed to delete user");
+      showError("Failed to delete user");
     }
   };
 
