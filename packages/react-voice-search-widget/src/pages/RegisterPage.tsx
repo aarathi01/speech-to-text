@@ -11,7 +11,7 @@ const RegisterPage: React.FC = () => {
     email: "",
     country: "",
     password: "",
-    phone: null,
+    phone: "",
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});

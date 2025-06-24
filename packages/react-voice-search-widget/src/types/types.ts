@@ -18,7 +18,7 @@ export type RegisterPayload = {
   email: string;
   password: string;
   country: string;
-  phone: number;
+  phone: string;
 };
 
 export type ErrorWithMessage = {
