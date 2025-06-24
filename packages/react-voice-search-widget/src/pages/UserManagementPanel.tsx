@@ -4,6 +4,8 @@ import {
   promoteToAdmin,
   deleteUser,
   updateUser,
+  unblockUser,
+  blockUser,
 } from "../services/userService";
 import LogoutIcon from "../assets/logout.svg";
 import { logout } from "../services/authService";
@@ -62,6 +64,24 @@ const UserManagementPanel: React.FC = () => {
     } catch (err) {
       showError("Failed to update phone number");
       console.error(err);
+    }
+  };
+
+  const handleBlockToggle = async (
+    userId: string,
+    currentlyBlocked: boolean
+  ) => {
+    try {
+      if (currentlyBlocked) {
+        await unblockUser(userId);
+        showSuccess("User unblocked");
+      } else {
+        await blockUser(userId);
+        showSuccess("User blocked");
+      }
+      fetchUsers();
+    } catch {
+      showError("Failed to update block status");
     }
   };
 
@@ -151,7 +171,7 @@ const UserManagementPanel: React.FC = () => {
                       </td>
 
                       <td className={styles.country}>{user.country}</td>
-                      <td  className={styles.role}>{user.role}</td>
+                      <td className={styles.role}>{user.role}</td>
                       <td className={styles.actions}>
                         <button
                           onClick={() => handlePromote(user._id)}
@@ -168,6 +188,16 @@ const UserManagementPanel: React.FC = () => {
                           disabled={user.role === "superadmin"}
                         >
                           Delete
+                        </button>
+                        <button
+                          onClick={() =>
+                            handleBlockToggle(user._id, user.isBlocked)
+                          }
+                          className={
+                            user.isBlocked ? "bg-blue-600" : "bg-yellow-600"
+                          }
+                        >
+                          {user.isBlocked ? "Unblock" : "Block"}
                         </button>
                       </td>
                     </tr>
