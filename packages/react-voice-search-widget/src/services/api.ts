@@ -33,29 +33,31 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     const status = error.response?.status;
+    const data = error.response?.data;
+
     const message =
-      error.response?.data?.message || error.message || "Something went wrong";
+      data?.error || data?.message || error.message || "Something went wrong";
 
     switch (status) {
       case 400:
         showToast(message || "Bad request");
         break;
       case 401:
-        showToast("Unauthorized. Please log in again.");
+        showToast(message || "Unauthorized. Please log in again.");
         localStorage.removeItem("isAuthenticated");
         window.location.href = "/login";
         break;
       case 403:
-        showToast("Access denied.");
+        showToast(message || "Access denied.");
         break;
       case 404:
-        showToast("Resource not found.");
+        showToast(message || "Resource not found.");
         break;
       case 409:
-        showToast("Email already exists!");
+        showToast(message || "Conflict: " + message);
         break;
       case 500:
-        showToast("Internal Server Error.");
+        showToast(message || "Internal server error.");
         break;
       default:
         showToast(message);
