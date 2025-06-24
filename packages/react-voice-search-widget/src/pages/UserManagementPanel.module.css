@@ -5,7 +5,6 @@
   padding-left: 50px;
 }
 
-
 .userTable {
   width: 100%;
   border-collapse: collapse;
@@ -14,13 +13,85 @@
 }
 
 .userTable th,
-.userTable td {
+.userTable {
   padding: 0.75rem 1rem;
   border: 1px solid #e2e8f0;
   text-align: left;
 }
 
 .userTable th {
-  background-color: #f3f4f6;
+  background-color: #131315;
+  color: #ffffff;
   font-weight: 600;
+  text-align: center;
+  justify-content: center;
+}
+
+.phoneNumber {
+  padding: 0.75rem 1rem;
+  border: 1px solid #ffffff;
+  text-align: left;
+  max-width: 90px;
+  max-height: 10px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.editInput {
+  max-width: 150px;
+  box-sizing: border-box;
+  padding: 4px 6px;
+  font-size: 0.9rem;
+}
+
+.actions {
+  max-width: 100px;
+  box-sizing: border-box;
+  padding-top: 15px;
+  padding-left: 105px;
+  font-size: 0.9rem;
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+}
+
+.userName {
+  max-width: 150px;
+  box-sizing: border-box;
+  padding-top: 15px;
+  padding-left: 15px;
+  font-size: 0.9rem;
+  gap: 20px;
+  align-items: left;
+}
+
+.email {
+  max-width: 100px;
+  box-sizing: border-box;
+  font-size: 0.9rem;
+  padding-top: 15px;
+  padding-left: 15px;
+  gap: 20px;
+  align-items: left;
+}
+
+.country {
+  max-width: 100px;
+  box-sizing: border-box;
+  padding-top: 15px;
+  padding-left: 15px;
+  font-size: 0.9rem;
+  gap: 20px;
+  align-items: left;
+}
+
+.role {
+  max-width: 100px;
+  box-sizing: border-box;
+  padding-top: 15px;
+  padding-left: 15px;
+  font-size: 0.9rem;
+  gap: 20px;
+  align-items: left;
 }

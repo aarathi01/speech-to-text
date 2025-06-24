@@ -3,6 +3,7 @@ import {
   getAllUsers,
   promoteToAdmin,
   deleteUser,
+  updateUser,
 } from "../services/userService";
 import LogoutIcon from "../assets/logout.svg";
 import { logout } from "../services/authService";
@@ -13,6 +14,8 @@ import styles from "./UserManagementPanel.module.css";
 const UserManagementPanel: React.FC = () => {
   const navigate = useNavigate();
   const [users, setUsers] = useState([]);
+  const [editingUserId, setEditingUserId] = useState<string | null>(null);
+  const [editedPhone, setEditedPhone] = useState<string>(null);
 
   const fetchUsers = async () => {
     try {
@@ -50,6 +53,18 @@ const UserManagementPanel: React.FC = () => {
     navigate("/login");
   };
 
+  const handleUpdatePhone = async (userId: string, newPhone: string) => {
+    try {
+      await updateUser(userId, { phone: newPhone });
+      showSuccess("Phone number updated");
+      setEditingUserId(null);
+      fetchUsers(); // Refresh list
+    } catch (err) {
+      showError("Failed to update phone number");
+      console.error(err);
+    }
+  };
+
   useEffect(() => {
     fetchUsers();
   }, []);
@@ -77,7 +92,7 @@ const UserManagementPanel: React.FC = () => {
                   <th className="p-2 border">Username</th>
                   <th className="p-2 border">Email</th>
                   <th className="p-2 border">Phone</th>
-                   <th className="p-2 border">Country</th>
+                  <th className="p-2 border">Country</th>
                   <th className="p-2 border">Role</th>
                   <th className="p-2 border">Actions</th>
                 </tr>
@@ -92,12 +107,52 @@ const UserManagementPanel: React.FC = () => {
                 ) : (
                   users.map((user) => (
                     <tr key={user.id}>
-                      <td className="p-2 border">{user.username}</td>
-                      <td className="p-2 border">{user.email}</td>
-                      <td className="p-2 border">{user.phone}</td>
-                      <td className="p-2 border">{user.country}</td>
-                      <td className="p-2 border">{user.role}</td>
-                      <td className="p-2 border space-x-2">
+                      <td className={styles.userName}>{user.username}</td>
+                      <td className={styles.email}>{user.email}</td>
+
+                      <td className={styles.phoneNumber}>
+                        {editingUserId === user._id ? (
+                          <input
+                            className={styles.editInput}
+                            type="text"
+                            value={editedPhone}
+                            onChange={(e) => setEditedPhone(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") {
+                                const confirmApply =
+                                  window.confirm("Apply changes?");
+                                if (confirmApply) {
+                                  handleUpdatePhone(user._id, editedPhone);
+                                }
+                                setEditingUserId(null);
+                              } else if (e.key === "Escape") {
+                                setEditingUserId(null);
+                              }
+                            }}
+                            onBlur={() => setEditingUserId(null)}
+                            autoFocus
+                          />
+                        ) : (
+                          <span
+                            onClick={() => {
+                              setEditingUserId(user._id);
+                              setEditedPhone(user.phone || "");
+                            }}
+                            style={{
+                              cursor: "pointer",
+                              display: "inline-block",
+                              width: "100%",
+                            }}
+                            title="Click to edit"
+                          >
+                            {user.phone || "-"}
+                          </span>
+                        )}
+                      </td>
+
+                      <td className={styles.country}>{user.country}</td>
+                      <td  className={styles.role}>{user.role}</td>
+                      <td className={styles.actions}>
                         <button
                           onClick={() => handlePromote(user.id)}
                           className="px-2 py-1 bg-green-600 text-white rounded"
