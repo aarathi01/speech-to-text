@@ -14,6 +14,12 @@ export const login = async (req, res, next) => {
       return res.status(400).json({ message: "Invalid email or password" });
     }
 
+    if (user.isBlocked) {
+      return res
+        .status(403)
+        .json({ error: "This account is blocked. Please contact admin." });
+    }
+
     const token = generateToken({ id: user._id, role: user.role });
 
     res.cookie("token", token, {
@@ -45,6 +51,10 @@ export const register = async (req, res, next) => {
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(409).json({ message: "Email already exists!" });
+    }
+
+    if (existingUser.isBlocked) {
+      return res.status(403).json({ error: "Your account is blocked." });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);

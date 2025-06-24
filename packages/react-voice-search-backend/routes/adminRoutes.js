@@ -4,6 +4,8 @@ import {
   promoteUserToAdmin,
   deleteUserById,
   updateUserByAdmin,
+  blockUser,
+  unblockUser,
 } from "../controllers/adminController.js";
 import { requireSuperAdmin } from "../middlewares/authMiddleware.js";
 
@@ -20,4 +22,10 @@ router.delete("/users/:id", requireSuperAdmin, deleteUserById);
 
 // Edit /api/users/:id - edit a user
 router.put("/users/:id", requireSuperAdmin, updateUserByAdmin);
-export default router;
+
+// block /api/users/:id - edit a user
+router.put("/users/:id/block", requireSuperAdmin, blockUser);
+
+// unblock /api/users/:id - edit a user
+router.put("/users/:id/unblock", requireSuperAdmin, unblockUser);
+export default router;  

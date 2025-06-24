@@ -11,6 +11,7 @@ const userSchema = new mongoose.Schema({
     enum: ["user", "admin", "superadmin"],
     default: "user",
   },
+   isBlocked: { type: Boolean, default: false },
 });
 
 export default mongoose.model("User", userSchema);

@@ -43,3 +43,32 @@ export const updateUserByAdmin = async (req, res) => {
     res.status(500).json({ message: "Update failed" });
   }
 };
+
+export const blockUser = async (req, res) => {
+  try {
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      { isBlocked: true },
+      { new: true }
+    );
+    if (!user) return res.status(404).json({ message: "User not found" });
+    res.json({ message: "User blocked", user });
+  } catch (err) {
+    res.status(500).json({ message: "Failed to block user" });
+  }
+};
+
+export const unblockUser = async (req, res) => {
+  try {
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      { isBlocked: false },
+      { new: true }
+    );
+    if (!user) return res.status(404).json({ message: "User not found" });
+    res.json({ message: "User unblocked", user });
+  } catch (err) {
+    res.status(500).json({ message: "Failed to unblock user" });
+  }
+};
+
