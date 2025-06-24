@@ -9,6 +9,7 @@ import LogoutIcon from "../assets/logout.svg";
 import { logout } from "../services/authService";
 import { showSuccess } from "../utils/errorHandler";
 import { useNavigate } from "react-router-dom";
+import styles from "./UserManagementPanel.module.css";
 
 const UserManagementPanel: React.FC = () => {
   const navigate = useNavigate();
@@ -69,14 +70,15 @@ const UserManagementPanel: React.FC = () => {
             <span className="tooltip-text-bottom">Logout</span>
           </div>
         </div>
-        <div className="p-8">
+        <div className={styles.container}>
           <div>
-           
-            <table className="w-full border-collapse border border-gray-300">
+            <table className={styles.userTable}>
               <thead>
                 <tr className="bg-gray-100">
                   <th className="p-2 border">Username</th>
                   <th className="p-2 border">Email</th>
+                  <th className="p-2 border">Phone</th>
+                   <th className="p-2 border">Country</th>
                   <th className="p-2 border">Role</th>
                   <th className="p-2 border">Actions</th>
                 </tr>
@@ -93,6 +95,8 @@ const UserManagementPanel: React.FC = () => {
                     <tr key={user.id}>
                       <td className="p-2 border">{user.username}</td>
                       <td className="p-2 border">{user.email}</td>
+                      <td className="p-2 border">{user.phone}</td>
+                      <td className="p-2 border">{user.country}</td>
                       <td className="p-2 border">{user.role}</td>
                       <td className="p-2 border space-x-2">
                         <button
