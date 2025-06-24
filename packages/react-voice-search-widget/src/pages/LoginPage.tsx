@@ -4,11 +4,13 @@ import styles from "./LoginPage.module.css";
 import { login } from "../services/authService";
 import { validateField } from "../utils/validators";
 import { showError, showSuccess } from "../utils/errorHandler";
+import { useAuth } from "../context/useAuth";
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
+  const { setUser } = useAuth();
 
   const validateInputs = (): boolean => {
     if (!email || !password) {
@@ -29,12 +31,19 @@ const Login: React.FC = () => {
     if (!validateInputs()) return;
 
     try {
-      await login({ email, password });
-       localStorage.setItem("isAuthenticated", "true");
+      const userData = await login({ email, password });
+      setUser(userData);
+      localStorage.setItem("isAuthenticated", "true");
+      localStorage.setItem("user", JSON.stringify(userData));
+      if (userData?.role === "admin" || userData?.role === "superadmin") {
+        navigate("/admin");
+      } else {
+        navigate("/voice");
+      }
       showSuccess("Login successful");
-      navigate("/");
     } catch (err) {
       console.error(err);
+      showError("Invalid credentials or server error");
     }
   };
 

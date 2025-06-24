@@ -12,6 +12,7 @@ import { ToastContainer } from "react-toastify";
 import { logout } from "./services/authService";
 import { showError } from "./utils/errorHandler";
 import "react-toastify/dist/ReactToastify.css";
+import RedirectDashboard from "./components/userManagement/RedirectDashboard";
 
 const App: React.FC = () => {
   const navigate = useNavigate();
@@ -30,12 +31,12 @@ const App: React.FC = () => {
     >
       <AuthProvider>
         <Routes>
-          {/* Default Route (User Voice Search) */}
+          {/* Dashboard redirection based on role */}
           <Route
             path="/"
             element={
               <PrivateRoute>
-                <VoiceInput />
+                <RedirectDashboard />
               </PrivateRoute>
             }
           />
@@ -51,6 +52,14 @@ const App: React.FC = () => {
           />
 
           {/* Login */}
+          <Route
+            path="/voice"
+            element={
+              <PrivateRoute role={["user"]}>
+                <VoiceInput />
+              </PrivateRoute>
+            }
+          />
           <Route
             path="/login"
             element={
