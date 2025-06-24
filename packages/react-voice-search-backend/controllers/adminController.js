@@ -28,3 +28,18 @@ export const deleteUserById = async (req, res) => {
     res.status(500).json({ message: "Failed to delete user" });
   }
 };
+
+export const updateUserByAdmin = async (req, res) => {
+  try {
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      { phone: req.body.phone },
+      { new: true }
+    );
+    if (!user) return res.status(404).json({ message: "User not found" });
+    res.json({ message: "User updated successfully", user });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Update failed" });
+  }
+};

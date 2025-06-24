@@ -3,6 +3,7 @@ import {
   listUsers,
   promoteUserToAdmin,
   deleteUserById,
+  updateUserByAdmin,
 } from "../controllers/adminController.js";
 import { requireSuperAdmin } from "../middlewares/authMiddleware.js";
 
@@ -17,4 +18,6 @@ router.put("/users/:id/promote", requireSuperAdmin, promoteUserToAdmin);
 // DELETE /api/admin/users/:id - Delete a user
 router.delete("/users/:id", requireSuperAdmin, deleteUserById);
 
+// Edit /api/users/:id - edit a user
+router.put("/users/:id", requireSuperAdmin, updateUserByAdmin);
 export default router;
