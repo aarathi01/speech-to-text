@@ -14,7 +14,7 @@ export const login = async (req, res, next) => {
       return res.status(400).json({ message: "Invalid email or password" });
     }
 
-    const token = generateToken({ _id: user._id, role: user.role });
+    const token = generateToken({ id: user._id, role: user.role });
 
     res.cookie("token", token, {
       httpOnly: true,
@@ -26,7 +26,7 @@ export const login = async (req, res, next) => {
     res.status(200).json({
       message: "Login successful",
       user: {
-        _id: user._id,
+        id: user._id,
         email: user.email,
         role: user.role,
       },
@@ -57,7 +57,7 @@ export const register = async (req, res, next) => {
       role,
     });
 
-    const token = generateToken({ _id: user._id, role });
+    const token = generateToken({ id: user._id, role });
 
     res.cookie("token", token, {
       httpOnly: true,
