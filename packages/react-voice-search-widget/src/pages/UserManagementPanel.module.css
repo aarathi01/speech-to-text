@@ -1,97 +1,127 @@
+.tableWrapper {
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+}
 .container {
   padding: 2rem;
   background-color: #f9f9f9;
-  height: 100vh;
   padding-left: 50px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  max-height: calc(100vh - 120px);
 }
 
 .userTable {
   width: 100%;
   border-collapse: collapse;
   background: white;
+  margin-bottom: 1rem;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  table-layout: fixed; /* Ensures fixed column widths */
+  border-collapse: collapse;
 }
 
 .userTable th,
-.userTable {
-  padding: 0.75rem 1rem;
-  border: 1px solid #e2e8f0;
+.userTable td {
+  padding: 0.75rem;
+  border: 1px solid #ccc;
   text-align: left;
+  font-size: 14px;
 }
 
 .userTable th {
+  font-weight: bold;
   background-color: #131315;
   color: #ffffff;
-  font-weight: 600;
   text-align: center;
   justify-content: center;
 }
 
-.phoneNumber {
-  padding: 0.75rem 1rem;
-  border: 1px solid #ffffff;
-  text-align: left;
-  max-width: 90px;
-  max-height: 10px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+.userTable th:nth-child(1),
+.userTable td:nth-child(1) {
+  width: 180px; /* Username */
+}
+
+.userTable th:nth-child(2),
+.userTable td:nth-child(2) {
+  width: 200px; /* Email */
+}
+
+.userTable th:nth-child(3),
+.userTable td:nth-child(3) {
+  width: 120px; /* Phone */
+}
+
+.userTable th:nth-child(4),
+.userTable td:nth-child(4) {
+  width: 180px; /* Country */
+}
+
+.userTable th:nth-child(5),
+.userTable td:nth-child(5) {
+  width: 80px; /* Role */
+}
+
+.userTable th:nth-child(6),
+.userTable td:nth-child(6) {
+  width: 180px; /* Actions */
 }
 
 .editInput {
-  max-width: 150px;
-  box-sizing: border-box;
-  padding: 4px 6px;
-  font-size: 0.9rem;
+  width: 80%;
+  padding: 5px 8px;
+  font-size: 14px;
+  border: 1px solid #888;
+  border-radius: 4px;
 }
 
-.actions {
-  max-width: 100px;
-  box-sizing: border-box;
-  padding-top: 15px;
-  padding-left: 105px;
-  font-size: 0.9rem;
-  display: flex;
-  gap: 15px;
-  justify-content: center;
+.actions button {
+  margin-right: 6px;
+  padding: 4px 5px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+ 
 }
 
-.userName {
-  max-width: 150px;
-  box-sizing: border-box;
-  padding-top: 15px;
-  padding-left: 15px;
-  font-size: 0.9rem;
-  gap: 20px;
-  align-items: left;
+.actions button:hover {
+  opacity: 0.9;
 }
 
-.email {
-  max-width: 100px;
-  box-sizing: border-box;
-  font-size: 0.9rem;
-  padding-top: 15px;
-  padding-left: 15px;
-  gap: 20px;
-  align-items: left;
-}
-
-.country {
-  max-width: 100px;
-  box-sizing: border-box;
-  padding-top: 15px;
-  padding-left: 15px;
-  font-size: 0.9rem;
-  gap: 20px;
-  align-items: left;
-}
-
+.userName,
+.phoneNumber,
+.email,
+.country,
 .role {
-  max-width: 100px;
-  box-sizing: border-box;
-  padding-top: 15px;
-  padding-left: 15px;
-  font-size: 0.9rem;
-  gap: 20px;
-  align-items: left;
+  font-size: 14px;
+  color: #444;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  margin-top: 1rem;
+}
+
+.pagination button {
+  padding: 6px 12px;
+  background-color: black;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.pagination button[disabled] {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.pagination span {
+  font-size: 14px;
 }

@@ -1,7 +1,7 @@
 import { User } from "../types/userTypes";
 import api from "./api";
 
-export const getAllUsers = () => api.get("/admin/users");
+export const getAllUsers = (page = 1)=> api.get(`/admin/users?page=${page}`);
 export const promoteToAdmin = (id: string) =>
   api.put(`/admin/users/${id}/promote`);
 export const deleteUser = (id: string) => api.delete(`/admin/users/${id}`);

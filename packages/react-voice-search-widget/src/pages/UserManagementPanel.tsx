@@ -22,11 +22,16 @@ const UserManagementPanel: React.FC = () => {
     field: keyof User;
   } | null>(null);
   const [editedValue, setEditedValue] = useState<string>("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
-  const fetchUsers = async () => {
+  const fetchUsers = async (page = 1) => {
     try {
-      const res = await getAllUsers();
-      setUsers(res.data);
+      const res = await getAllUsers(page);
+      const { users, page: current, totalPages } = res.data;
+      setUsers(users);
+      setCurrentPage(current);
+      setTotalPages(totalPages);
     } catch (err) {
       console.error(err);
       showError("Failed to fetch users");
@@ -37,7 +42,7 @@ const UserManagementPanel: React.FC = () => {
     try {
       await promoteToAdmin(userId);
       showSuccess("User promoted to admin");
-      fetchUsers();
+      fetchUsers(currentPage);
     } catch {
       showError("Failed to promote user");
     }
@@ -47,7 +52,7 @@ const UserManagementPanel: React.FC = () => {
     try {
       await deleteUser(userId);
       showSuccess("User deleted");
-      fetchUsers();
+      fetchUsers(currentPage);
     } catch {
       showError("Failed to delete user");
     }
@@ -71,7 +76,7 @@ const UserManagementPanel: React.FC = () => {
         await blockUser(userId);
         showSuccess("User blocked");
       }
-      fetchUsers();
+      fetchUsers(currentPage);
     } catch {
       showError("Failed to update block status");
     }
@@ -95,7 +100,7 @@ const UserManagementPanel: React.FC = () => {
       await updateUser(userId, { [field]: value });
       showSuccess(`${field} updated`);
       setEditingField(null);
-      fetchUsers();
+      fetchUsers(currentPage);
     } catch (err) {
       showError(`Failed to update ${field}`);
       console.error(err);
@@ -103,8 +108,8 @@ const UserManagementPanel: React.FC = () => {
   };
 
   useEffect(() => {
-    fetchUsers();
-  }, []);
+    fetchUsers(currentPage);
+  }, [currentPage]);
 
   const renderEditableCell = (
     user: User,
@@ -166,63 +171,86 @@ const UserManagementPanel: React.FC = () => {
           <span className="tooltip-text-bottom">Logout</span>
         </div>
       </div>
+
       <div className={styles.container}>
-        <table className={styles.userTable}>
-          <thead>
-            <tr>
-              <th>Username</th>
-              <th>Email</th>
-              <th>Phone</th>
-              <th>Country</th>
-              <th>Role</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {users.length === 0 ? (
+        <div className={styles.tableWrapper}>
+          <table className={styles.userTable}>
+            <thead>
               <tr>
-                <td className="text-center p-4">No users found</td>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Country</th>
+                <th>Role</th>
+                <th>Actions</th>
               </tr>
-            ) : (
-              users.map((user) => (
-                <tr key={user._id}>
-                  {renderEditableCell(user, "username", styles.userName)}
-                  <td className={styles.email}>{user.email}</td>
-                  {renderEditableCell(user, "phone", styles.phoneNumber)}
-                  {renderEditableCell(user, "country", styles.country)}
-                  <td className={styles.role}>{user.role}</td>
-                  <td className={styles.actions}>
-                    <button
-                      onClick={() => handlePromote(user._id)}
-                      className="px-2 py-1 bg-green-600 text-white rounded"
-                      disabled={["admin", "superadmin"].includes(user.role)}
-                    >
-                      Promote
-                    </button>
-                    <button
-                      onClick={() => handleDelete(user._id)}
-                      className="px-2 py-1 bg-red-600 text-white rounded"
-                      disabled={user.role === "superadmin"}
-                    >
-                      Delete
-                    </button>
-                    <button
-                      onClick={() =>
-                        handleBlockToggle(user._id, user.isBlocked)
-                      }
-                      className={`px-2 py-1 text-white rounded ${
-                        user.isBlocked ? "bg-blue-600" : "bg-yellow-600"
-                      }`}
-                      disabled={user.role === "superadmin"}
-                    >
-                      {user.isBlocked ? "Unblock" : "Block"}
-                    </button>
+            </thead>
+            <tbody>
+              {users.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="text-center p-4">
+                    No users found
                   </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              ) : (
+                users.map((user) => (
+                  <tr key={user._id}>
+                    {renderEditableCell(user, "username", styles.userName)}
+                    <td className={styles.email}>{user.email}</td>
+                    {renderEditableCell(user, "phone", styles.phoneNumber)}
+                    {renderEditableCell(user, "country", styles.country)}
+                    <td className={styles.role}>{user.role}</td>
+                    <td className={styles.actions}>
+                      <button
+                        onClick={() => handlePromote(user._id)}
+                        className="px-2 py-1 bg-green-600 text-white rounded"
+                        disabled={["admin", "superadmin"].includes(user.role)}
+                      >
+                        Promote
+                      </button>
+                      <button
+                        onClick={() => handleDelete(user._id)}
+                        className="px-2 py-1 bg-red-600 text-white rounded"
+                        disabled={user.role === "superadmin"}
+                      >
+                        Delete
+                      </button>
+                      <button
+                        onClick={() =>
+                          handleBlockToggle(user._id, user.isBlocked)
+                        }
+                        className={`px-2 py-1 text-white rounded ${
+                          user.isBlocked ? "bg-blue-600" : "bg-yellow-600"
+                        }`}
+                        disabled={user.role === "superadmin"}
+                      >
+                        {user.isBlocked ? "Unblock" : "Block"}
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        <div className={styles.pagination}>
+          <button
+            onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+            disabled={currentPage === 1}
+          >
+            Previous
+          </button>
+          <span>
+            Page {currentPage} of {totalPages}
+          </span>
+          <button
+            onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+            disabled={currentPage === totalPages}
+          >
+            Next
+          </button>
+        </div>
       </div>
     </div>
   );
