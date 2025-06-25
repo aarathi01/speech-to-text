@@ -13,6 +13,8 @@ export const validateField = (name: string, value: string) => {
 
     case "country":
       if (!value.trim()) return "Country is required";
+       if (!/^[a-zA-Z\s]+$/.test(value))
+        return "Country can only contain letters, spaces";
       break;
 
     case "phone":
