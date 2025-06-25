@@ -1,5 +1,5 @@
+import User from "../models/User.js";
 import {
-  findAllUsers,
   promoteToAdmin,
   deleteUser,
   updateUserFields,
@@ -9,8 +9,16 @@ import {
 
 export const listUsers = async (req, res) => {
   try {
-    const users = await findAllUsers();
-    res.json(users);
+    const page = parseInt(req.query.page) || 1;
+    const limit = 10;
+    const skip = (page - 1) * limit;
+
+    const totalUsers = await User.countDocuments();
+    const users = await User.find().skip(skip).limit(limit);
+
+    const totalPages = Math.ceil(totalUsers / limit);
+
+    res.json({ users, page, totalPages });
   } catch (err) {
     res.status(500).json({ message: "Failed to fetch users" });
   }

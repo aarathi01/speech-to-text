@@ -1,7 +1,5 @@
 import User from "../models/User.js";
 
-export const findAllUsers = () => User.find({});
-
 export const promoteToAdmin = (id) =>
   User.findByIdAndUpdate(id, { role: "admin" });
 
