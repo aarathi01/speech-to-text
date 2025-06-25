@@ -8,6 +8,10 @@ import {
   unblockUser,
 } from "../controllers/adminController.js";
 import { requireSuperAdmin } from "../middlewares/authMiddleware.js";
+import {
+  getUserSearchHistory,
+  deleteSearchHistoryEntry,
+} from "../controllers/adminHistoryController.js";
 
 const router = express.Router();
 
@@ -23,9 +27,15 @@ router.delete("/users/:id", requireSuperAdmin, deleteUserById);
 // Edit /api/users/:id - edit user info (name, country and phone)
 router.put("/users/:id", requireSuperAdmin, updateUserByAdmin);
 
-// block /api/users/:id - block a user
+// block /api/users/:id/block - block a user
 router.put("/users/:id/block", requireSuperAdmin, blockUser);
 
-// unblock /api/users/:id - unblock a user
+// unblock /api/users/:id/unblock - unblock a user
 router.put("/users/:id/unblock", requireSuperAdmin, unblockUser);
-export default router;  
+
+// get history /api/users/:id/history - history of a  user
+router.get("/users/:id/history", requireSuperAdmin,  getUserSearchHistory);
+
+// delete history /api/users/:id/history/:historyId - delete hisdtory of a  user
+router.delete("/users/:id/history/:historyId", requireSuperAdmin,  deleteSearchHistoryEntry);
+export default router;
