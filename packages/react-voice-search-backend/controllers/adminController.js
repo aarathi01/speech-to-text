@@ -1,8 +1,15 @@
-import User from "../models/User.js";
+import {
+  findAllUsers,
+  promoteToAdmin,
+  deleteUser,
+  updateUserFields,
+  blockUserById,
+  unblockUserById,
+} from "../services/userService.js";
 
 export const listUsers = async (req, res) => {
   try {
-    const users = await User.find({});
+    const users = await findAllUsers();
     res.json(users);
   } catch (err) {
     res.status(500).json({ message: "Failed to fetch users" });
@@ -11,8 +18,7 @@ export const listUsers = async (req, res) => {
 
 export const promoteUserToAdmin = async (req, res) => {
   try {
-    const { id } = req.params;
-    await User.findByIdAndUpdate(id, { role: "admin" });
+    await promoteToAdmin(req.params.id);
     res.json({ message: "User promoted to admin" });
   } catch (err) {
     res.status(500).json({ message: "Failed to promote user" });
@@ -21,8 +27,7 @@ export const promoteUserToAdmin = async (req, res) => {
 
 export const deleteUserById = async (req, res) => {
   try {
-    const { id } = req.params;
-    await User.findByIdAndDelete(id);
+    await deleteUser(req.params.id);
     res.json({ message: "User deleted successfully" });
   } catch (err) {
     res.status(500).json({ message: "Failed to delete user" });
@@ -34,7 +39,6 @@ export const updateUserByAdmin = async (req, res) => {
     const allowedFields = ["phone", "username", "country"];
     const updates = {};
 
-    // Filter only allowed fields from the request body
     for (const key of allowedFields) {
       if (req.body[key] !== undefined) {
         updates[key] = req.body[key];
@@ -45,9 +49,9 @@ export const updateUserByAdmin = async (req, res) => {
       return res.status(400).json({ message: "No valid fields to update" });
     }
 
-    const user = await User.findByIdAndUpdate(req.params.id, updates, { new: true });
-
+    const user = await updateUserFields(req.params.id, updates);
     if (!user) return res.status(404).json({ message: "User not found" });
+
     res.json({ message: "User updated successfully", user });
   } catch (err) {
     console.error(err);
@@ -57,11 +61,7 @@ export const updateUserByAdmin = async (req, res) => {
 
 export const blockUser = async (req, res) => {
   try {
-    const user = await User.findByIdAndUpdate(
-      req.params.id,
-      { isBlocked: true },
-      { new: true }
-    );
+    const user = await blockUserById(req.params.id);
     if (!user) return res.status(404).json({ message: "User not found" });
     res.json({ message: "User blocked", user });
   } catch (err) {
@@ -71,15 +71,10 @@ export const blockUser = async (req, res) => {
 
 export const unblockUser = async (req, res) => {
   try {
-    const user = await User.findByIdAndUpdate(
-      req.params.id,
-      { isBlocked: false },
-      { new: true }
-    );
+    const user = await unblockUserById(req.params.id);
     if (!user) return res.status(404).json({ message: "User not found" });
     res.json({ message: "User unblocked", user });
   } catch (err) {
     res.status(500).json({ message: "Failed to unblock user" });
   }
 };
-

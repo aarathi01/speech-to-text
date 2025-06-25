@@ -1,62 +1,33 @@
-import { createRequire } from "module";
-import cookie from "cookie";
-import vosk from "vosk"; 
-import jwt from "jsonwebtoken";
-import { SAMPLE_RATE, JWT_SECRET } from "../utils/config.js";
+import { verifyWebSocketToken } from "../utils/authSocket.js";
+import {
+  createRecognizer,
+  handleAudioMessage,
+} from "../services/voskService.js";
 
 export const initializeWebSocket = (wss, model) => {
   wss.on("connection", (ws, req) => {
-    const cookies = cookie.parse(req.headers.cookie || "");
-    const token = cookies.token;
+    const decoded = verifyWebSocketToken(req, ws);
+    if (!decoded) return;
 
-    if (!token) {
-      console.warn("WebSocket rejected: Missing token.");
-      ws.close(401, "Missing authentication token");
-      return;
-    }
-
-    try {
-      jwt.verify(token, JWT_SECRET);
-    } catch (err) {
-      console.warn("WebSocket rejected: Invalid or expired token.");
-      ws.close(401, "Invalid or expired token");
-      return;
-    }
-
-    const recognizer = new vosk.Recognizer({ model, sampleRate: SAMPLE_RATE });
-    let transcript = "";
+    const recognizer = createRecognizer(model);
+    const transcriptRef = { current: "" };
 
     ws.on("message", (data, isBinary) => {
-      if (!isBinary) {
-        console.warn("Received non-binary data. Ignoring.");
-        return;
-      }
+      if (!isBinary) return;
       try {
-        const isFinal = recognizer.acceptWaveform(data);
-
-        if (isFinal) {
-          const result = recognizer.result();
-          if (result.text && result.text.trim()) {
-            transcript += (transcript ? " " : "") + result.text.trim();
-          }
-          ws.send(JSON.stringify({ final: result.text }));
-        } else {
-          const partial = recognizer.partialResult();
-          if (partial.partial) {
-            ws.send(JSON.stringify({ partial: partial.partial }));
-          }
-        }
+        handleAudioMessage(recognizer, data, ws, transcriptRef);
       } catch (error) {
-        console.error("Error processing audio data:", error);
+        console.error("Error processing audio:", error);
         ws.send(JSON.stringify({ error: "Error processing audio data" }));
       }
     });
 
     ws.on("close", () => {
-      if (!transcript.trim()) {
+      const finalText = transcriptRef.current.trim();
+      if (!finalText) {
         console.warn("Session ended. No speech detected.");
       } else {
-        console.log(`Final transcript for user ${ws.user?.email || "Unknown"}: ${transcript}`);
+        console.log(`Final transcript: ${finalText}`);
       }
       recognizer.free();
     });

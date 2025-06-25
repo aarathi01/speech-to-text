@@ -1,32 +1,15 @@
-import User from "../models/User.js";
-import bcrypt from "bcryptjs";
-import { generateToken } from "../utils/jwt.js";
+import { authenticateUser, registerUser } from "../services/authService.js";
 
 export const login = async (req, res, next) => {
   try {
-    const email = req.body.email?.trim().toLowerCase();
-    const { password } = req.body;
-
-    const user = await User.findOne({ email });
-    const isMatch = user && (await bcrypt.compare(password, user.password));
-
-    if (!user || !isMatch) {
-      return res.status(400).json({ message: "Invalid email or password" });
-    }
-
-    if (user.isBlocked) {
-      return res
-        .status(403)
-        .json({ error: "This account is blocked. Please contact admin." });
-    }
-
-    const token = generateToken({ id: user._id, role: user.role });
+    const { email, password } = req.body;
+    const { user, token } = await authenticateUser(email, password);
 
     res.cookie("token", token, {
       httpOnly: true,
       secure: true,
       sameSite: "Strict",
-      maxAge: 60 * 60 * 1000,
+      maxAge: 60 * 60 * 1000, // 1 hour
     });
 
     res.status(200).json({
@@ -39,35 +22,16 @@ export const login = async (req, res, next) => {
     });
   } catch (err) {
     console.error("Login error:", err);
-    next({ statusCode: 500, message: "Internal server error" });
+    next({
+      statusCode: err.statusCode || 500,
+      message: err.message || "Internal server error",
+    });
   }
 };
 
 export const register = async (req, res, next) => {
   try {
-    const { username, email, password, phone, country } = req.body;
-    const role = "user";
-
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return res.status(409).json({ message: "Email already exists!" });
-    }
-
-    if (existingUser.isBlocked) {
-      return res.status(403).json({ error: "Your account is blocked." });
-    }
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const user = await User.create({
-      username,
-      email,
-      password: hashedPassword,
-      phone,
-      country,
-      role,
-    });
-
-    const token = generateToken({ id: user._id, role });
+    const { user, token } = await registerUser(req.body);
 
     res.cookie("token", token, {
       httpOnly: true,
@@ -79,6 +43,9 @@ export const register = async (req, res, next) => {
     res.status(201).json({ message: "Registered and logged in successfully" });
   } catch (err) {
     console.error("Registration error:", err);
-    next({ statusCode: 500, message: "Internal server error" });
+    next({
+      statusCode: err.statusCode || 500,
+      message: err.message || "Internal server error",
+    });
   }
 };
