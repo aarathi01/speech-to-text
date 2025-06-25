@@ -1,0 +1,69 @@
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modalContent {
+  background-color: #fff;
+  width: 60%;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 20px;
+  position: relative;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+}
+
+.scrollContainer {
+  max-height: 60vh;
+  overflow-y: auto;
+  margin-top: 10px;
+  border: 1px solid #ccc;
+  padding: 10px;
+}
+
+.historyItem {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+}
+.closeButton {
+  align-self: flex-end;
+  margin-top: auto;
+  background-color: #555;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  position: absolute;
+  top: 30px;
+  right: 20px;
+}
+
+.closeButton:hover {
+  background-color: #333;
+}
+
+
+.deleteButton {
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  margin-top: 6px;
+  cursor: pointer;
+}
+
+.deleteButton:hover {
+  background-color: #c0392b;
+}

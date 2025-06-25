@@ -51,12 +51,12 @@
 
 .userTable th:nth-child(3),
 .userTable td:nth-child(3) {
-  width: 120px; /* Phone */
+  width: 100px; /* Phone */
 }
 
 .userTable th:nth-child(4),
 .userTable td:nth-child(4) {
-  width: 180px; /* Country */
+  width: 120px; /* Country */
 }
 
 .userTable th:nth-child(5),
@@ -66,7 +66,7 @@
 
 .userTable th:nth-child(6),
 .userTable td:nth-child(6) {
-  width: 180px; /* Actions */
+  width: 250px; /* Actions */
 }
 
 .editInput {
@@ -124,4 +124,10 @@
 
 .pagination span {
   font-size: 14px;
+}
+
+.errorText {
+  color: red;
+  font-size: 0.75rem;
+  margin-top: 4px;
 }

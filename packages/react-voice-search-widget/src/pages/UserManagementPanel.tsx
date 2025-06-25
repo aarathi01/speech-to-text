@@ -13,6 +13,8 @@ import { showError, showSuccess } from "../utils/errorHandler";
 import { useNavigate } from "react-router-dom";
 import styles from "./UserManagementPanel.module.css";
 import { User } from "../types/userTypes";
+import HistoryModal from "../components/SearchHistoryModal";
+import { validateField } from "../utils/validators";
 
 const UserManagementPanel: React.FC = () => {
   const navigate = useNavigate();
@@ -24,6 +26,8 @@ const UserManagementPanel: React.FC = () => {
   const [editedValue, setEditedValue] = useState<string>("");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  const [editError, setEditError] = useState<string>("");
 
   const fetchUsers = async (page = 1) => {
     try {
@@ -89,6 +93,7 @@ const UserManagementPanel: React.FC = () => {
   ) => {
     setEditingField({ userId, field });
     setEditedValue(currentValue || "");
+    setEditError("");
   };
 
   const handleUpdate = async (
@@ -96,10 +101,17 @@ const UserManagementPanel: React.FC = () => {
     field: keyof User,
     value: string
   ) => {
+    const error = validateField(field, value);
+    if (error) {
+      setEditError(error);
+      return;
+    }
+
     try {
       await updateUser(userId, { [field]: value });
       showSuccess(`${field} updated`);
       setEditingField(null);
+      setEditError("");
       fetchUsers(currentPage);
     } catch (err) {
       showError(`Failed to update ${field}`);
@@ -111,51 +123,77 @@ const UserManagementPanel: React.FC = () => {
     fetchUsers(currentPage);
   }, [currentPage]);
 
-  const renderEditableCell = (
-    user: User,
-    field: keyof User,
-    className: string
-  ) => {
-    const isEditing =
-      editingField?.userId === user._id && editingField.field === field;
-    return (
-      <td className={className}>
-        {isEditing ? (
+const renderEditableCell = (
+  user: User,
+  field: keyof User,
+  className: string
+) => {
+  const isEditing =
+    editingField?.userId === user._id && editingField.field === field;
+
+  const getValidationKey = (field: keyof User) => {
+    if (field === "username") return "name";
+    return field;
+  };
+
+  return (
+    <td className={className}>
+      {isEditing ? (
+        <>
           <input
             className={styles.editInput}
             value={editedValue}
-            onChange={(e) => setEditedValue(e.target.value)}
+            onChange={(e) => {
+              const val = e.target.value;
+              setEditedValue(val);
+
+              const validationKey = getValidationKey(field);
+              const error = validateField(validationKey, val);
+              setEditError(error);
+            }}
             autoFocus
             onKeyDown={(e) => {
               if (e.key === "Enter") {
+                if (editError) {
+                  showError("Please fix validation error first");
+                  return;
+                }
                 const confirmApply = window.confirm("Apply changes?");
                 if (confirmApply) {
                   handleUpdate(user._id, field, editedValue);
                 }
               } else if (e.key === "Escape") {
                 setEditingField(null);
+                setEditError("");
               }
             }}
-            onBlur={() => setEditingField(null)}
-          />
-        ) : (
-          <span
-            onClick={() =>
-              handleEditStart(user._id, field, user[field] as string)
-            }
-            style={{
-              cursor: "pointer",
-              display: "inline-block",
-              width: "100%",
+            onBlur={() => {
+              setEditingField(null);
+              setEditError("");
             }}
-            title="Click to edit"
-          >
-            {user[field] || "-"}
-          </span>
-        )}
-      </td>
-    );
-  };
+          />
+          {editError && (
+            <div className={styles.errorText}>{editError}</div>
+          )}
+        </>
+      ) : (
+        <span
+          onClick={() =>
+            handleEditStart(user._id, field, user[field] as string)
+          }
+          style={{
+            cursor: "pointer",
+            display: "inline-block",
+            width: "100%",
+          }}
+          title="Click to edit"
+        >
+          {user[field] || "-"}
+        </span>
+      )}
+    </td>
+  );
+};
 
   return (
     <div className="content">
@@ -226,6 +264,12 @@ const UserManagementPanel: React.FC = () => {
                       >
                         {user.isBlocked ? "Unblock" : "Block"}
                       </button>
+                      <button
+                        onClick={() => setSelectedUserId(user._id)}
+                        className="bg-indigo-600 text-white px-2 py-1 rounded"
+                      >
+                        View History
+                      </button>
                     </td>
                   </tr>
                 ))
@@ -252,6 +296,12 @@ const UserManagementPanel: React.FC = () => {
           </button>
         </div>
       </div>
+      {selectedUserId && (
+        <HistoryModal
+          userId={selectedUserId}
+          onClose={() => setSelectedUserId(null)}
+        />
+      )}
     </div>
   );
 };
