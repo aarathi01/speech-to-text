@@ -11,7 +11,7 @@ export const listUsers = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = 10;
-    const skip = (page - 1) * limit;
+    const skip = (page - 1) * limit; //calculate skip
 
     const totalUsers = await User.countDocuments();
     const users = await User.find().skip(skip).limit(limit);
