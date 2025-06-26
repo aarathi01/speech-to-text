@@ -159,10 +159,9 @@ const UserManagementPanel: React.FC = () => {
               className={styles.editInput}
               value={editedValue}
               onChange={(e) => {
-                const val = e.target.value;
-                setEditedValue(val);
+                setEditedValue(e.target.value);
                 const validationKey = field === "username" ? "name" : field;
-                setEditError(validateField(validationKey, val));
+                setEditError(validateField(validationKey, e.target.value));
               }}
               autoFocus
               onKeyDown={(e) => {
@@ -266,35 +265,35 @@ const UserManagementPanel: React.FC = () => {
                         </button>
                       )}
 
-                      {currentUser.role === "superadmin" && (
-                        <button
-                          onClick={() => handleDelete(user._id)}
-                          className="px-2 py-1 bg-red-600 text-white rounded"
-                          disabled={
-                            user.role === "superadmin" ||
-                            user._id === currentUser._id
-                          }
-                        >
-                          Delete
-                        </button>
-                      )}
-
                       {(currentUser.role === "admin" ||
                         currentUser.role === "superadmin") && (
-                        <button
-                          onClick={() =>
-                            handleBlockToggle(user._id, user.isBlocked)
-                          }
-                          className={`px-2 py-1 text-white rounded ${
-                            user.isBlocked ? "bg-blue-600" : "bg-yellow-600"
-                          }`}
-                          disabled={
-                            user.role === "superadmin" ||
-                            user._id === currentUser._id
-                          }
-                        >
-                          {user.isBlocked ? "Unblock" : "Block"}
-                        </button>
+                        <>
+                          <button
+                            onClick={() => handleDelete(user._id)}
+                            className="px-2 py-1 bg-red-600 text-white rounded"
+                            disabled={
+                              user.role === "superadmin" ||
+                              user._id === currentUser._id
+                            }
+                          >
+                            Delete
+                          </button>
+
+                          <button
+                            onClick={() =>
+                              handleBlockToggle(user._id, user.isBlocked)
+                            }
+                            className={`px-2 py-1 text-white rounded ${
+                              user.isBlocked ? "bg-blue-600" : "bg-yellow-600"
+                            }`}
+                            disabled={
+                              user.role === "superadmin" ||
+                              user._id === currentUser._id
+                            }
+                          >
+                            {user.isBlocked ? "Unblock" : "Block"}
+                          </button>
+                        </>
                       )}
 
                       <button
@@ -329,6 +328,7 @@ const UserManagementPanel: React.FC = () => {
           </button>
         </div>
       </div>
+
       {selectedUserId && (
         <HistoryModal
           userId={selectedUserId}
