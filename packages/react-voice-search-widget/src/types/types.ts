@@ -41,6 +41,7 @@ export type HistoryPayload = {
 };
 
 export type HistoryEntry =  {
+  _id: string;
   query: string;
   response: string;
   timestamp: string;

@@ -15,3 +15,6 @@ export const getUserSearchHistory = (userId: string) =>
 
 export const deleteUserSearchEntry = (userId: string, historyId: string) =>
   api.delete(`/admin/users/${userId}/history/${historyId}`);
+
+export const deleteOwnSearchEntry = (historyId: string) =>
+  api.delete(`/history/${historyId}`);

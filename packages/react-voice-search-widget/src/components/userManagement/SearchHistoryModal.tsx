@@ -3,7 +3,7 @@ import styles from "./SearchHistoryModal.module.css";
 import {
   getUserSearchHistory,
   deleteUserSearchEntry,
-} from "../services/historyService";
+} from "../../services/historyService";
 
 interface Props {
   userId: string;

@@ -340,6 +340,29 @@ body {
   color: #444;
 }
 
+.menu-icon {
+  width: 16px;
+  cursor: pointer;
+  margin-left: auto;
+}
+
+.dropdown-menu {
+  position: absolute;
+  background-color: white;
+  border: 1px solid #ccc;
+  padding: 4px 8px;
+  z-index: 10;
+  right: 0;
+}
+
+.query-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+}
+
+
 /* Responsive behavior */
 @media (max-width: 768px) {
   .app-container {

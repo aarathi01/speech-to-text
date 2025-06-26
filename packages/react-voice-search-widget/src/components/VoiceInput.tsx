@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import MicrophoneIcon from "../assets/microphone.svg";
 import ClearIcon from "../assets/clear.svg";
 import SaveIcon from "../assets/save.svg";
 import LogoutIcon from "../assets/logout.svg";
+import MoreIcon from "../assets/more.svg";
 import SearchResults from "./SearchResults";
 import UnsupportedBrowserFallback from "./UnsupportedBrowserFallback";
 import { useVoiceRecorder } from "../hooks/useVoiceRecorder";
@@ -16,7 +17,7 @@ import { useSearchHistory } from "../hooks/useSearchHistory";
 const VoiceInput: React.FC = () => {
   const navigate = useNavigate();
   const { saveSearch } = useSaveSearch();
-  const { history } = useSearchHistory();
+  const { history, deleteOwnSearchEntry } = useSearchHistory(); // add deleteSearch here
 
   const {
     fullTranscript,
@@ -27,6 +28,7 @@ const VoiceInput: React.FC = () => {
   } = useVoiceRecorder();
 
   const { searchResults, error, loading } = useSearch(fullTranscript);
+  const [activeMenuIndex, setActiveMenuIndex] = useState<number | null>(null);
 
   if (!navigator.mediaDevices || !window.AudioContext) {
     return <UnsupportedBrowserFallback />;
@@ -43,6 +45,11 @@ const VoiceInput: React.FC = () => {
     saveSearch(fullTranscript.trim(), searchResults);
   };
 
+  const handleDelete = async (id: string) => {
+    await deleteOwnSearchEntry(id);
+    setActiveMenuIndex(null);
+  };
+
   return (
     <div className="app-container">
       <div className="main-layout">
@@ -52,8 +59,26 @@ const VoiceInput: React.FC = () => {
           <ul className="history-list">
             {history.length > 0 ? (
               history.map((item, index) => (
-                <li key={index} className="history-item">
-                  <div className="query-text">{item.query}</div>
+                <li key={item._id} className="history-item">
+                  <div className="query-header">
+                    <div className="query-text">{item.query}</div>
+                    <div className="menu-wrapper">
+                      <img
+                        src={MoreIcon}
+                        alt="Menu"
+                        className="menu-icon"
+                        onClick={() =>
+                          setActiveMenuIndex(activeMenuIndex === index ? null : index)
+                        }
+                      />
+                      {activeMenuIndex === index && (
+                        <div className="dropdown-menu">
+                          <button onClick={() => handleDelete(item._id)}>Delete</button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
                   <ul className="response-list">
                     {Array.isArray(item.response) &&
                       item.response.map((r, idx: number) => (
