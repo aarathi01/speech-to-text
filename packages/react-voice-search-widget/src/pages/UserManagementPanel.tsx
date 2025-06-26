@@ -29,6 +29,18 @@ const UserManagementPanel: React.FC = () => {
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [editError, setEditError] = useState<string>("");
 
+  const [currentUser, setCurrentUser] = useState<{
+    _id: string;
+    role: string;
+    email: string;
+    username: string;
+  }>({
+    _id: "",
+    role: "",
+    email: "",
+    username: "",
+  });
+
   const fetchUsers = async (page = 1) => {
     try {
       const res = await getAllUsers(page);
@@ -101,7 +113,8 @@ const UserManagementPanel: React.FC = () => {
     field: keyof User,
     value: string
   ) => {
-    const error = validateField(field, value);
+    const validationKey = field === "username" ? "name" : field;
+    const error = validateField(validationKey, value);
     if (error) {
       setEditError(error);
       return;
@@ -121,92 +134,96 @@ const UserManagementPanel: React.FC = () => {
 
   useEffect(() => {
     fetchUsers(currentPage);
+    const userInfo = JSON.parse(localStorage.getItem("user") || "{}");
+    setCurrentUser({
+      _id: userInfo?._id || "",
+      role: userInfo?.role || "",
+      email: userInfo?.email || "",
+      username: userInfo?.username || "",
+    });
   }, [currentPage]);
 
-const renderEditableCell = (
-  user: User,
-  field: keyof User,
-  className: string
-) => {
-  const isEditing =
-    editingField?.userId === user._id && editingField.field === field;
+  const renderEditableCell = (
+    user: User,
+    field: keyof User,
+    className: string
+  ) => {
+    const isEditing =
+      editingField?.userId === user._id && editingField.field === field;
 
-  const getValidationKey = (field: keyof User) => {
-    if (field === "username") return "name";
-    return field;
-  };
-
-  return (
-    <td className={className}>
-      {isEditing ? (
-        <>
-          <input
-            className={styles.editInput}
-            value={editedValue}
-            onChange={(e) => {
-              const val = e.target.value;
-              setEditedValue(val);
-
-              const validationKey = getValidationKey(field);
-              const error = validateField(validationKey, val);
-              setEditError(error);
-            }}
-            autoFocus
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                if (editError) {
-                  showError("Please fix validation error first");
-                  return;
+    return (
+      <td className={className}>
+        {isEditing ? (
+          <>
+            <input
+              className={styles.editInput}
+              value={editedValue}
+              onChange={(e) => {
+                const val = e.target.value;
+                setEditedValue(val);
+                const validationKey = field === "username" ? "name" : field;
+                setEditError(validateField(validationKey, val));
+              }}
+              autoFocus
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  if (editError) {
+                    showError("Fix validation error before applying.");
+                    return;
+                  }
+                  const confirmApply = window.confirm("Apply changes?");
+                  if (confirmApply) {
+                    handleUpdate(user._id, field, editedValue);
+                  }
+                } else if (e.key === "Escape") {
+                  setEditingField(null);
+                  setEditError("");
                 }
-                const confirmApply = window.confirm("Apply changes?");
-                if (confirmApply) {
-                  handleUpdate(user._id, field, editedValue);
-                }
-              } else if (e.key === "Escape") {
+              }}
+              onBlur={() => {
                 setEditingField(null);
                 setEditError("");
-              }
+              }}
+            />
+            {editError && <div className={styles.errorText}>{editError}</div>}
+          </>
+        ) : (
+          <span
+            onClick={() =>
+              handleEditStart(user._id, field, user[field] as string)
+            }
+            style={{
+              cursor: "pointer",
+              display: "inline-block",
+              width: "100%",
             }}
-            onBlur={() => {
-              setEditingField(null);
-              setEditError("");
-            }}
-          />
-          {editError && (
-            <div className={styles.errorText}>{editError}</div>
-          )}
-        </>
-      ) : (
-        <span
-          onClick={() =>
-            handleEditStart(user._id, field, user[field] as string)
-          }
-          style={{
-            cursor: "pointer",
-            display: "inline-block",
-            width: "100%",
-          }}
-          title="Click to edit"
-        >
-          {user[field] || "-"}
-        </span>
-      )}
-    </td>
-  );
-};
+            title="Click to edit"
+          >
+            {user[field] || "-"}
+          </span>
+        )}
+      </td>
+    );
+  };
 
   return (
     <div className="content">
       <div className="header-row">
         <h2 className="header-title">All Users</h2>
-        <div className="icon-with-tooltip">
-          <img
-            className="logout-icon"
-            src={LogoutIcon}
-            alt="Logout"
-            onClick={handleLogout}
-          />
-          <span className="tooltip-text-bottom">Logout</span>
+        <div className="logged-info">
+          <div className="user-info-text">
+            Logged in as: <strong>{currentUser.username}</strong> (
+            {currentUser.email})
+          </div>
+          <div className="icon-with-tooltip">
+            <img
+              className="logout-icon"
+              src={LogoutIcon}
+              alt="Logout"
+              onClick={handleLogout}
+            />
+            <span className="tooltip-text-bottom">Logout</span>
+          </div>
         </div>
       </div>
 
@@ -239,31 +256,47 @@ const renderEditableCell = (
                     {renderEditableCell(user, "country", styles.country)}
                     <td className={styles.role}>{user.role}</td>
                     <td className={styles.actions}>
-                      <button
-                        onClick={() => handlePromote(user._id)}
-                        className="px-2 py-1 bg-green-600 text-white rounded"
-                        disabled={["admin", "superadmin"].includes(user.role)}
-                      >
-                        Promote
-                      </button>
-                      <button
-                        onClick={() => handleDelete(user._id)}
-                        className="px-2 py-1 bg-red-600 text-white rounded"
-                        disabled={user.role === "superadmin"}
-                      >
-                        Delete
-                      </button>
-                      <button
-                        onClick={() =>
-                          handleBlockToggle(user._id, user.isBlocked)
-                        }
-                        className={`px-2 py-1 text-white rounded ${
-                          user.isBlocked ? "bg-blue-600" : "bg-yellow-600"
-                        }`}
-                        disabled={user.role === "superadmin"}
-                      >
-                        {user.isBlocked ? "Unblock" : "Block"}
-                      </button>
+                      {currentUser.role === "superadmin" && (
+                        <button
+                          onClick={() => handlePromote(user._id)}
+                          className="px-2 py-1 bg-green-600 text-white rounded"
+                          disabled={["admin", "superadmin"].includes(user.role)}
+                        >
+                          Promote
+                        </button>
+                      )}
+
+                      {currentUser.role === "superadmin" && (
+                        <button
+                          onClick={() => handleDelete(user._id)}
+                          className="px-2 py-1 bg-red-600 text-white rounded"
+                          disabled={
+                            user.role === "superadmin" ||
+                            user._id === currentUser._id
+                          }
+                        >
+                          Delete
+                        </button>
+                      )}
+
+                      {(currentUser.role === "admin" ||
+                        currentUser.role === "superadmin") && (
+                        <button
+                          onClick={() =>
+                            handleBlockToggle(user._id, user.isBlocked)
+                          }
+                          className={`px-2 py-1 text-white rounded ${
+                            user.isBlocked ? "bg-blue-600" : "bg-yellow-600"
+                          }`}
+                          disabled={
+                            user.role === "superadmin" ||
+                            user._id === currentUser._id
+                          }
+                        >
+                          {user.isBlocked ? "Unblock" : "Block"}
+                        </button>
+                      )}
+
                       <button
                         onClick={() => setSelectedUserId(user._id)}
                         className="bg-indigo-600 text-white px-2 py-1 rounded"
