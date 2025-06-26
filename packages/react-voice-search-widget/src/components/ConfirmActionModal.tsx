@@ -1,0 +1,45 @@
+import React from "react";
+import styles from "./ConfirmActionModal.module.css"; 
+
+interface ConfirmActionModalProps {
+  message: string;
+  onCancel: () => void;
+  onConfirm: () => void;
+  confirmLabel?: string;
+  cancelLabel?: string;  
+  confirmStyle?: "danger" | "primary";
+}
+
+const ConfirmActionModal: React.FC<ConfirmActionModalProps> = ({
+  message,
+  onCancel,
+  onConfirm,
+  confirmLabel = "Delete",
+  cancelLabel = "Cancel",
+  confirmStyle = "danger",
+}) => {
+  return (
+    <div className={styles.modalBackdrop}>
+      <div className={styles.modalContent}>
+        <p>{message}</p>
+        <div className={styles.buttonGroup}>
+          <button onClick={onCancel} className={styles.cancelButton}>
+            {cancelLabel}
+          </button>
+          <button
+            onClick={onConfirm}
+            className={
+              confirmStyle === "danger"
+                ? styles.deleteButton
+                : styles.applyButton
+            }
+          >
+            {confirmLabel}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default ConfirmActionModal;

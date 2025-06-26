@@ -1,0 +1,44 @@
+.modalBackdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
+}
+
+.modalContent {
+  background-color: #fff;
+  padding: 16px 24px;
+  border-radius: 8px;
+  max-width: 300px;
+  text-align: center;
+}
+
+.buttonGroup {
+  margin-top: 12px;
+  display: flex;
+  justify-content: space-around;
+}
+
+.cancelButton 
+.applyButton
+.deleteButton {
+  background-color: #e5e7eb; /* gray */
+  color: black;
+  height: 20px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  padding-bottom: 5px;
+}
+
+
+.applyButton:hover
+.deleteButton:hover
+.deleteButton:hover {
+  transform: scale(1.2);
+}

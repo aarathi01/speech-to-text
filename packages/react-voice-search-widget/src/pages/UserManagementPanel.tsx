@@ -15,6 +15,7 @@ import styles from "./UserManagementPanel.module.css";
 import { User } from "../types/userTypes";
 import HistoryModal from "../components/userManagement/SearchHistoryModal";
 import { validateField } from "../utils/validators";
+import ConfirmDeleteModal from "../components/ConfirmActionModal";
 
 const UserManagementPanel: React.FC = () => {
   const navigate = useNavigate();
@@ -28,18 +29,19 @@ const UserManagementPanel: React.FC = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [editError, setEditError] = useState<string>("");
-
-  const [currentUser, setCurrentUser] = useState<{
-    _id: string;
-    role: string;
-    email: string;
-    username: string;
-  }>({
+  const [deleteUserId, setDeleteUserId] = useState<string | null>(null); // for modal
+  const [currentUser, setCurrentUser] = useState({
     _id: "",
     role: "",
     email: "",
     username: "",
   });
+  const [showApplyModal, setShowApplyModal] = useState(false);
+  const [pendingEdit, setPendingEdit] = useState<{
+    userId: string;
+    field: keyof User;
+    value: string;
+  } | null>(null);
 
   const fetchUsers = async (page = 1) => {
     try {
@@ -64,14 +66,29 @@ const UserManagementPanel: React.FC = () => {
     }
   };
 
-  const handleDelete = async (userId: string) => {
+  const confirmDeleteUser = (userId: string) => {
+    setDeleteUserId(userId);
+  };
+
+  const handleDelete = async () => {
+    if (!deleteUserId) return;
     try {
-      await deleteUser(userId);
+      await deleteUser(deleteUserId);
       showSuccess("User deleted");
       fetchUsers(currentPage);
     } catch {
       showError("Failed to delete user");
+    } finally {
+      setDeleteUserId(null);
     }
+  };
+
+  const confirmApplyChanges = async () => {
+    if (!pendingEdit) return;
+    const { userId, field, value } = pendingEdit;
+    await handleUpdate(userId, field, value);
+    setPendingEdit(null);
+    setShowApplyModal(false);
   };
 
   const handleLogout = () => {
@@ -170,10 +187,12 @@ const UserManagementPanel: React.FC = () => {
                     showError("Fix validation error before applying.");
                     return;
                   }
-                  const confirmApply = window.confirm("Apply changes?");
-                  if (confirmApply) {
-                    handleUpdate(user._id, field, editedValue);
-                  }
+                  setPendingEdit({
+                    userId: user._id,
+                    field,
+                    value: editedValue,
+                  });
+                  setShowApplyModal(true);
                 } else if (e.key === "Escape") {
                   setEditingField(null);
                   setEditError("");
@@ -213,15 +232,15 @@ const UserManagementPanel: React.FC = () => {
           <div className="user-info-text">
             Logged in as: <strong>{currentUser.username}</strong> (
             {currentUser.email})
-          </div>
-          <div className="icon-with-tooltip">
-            <img
-              className="logout-icon"
-              src={LogoutIcon}
-              alt="Logout"
-              onClick={handleLogout}
-            />
-            <span className="tooltip-text-bottom">Logout</span>
+            <div className="icon-with-tooltip">
+              <img
+                className="logout-icon"
+                src={LogoutIcon}
+                alt="Logout"
+                onClick={handleLogout}
+              />
+              <span className="tooltip-text-bottom">Logout</span>
+            </div>
           </div>
         </div>
       </div>
@@ -269,7 +288,7 @@ const UserManagementPanel: React.FC = () => {
                         currentUser.role === "superadmin") && (
                         <>
                           <button
-                            onClick={() => handleDelete(user._id)}
+                            onClick={() => confirmDeleteUser(user._id)}
                             className="px-2 py-1 bg-red-600 text-white rounded"
                             disabled={
                               user.role === "superadmin" ||
@@ -333,6 +352,27 @@ const UserManagementPanel: React.FC = () => {
         <HistoryModal
           userId={selectedUserId}
           onClose={() => setSelectedUserId(null)}
+        />
+      )}
+      {showApplyModal && (
+        <ConfirmDeleteModal
+          message="Apply changes to this field?"
+          onCancel={() => {
+            setShowApplyModal(false);
+            setPendingEdit(null);
+          }}
+          onConfirm={confirmApplyChanges}
+          confirmLabel="OK"
+          cancelLabel="Cancel"
+          confirmStyle="primary"
+        />
+      )}
+
+      {deleteUserId && (
+        <ConfirmDeleteModal
+          onCancel={() => setDeleteUserId(null)}
+          onConfirm={handleDelete}
+          message="Are you sure you want to delete this user?"
         />
       )}
     </div>

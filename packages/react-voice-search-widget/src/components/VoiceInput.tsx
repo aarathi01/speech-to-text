@@ -17,6 +17,7 @@ import {
   deleteOwnSearchEntry,
 } from "../services/historyService";
 import { HistoryEntry } from "../types/types";
+import ConfirmDeleteModal from "./ConfirmActionModal";
 
 const VoiceInput: React.FC = () => {
   const navigate = useNavigate();
@@ -211,17 +212,11 @@ const VoiceInput: React.FC = () => {
 
       {/* Confirmation Modal */}
       {showModal && (
-        <div className="modal-backdrop">
-          <div className="modal">
-            <p>Are you sure you want to delete this search entry?</p>
-            <div className="modal-actions">
-              <button onClick={() => setShowModal(false)}>Cancel</button>
-              <button onClick={performDelete} className="delete-btn">
-                Delete
-              </button>
-            </div>
-          </div>
-        </div>
+        <ConfirmDeleteModal
+          onCancel={() => setShowModal(false)}
+          onConfirm={performDelete}
+          message="Are you sure you want to delete this search entry?"
+        />
       )}
     </div>
   );

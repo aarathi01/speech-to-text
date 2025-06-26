@@ -362,43 +362,6 @@ body {
   position: relative;
 }
 
-/* Modal Styles */
-.modal-backdrop {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.4);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 100;
-}
-
-.modal {
-  background-color: #fff;
-  padding: 16px 24px;
-  border-radius: 8px;
-  max-width: 300px;
-  text-align: center;
-}
-
-.modal-actions {
-  margin-top: 12px;
-  display: flex;
-  justify-content: space-around;
-}
-
-.delete-btn {
-  color: white;
-  background-color: #d9534f;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 4px;
-}
-
-
 
 /* Responsive behavior */
 @media (max-width: 768px) {
