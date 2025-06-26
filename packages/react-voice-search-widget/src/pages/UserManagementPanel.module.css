@@ -66,7 +66,7 @@
 
 .userTable th:nth-child(6),
 .userTable td:nth-child(6) {
-  width: 250px; /* Actions */
+  width: 220px; /* Actions */
 }
 
 .editInput {

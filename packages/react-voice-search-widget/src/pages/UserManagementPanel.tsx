@@ -13,7 +13,7 @@ import { showError, showSuccess } from "../utils/errorHandler";
 import { useNavigate } from "react-router-dom";
 import styles from "./UserManagementPanel.module.css";
 import { User } from "../types/userTypes";
-import HistoryModal from "../components/SearchHistoryModal";
+import HistoryModal from "../components/userManagement/SearchHistoryModal";
 import { validateField } from "../utils/validators";
 
 const UserManagementPanel: React.FC = () => {
@@ -300,7 +300,7 @@ const UserManagementPanel: React.FC = () => {
                         onClick={() => setSelectedUserId(user._id)}
                         className="bg-indigo-600 text-white px-2 py-1 rounded"
                       >
-                        View History
+                        History
                       </button>
                     </td>
                   </tr>
