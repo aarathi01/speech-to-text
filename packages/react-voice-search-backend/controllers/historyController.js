@@ -1,3 +1,4 @@
+import SearchHistory from "../models/SearchHistory.js";
 import {
   saveQueryToHistory,
   getHistoryByUser,
@@ -25,5 +26,28 @@ export const getSearchHistory = async (req, res) => {
   } catch (err) {
     console.error("Error fetching search history", err);
     res.status(500).json({ error: "Failed to fetch history" });
+  }
+};
+
+export const deleteOwnHistoryEntry = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    const historyId = req.params.id;
+    const history = await SearchHistory.findById(historyId);
+
+    if (!history) {
+      return res.status(404).json({ message: "History not found" });
+    }
+
+    if (!history.userId || history.userId.toString() !== userId) {
+      return res
+        .status(403)
+        .json({ message: "Not authorized to delete this entry" });
+    }
+
+    await SearchHistory.findByIdAndDelete(historyId);
+    return res.status(200).json({ message: "History deleted successfully" });
+  } catch (error) {
+    next(error);
   }
 };
