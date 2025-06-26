@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import MicrophoneIcon from "../assets/microphone.svg";
 import ClearIcon from "../assets/clear.svg";
@@ -12,12 +12,20 @@ import { useSearch } from "../hooks/useSearch";
 import { logout } from "../services/authService";
 import { showSuccess } from "../utils/errorHandler";
 import { useSaveSearch } from "../hooks/useSaveSearch";
-import { useSearchHistory } from "../hooks/useSearchHistory";
+import {
+  getSearchHistory,
+  deleteOwnSearchEntry,
+} from "../services/historyService";
+import { HistoryEntry } from "../types/types";
 
 const VoiceInput: React.FC = () => {
   const navigate = useNavigate();
   const { saveSearch } = useSaveSearch();
-  const { history, deleteOwnSearchEntry } = useSearchHistory(); // add deleteSearch here
+
+  const [history, setHistory] = useState<HistoryEntry[]>([]);
+  const [activeMenuIndex, setActiveMenuIndex] = useState<number | null>(null);
+  const [showModal, setShowModal] = useState(false);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const {
     fullTranscript,
@@ -28,7 +36,18 @@ const VoiceInput: React.FC = () => {
   } = useVoiceRecorder();
 
   const { searchResults, error, loading } = useSearch(fullTranscript);
-  const [activeMenuIndex, setActiveMenuIndex] = useState<number | null>(null);
+
+  useEffect(() => {
+    const fetchHistory = async () => {
+      try {
+        const data = await getSearchHistory();
+        setHistory(data);
+      } catch (err) {
+        console.error("Failed to fetch history", err);
+      }
+    };
+    fetchHistory();
+  }, []);
 
   if (!navigator.mediaDevices || !window.AudioContext) {
     return <UnsupportedBrowserFallback />;
@@ -45,9 +64,22 @@ const VoiceInput: React.FC = () => {
     saveSearch(fullTranscript.trim(), searchResults);
   };
 
-  const handleDelete = async (id: string) => {
-    await deleteOwnSearchEntry(id);
+  const confirmDelete = (id: string) => {
+    setSelectedId(id);
+    setShowModal(true);
     setActiveMenuIndex(null);
+  };
+
+  const performDelete = async () => {
+    if (!selectedId) return;
+    try {
+      await deleteOwnSearchEntry(selectedId);
+      setHistory((prev) => prev.filter((entry) => entry._id !== selectedId));
+      setShowModal(false);
+      setSelectedId(null);
+    } catch (err) {
+      console.error("Delete failed", err);
+    }
   };
 
   return (
@@ -68,12 +100,16 @@ const VoiceInput: React.FC = () => {
                         alt="Menu"
                         className="menu-icon"
                         onClick={() =>
-                          setActiveMenuIndex(activeMenuIndex === index ? null : index)
+                          setActiveMenuIndex(
+                            activeMenuIndex === index ? null : index
+                          )
                         }
                       />
                       {activeMenuIndex === index && (
                         <div className="dropdown-menu">
-                          <button onClick={() => handleDelete(item._id)}>Delete</button>
+                          <button onClick={() => confirmDelete(item._id)}>
+                            Delete
+                          </button>
                         </div>
                       )}
                     </div>
@@ -172,6 +208,21 @@ const VoiceInput: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Confirmation Modal */}
+      {showModal && (
+        <div className="modal-backdrop">
+          <div className="modal">
+            <p>Are you sure you want to delete this search entry?</p>
+            <div className="modal-actions">
+              <button onClick={() => setShowModal(false)}>Cancel</button>
+              <button onClick={performDelete} className="delete-btn">
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
