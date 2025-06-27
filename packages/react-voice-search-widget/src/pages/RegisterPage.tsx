@@ -4,8 +4,10 @@ import styles from "./RegisterPage.module.css";
 import { validateField } from "../utils/validators";
 import { register } from "../services/authService";
 import { showError, showSuccess } from "../utils/errorHandler";
+import { useAuth } from "../context/useAuth";
 
 const RegisterPage: React.FC = () => {
+  const { setUser } = useAuth();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -59,13 +61,21 @@ const RegisterPage: React.FC = () => {
         password: formData.password,
       };
 
-      await register(payload);
+      const userData = await register(payload);
+      if (!userData || !userData.role) {
+        showError("Registration succeeded, but failed to retrieve user info.");
+        return;
+      }
+
+      setUser(userData);
+      localStorage.setItem("isAuthenticated", "true");
+      localStorage.setItem("user", JSON.stringify(userData));
 
       // Set auth flag to allow navigation to protected routes
       localStorage.setItem("isAuthenticated", "true");
 
       showSuccess("Registration successful! You are now logged in.");
-      navigate("/");
+      navigate("/voice");
     } catch (err) {
       const errorMsg =
         err?.response?.data?.error ||

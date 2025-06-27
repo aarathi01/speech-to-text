@@ -8,8 +8,10 @@ export const login = async (data: LoginPayload): Promise<User> => {
   return response.data.user;
 };
 
-export const register = (data: RegisterPayload) =>
-  api.post("/auth/register", data);
+export const register = async (data: RegisterPayload) => {
+  const response = await api.post("/auth/register", data);
+  return response.data.user;
+};
 
 export const logout = () => {
   localStorage.removeItem("isAuthenticated");
