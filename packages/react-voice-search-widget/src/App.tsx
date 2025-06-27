@@ -69,6 +69,14 @@ const App: React.FC = () => {
             }
           />
           <Route
+            path="/admin-voice"
+            element={
+              <PrivateRoute role={["admin", "superadmin"]}>
+                <VoiceInput />
+              </PrivateRoute>
+            }
+          />
+          <Route
             path="/login"
             element={
               <PublicRoute>
