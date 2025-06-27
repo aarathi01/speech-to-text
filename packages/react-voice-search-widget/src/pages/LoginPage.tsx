@@ -32,14 +32,26 @@ const Login: React.FC = () => {
 
     try {
       const userData = await login({ email, password });
+      if (!userData?.role) {
+        showError("Invalid user role.");
+        return;
+      }
       setUser(userData);
       localStorage.setItem("isAuthenticated", "true");
       localStorage.setItem("user", JSON.stringify(userData));
-      if (userData?.role === "admin" || userData?.role === "superadmin") {
-        navigate("/dashboard");
-      } else {
-        navigate("/voice");
+
+      switch (userData.role) {
+        case "admin":
+        case "superadmin":
+          navigate("/dashboard");
+          break;
+        case "user":
+          navigate("/voice");
+          break;
+        default:
+          navigate("/login");
       }
+
       showSuccess("Login successful");
     } catch (err) {
       console.error(err);
