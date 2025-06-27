@@ -18,7 +18,7 @@ export const login = async (req, res, next) => {
         id: user._id,
         email: user.email,
         role: user.role,
-        username: user.username
+        username: user.username,
       },
     });
   } catch (err) {
@@ -41,7 +41,17 @@ export const register = async (req, res, next) => {
       maxAge: 60 * 60 * 1000,
     });
 
-    res.status(201).json({ message: "Registered and logged in successfully" });
+    res.status(201).json({
+      message: "Registered and logged in successfully",
+      user: {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+        role: user.role,
+        phone: user.phone,
+        country: user.country,
+      },
+    });
   } catch (err) {
     console.error("Registration error:", err);
     next({
