@@ -253,6 +253,13 @@ body {
   display: inline-block;
 }
 
+.pageContainer {
+  display: flex;
+  min-height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+}
+
 .tooltip-text {
   visibility: hidden;
   width: max-content;
