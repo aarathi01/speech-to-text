@@ -47,12 +47,36 @@ const AdminDashboard: React.FC = () => {
 
         <h2 className={styles.heading}>Dashboard</h2>
         <div className={styles.grid}>
-          <DashboardCard title="Total Users" value={stats.totalUsers} />
-          <DashboardCard title="Blocked Users" value={stats.blockedUsers} />
-          <DashboardCard title="Search History" value={stats.totalSearches} />
-          <DashboardCard title="Superadmins" value={stats.superadminCount} />
-          <DashboardCard title="Admins" value={stats.adminCount} />
-          <DashboardCard title="Recent Queries" value={stats.recentQueries} />
+          <DashboardCard
+            title="Total Users"
+            value={stats.totalUsers}
+            infoText="All registered users including active and blocked."
+          />
+          <DashboardCard
+            title="Blocked Users"
+            value={stats.blockedUsers}
+            infoText="Users who are restricted from logging in."
+          />
+          <DashboardCard
+            title="Search History"
+            value={stats.totalSearches}
+            infoText="Total number of voice search queries made."
+          />
+          <DashboardCard
+            title="Superadmins"
+            value={stats.superadminCount}
+            infoText="Users with full system privileges."
+          />
+          <DashboardCard
+            title="Admins"
+            value={stats.adminCount}
+            infoText="Users with admin rights excluding role promotions."
+          />
+          <DashboardCard
+            title="Recent Queries"
+            value={stats.recentQueries}
+            infoText="Count of searches made in the last 24 hours."
+          />
         </div>
       </div>
     </div>

@@ -1,0 +1,43 @@
+.card {
+  background: white;
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+.title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.value {
+  font-size: 2rem;
+  color: #000;
+  margin: 10px 0;
+}
+
+.link {
+  color: #007bff;
+  cursor: pointer;
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+  user-select: none;
+}
+
+.tooltip {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: #fefefe;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 0.75rem;
+  font-size: 0.85rem;
+  color: #333;
+  margin-top: 6px;
+  width: 220px;
+  z-index: 10;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
