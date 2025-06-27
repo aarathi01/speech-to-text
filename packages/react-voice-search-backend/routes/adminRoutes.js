@@ -6,6 +6,7 @@ import {
   updateUserByAdmin,
   blockUser,
   unblockUser,
+  getAdminStats,
 } from "../controllers/adminController.js";
 import { requireSuperAdmin, requireAdminOrSuperAdmin } from "../middlewares/authMiddleware.js";
 import {
@@ -38,4 +39,7 @@ router.get("/users/:id/history", requireAdminOrSuperAdmin,  getUserSearchHistory
 
 // delete history /api/users/:id/history/:historyId - delete hisdtory of a  user
 router.delete("/users/:id/history/:historyId", requireAdminOrSuperAdmin,  deleteSearchHistoryEntry);
+
+// Admin dashboard stats route
+router.get("/stats", requireAdminOrSuperAdmin, getAdminStats);
 export default router;

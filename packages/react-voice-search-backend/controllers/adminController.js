@@ -1,4 +1,5 @@
 import User from "../models/User.js";
+import SearchHistory from "../models/SearchHistory.js";
 import {
   promoteToAdmin,
   deleteUser,
@@ -85,4 +86,29 @@ export const unblockUser = async (req, res) => {
   } catch (err) {
     res.status(500).json({ message: "Failed to unblock user" });
   }
+};
+
+export const getAdminStats = async (req, res) => {
+  const [users, SearchHistories] = await Promise.all([
+    User.find({}),
+    SearchHistory.find({}),
+  ]);
+
+  const totalUsers = users.length;
+  const blockedUsers = users.filter((u) => u.isBlocked).length;
+  const adminCount = users.filter((u) => u.role === "admin").length;
+  const superadminCount = users.filter((u) => u.role === "superadmin").length;
+  const totalSearches = SearchHistories.length;
+  const recentQueries = SearchHistories.filter(
+    (s) => new Date(s.timestamp) > Date.now() - 7 * 24 * 60 * 60 * 1000
+  ).length;
+
+  res.json({
+    totalUsers,
+    blockedUsers,
+    totalSearches,  
+    adminCount,
+    superadminCount,
+    recentQueries,
+  });
 };
