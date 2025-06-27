@@ -1,0 +1,30 @@
+.sidebar {
+   width: 220px;
+  min-width: 220px;
+  max-width: 220px;
+  height: 100vh;
+  background-color: #000;
+  color: white;
+  padding: 1rem;
+  overflow-y: auto;
+}
+
+.title {
+  font-size: 18px;
+  margin-bottom: 20px;
+}
+
+.menu {
+  list-style: none;
+  padding: 0;
+}
+
+.menu li {
+  margin: 12px 0;
+  cursor: pointer;
+}
+
+.menu li:hover {
+  text-decoration: underline;
+  
+}
