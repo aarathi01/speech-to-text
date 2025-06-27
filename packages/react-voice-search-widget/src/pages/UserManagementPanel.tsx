@@ -224,9 +224,7 @@ const UserManagementPanel: React.FC = () => {
         <div className="header-row">
           <h2 className="header-title">All Users</h2>
           <div className="logged-info">
-            <div className="user-info-text">
-              Logged in as: <strong>{currentUser.username}</strong> (
-              {currentUser.email})
+            <div>
               <div className="icon-with-tooltip">
                 <img
                   className="logout-icon"
