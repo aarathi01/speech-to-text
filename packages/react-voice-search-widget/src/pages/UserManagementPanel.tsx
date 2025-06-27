@@ -10,15 +10,14 @@ import {
 import LogoutIcon from "../assets/logout.svg";
 import { logout } from "../services/authService";
 import { showError, showSuccess } from "../utils/errorHandler";
-import { useNavigate } from "react-router-dom";
 import styles from "./UserManagementPanel.module.css";
 import { User } from "../types/userTypes";
 import HistoryModal from "../components/userManagement/SearchHistoryModal";
+import Sidebar from "../components/Sidebar";
 import { validateField } from "../utils/validators";
 import ConfirmDeleteModal from "../components/ConfirmActionModal";
 
 const UserManagementPanel: React.FC = () => {
-  const navigate = useNavigate();
   const [users, setUsers] = useState<User[]>([]);
   const [editingField, setEditingField] = useState<{
     userId: string;
@@ -89,12 +88,6 @@ const UserManagementPanel: React.FC = () => {
     await handleUpdate(userId, field, value);
     setPendingEdit(null);
     setShowApplyModal(false);
-  };
-
-  const handleLogout = () => {
-    logout();
-    showSuccess("Logged out successfully");
-    navigate("/login");
   };
 
   const handleBlockToggle = async (
@@ -225,156 +218,159 @@ const UserManagementPanel: React.FC = () => {
   };
 
   return (
-    <div className="content">
-      <div className="header-row">
-        <h2 className="header-title">All Users</h2>
-        <div className="logged-info">
-          <div className="user-info-text">
-            Logged in as: <strong>{currentUser.username}</strong> (
-            {currentUser.email})
-            <div className="icon-with-tooltip">
-              <img
-                className="logout-icon"
-                src={LogoutIcon}
-                alt="Logout"
-                onClick={handleLogout}
-              />
-              <span className="tooltip-text-bottom">Logout</span>
+    <div className={styles.pageContainer}>
+      <Sidebar />
+      <div className={styles.container}>
+        <div className="header-row">
+          <h2 className="header-title">All Users</h2>
+          <div className="logged-info">
+            <div className="user-info-text">
+              Logged in as: <strong>{currentUser.username}</strong> (
+              {currentUser.email})
+              <div className="icon-with-tooltip">
+                <img
+                  className="logout-icon"
+                  src={LogoutIcon}
+                  alt="Logout"
+                  onClick={logout}
+                />
+                <span className="tooltip-text-bottom">Logout</span>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-
-      <div className={styles.container}>
-        <div className={styles.tableWrapper}>
-          <table className={styles.userTable}>
-            <thead>
-              <tr>
-                <th>Username</th>
-                <th>Email</th>
-                <th>Phone</th>
-                <th>Country</th>
-                <th>Role</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {users.length === 0 ? (
+        <div>
+          <div className={styles.tableWrapper}>
+            <table className={styles.userTable}>
+              <thead>
                 <tr>
-                  <td colSpan={6} className="text-center p-4">
-                    No users found
-                  </td>
+                  <th>Username</th>
+                  <th>Email</th>
+                  <th>Phone</th>
+                  <th>Country</th>
+                  <th>Role</th>
+                  <th>Actions</th>
                 </tr>
-              ) : (
-                users.map((user) => (
-                  <tr key={user._id}>
-                    {renderEditableCell(user, "username", styles.userName)}
-                    <td className={styles.email}>{user.email}</td>
-                    {renderEditableCell(user, "phone", styles.phoneNumber)}
-                    {renderEditableCell(user, "country", styles.country)}
-                    <td className={styles.role}>{user.role}</td>
-                    <td className={styles.actions}>
-                      {currentUser.role === "superadmin" && (
-                        <button
-                          onClick={() => handlePromote(user._id)}
-                          className="px-2 py-1 bg-green-600 text-white rounded"
-                          disabled={["admin", "superadmin"].includes(user.role)}
-                        >
-                          Promote
-                        </button>
-                      )}
-
-                      {(currentUser.role === "admin" ||
-                        currentUser.role === "superadmin") && (
-                        <>
-                          <button
-                            onClick={() => confirmDeleteUser(user._id)}
-                            className="px-2 py-1 bg-red-600 text-white rounded"
-                            disabled={
-                              user.role === "superadmin" ||
-                              user._id === currentUser._id
-                            }
-                          >
-                            Delete
-                          </button>
-
-                          <button
-                            onClick={() =>
-                              handleBlockToggle(user._id, user.isBlocked)
-                            }
-                            className={`px-2 py-1 text-white rounded ${
-                              user.isBlocked ? "bg-blue-600" : "bg-yellow-600"
-                            }`}
-                            disabled={
-                              user.role === "superadmin" ||
-                              user._id === currentUser._id
-                            }
-                          >
-                            {user.isBlocked ? "Unblock" : "Block"}
-                          </button>
-                        </>
-                      )}
-
-                      <button
-                        onClick={() => setSelectedUserId(user._id)}
-                        className="bg-indigo-600 text-white px-2 py-1 rounded"
-                      >
-                        History
-                      </button>
+              </thead>
+              <tbody>
+                {users.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="text-center p-4">
+                      No users found
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+                ) : (
+                  users.map((user) => (
+                    <tr key={user._id}>
+                      {renderEditableCell(user, "username", styles.userName)}
+                      <td className={styles.email}>{user.email}</td>
+                      {renderEditableCell(user, "phone", styles.phoneNumber)}
+                      {renderEditableCell(user, "country", styles.country)}
+                      <td className={styles.role}>{user.role}</td>
+                      <td className={styles.actions}>
+                        {currentUser.role === "superadmin" && (
+                          <button
+                            onClick={() => handlePromote(user._id)}
+                            className="px-2 py-1 bg-green-600 text-white rounded"
+                            disabled={["admin", "superadmin"].includes(
+                              user.role
+                            )}
+                          >
+                            Promote
+                          </button>
+                        )}
+
+                        {(currentUser.role === "admin" ||
+                          currentUser.role === "superadmin") && (
+                          <>
+                            <button
+                              onClick={() => confirmDeleteUser(user._id)}
+                              className="px-2 py-1 bg-red-600 text-white rounded"
+                              disabled={
+                                user.role === "superadmin" ||
+                                user._id === currentUser._id
+                              }
+                            >
+                              Delete
+                            </button>
+
+                            <button
+                              onClick={() =>
+                                handleBlockToggle(user._id, user.isBlocked)
+                              }
+                              className={`px-2 py-1 text-white rounded ${
+                                user.isBlocked ? "bg-blue-600" : "bg-yellow-600"
+                              }`}
+                              disabled={
+                                user.role === "superadmin" ||
+                                user._id === currentUser._id
+                              }
+                            >
+                              {user.isBlocked ? "Unblock" : "Block"}
+                            </button>
+                          </>
+                        )}
+
+                        <button
+                          onClick={() => setSelectedUserId(user._id)}
+                          className="bg-indigo-600 text-white px-2 py-1 rounded"
+                        >
+                          History
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          <div className={styles.pagination}>
+            <button
+              onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+              disabled={currentPage === 1}
+            >
+              Previous
+            </button>
+            <span>
+              Page {currentPage} of {totalPages}
+            </span>
+            <button
+              onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+              disabled={currentPage === totalPages}
+            >
+              Next
+            </button>
+          </div>
         </div>
 
-        <div className={styles.pagination}>
-          <button
-            onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
-            disabled={currentPage === 1}
-          >
-            Previous
-          </button>
-          <span>
-            Page {currentPage} of {totalPages}
-          </span>
-          <button
-            onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
-            disabled={currentPage === totalPages}
-          >
-            Next
-          </button>
-        </div>
+        {selectedUserId && (
+          <HistoryModal
+            userId={selectedUserId}
+            onClose={() => setSelectedUserId(null)}
+          />
+        )}
+        {showApplyModal && (
+          <ConfirmDeleteModal
+            message="Apply changes to this field?"
+            onCancel={() => {
+              setShowApplyModal(false);
+              setPendingEdit(null);
+            }}
+            onConfirm={confirmApplyChanges}
+            confirmLabel="OK"
+            cancelLabel="Cancel"
+            confirmStyle="primary"
+          />
+        )}
+        {deleteUserId && (
+          <ConfirmDeleteModal
+            onCancel={() => setDeleteUserId(null)}
+            onConfirm={handleDelete}
+            message="Are you sure you want to delete this user?"
+          />
+        )}
       </div>
-
-      {selectedUserId && (
-        <HistoryModal
-          userId={selectedUserId}
-          onClose={() => setSelectedUserId(null)}
-        />
-      )}
-      {showApplyModal && (
-        <ConfirmDeleteModal
-          message="Apply changes to this field?"
-          onCancel={() => {
-            setShowApplyModal(false);
-            setPendingEdit(null);
-          }}
-          onConfirm={confirmApplyChanges}
-          confirmLabel="OK"
-          cancelLabel="Cancel"
-          confirmStyle="primary"
-        />
-      )}
-
-      {deleteUserId && (
-        <ConfirmDeleteModal
-          onCancel={() => setDeleteUserId(null)}
-          onConfirm={handleDelete}
-          message="Are you sure you want to delete this user?"
-        />
-      )}
     </div>
   );
 };
