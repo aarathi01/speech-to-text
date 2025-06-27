@@ -40,21 +40,10 @@ const Login: React.FC = () => {
       localStorage.setItem("isAuthenticated", "true");
       localStorage.setItem("user", JSON.stringify(userData));
 
-      switch (userData.role) {
-        case "admin":
-        case "superadmin":
-          navigate("/dashboard");
-          break;
-        case "user":
-          navigate("/voice");
-          break;
-        default:
-          navigate("/login");
-      }
-
       showSuccess("Login successful");
     } catch (err) {
       console.error(err);
+      showError("Login failed");
     }
   };
 
