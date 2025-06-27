@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
 import Sidebar from "../components/Sidebar";
 import DashboardCard from "../components/DashboardCard";
+import LogoutIcon from "../assets/logout.svg";
 import styles from "../components/Dashboard.module.css";
 import { getDashboardStats } from "../services/dashboardService";
+import { logout } from "../services/authService";
 
 const AdminDashboard: React.FC = () => {
   const [stats, setStats] = useState({
@@ -28,21 +30,36 @@ const AdminDashboard: React.FC = () => {
   }, []);
 
   return (
-    <div className={styles.wrapper}>
-      <Sidebar />
-
-      <div className={styles.content}>
-        <h2 className={styles.heading}>Dashboard</h2>
-        <div className={styles.grid}>
-          <DashboardCard title="Total Users" value={stats.totalUsers} />
-          <DashboardCard title="Blocked Users" value={stats.blockedUsers} />
-          <DashboardCard title="Search History" value={stats.totalSearches} />
-          <DashboardCard title="Superadmins" value={stats.superadminCount} />
-          <DashboardCard title="Admins" value={stats.adminCount} />
-          <DashboardCard title="Recent Queries" value={stats.recentQueries} />
+    <>
+      {" "}
+      <div className="header-row">
+        <h2 className="header-title">Voice Search</h2>
+        <div className="icon-with-tooltip">
+          <img
+            className="logout-icon"
+            src={LogoutIcon}
+            alt="Logout"
+            onClick={logout}
+          />
+          <span className="tooltip-text-bottom">Logout</span>
         </div>
       </div>
-    </div>
+      <div className={styles.wrapper}>
+        <Sidebar />
+
+        <div className={styles.content}>
+          <h2 className={styles.heading}>Dashboard</h2>
+          <div className={styles.grid}>
+            <DashboardCard title="Total Users" value={stats.totalUsers} />
+            <DashboardCard title="Blocked Users" value={stats.blockedUsers} />
+            <DashboardCard title="Search History" value={stats.totalSearches} />
+            <DashboardCard title="Superadmins" value={stats.superadminCount} />
+            <DashboardCard title="Admins" value={stats.adminCount} />
+            <DashboardCard title="Recent Queries" value={stats.recentQueries} />
+          </div>
+        </div>
+      </div>
+    </>
   );
 };
 

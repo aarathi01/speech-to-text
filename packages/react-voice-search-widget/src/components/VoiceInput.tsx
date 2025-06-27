@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import MicrophoneIcon from "../assets/microphone.svg";
 import ClearIcon from "../assets/clear.svg";
 import SaveIcon from "../assets/save.svg";
@@ -10,7 +9,6 @@ import UnsupportedBrowserFallback from "./UnsupportedBrowserFallback";
 import { useVoiceRecorder } from "../hooks/useVoiceRecorder";
 import { useSearch } from "../hooks/useSearch";
 import { logout } from "../services/authService";
-import { showSuccess } from "../utils/errorHandler";
 import { useSaveSearch } from "../hooks/useSaveSearch";
 import {
   getSearchHistory,
@@ -20,7 +18,6 @@ import { HistoryEntry } from "../types/types";
 import ConfirmDeleteModal from "./ConfirmActionModal";
 
 const VoiceInput: React.FC = () => {
-  const navigate = useNavigate();
   const { saveSearch } = useSaveSearch();
 
   const [history, setHistory] = useState<HistoryEntry[]>([]);
@@ -53,12 +50,6 @@ const VoiceInput: React.FC = () => {
   if (!navigator.mediaDevices || !window.AudioContext) {
     return <UnsupportedBrowserFallback />;
   }
-
-  const handleLogout = () => {
-    logout();
-    showSuccess("Logged out successfully");
-    navigate("/login");
-  };
 
   const handleSaveSearch = () => {
     if (searchResults.length === 0 || !fullTranscript.trim()) return;
@@ -143,7 +134,7 @@ const VoiceInput: React.FC = () => {
                 className="logout-icon"
                 src={LogoutIcon}
                 alt="Logout"
-                onClick={handleLogout}
+                onClick={logout}
               />
               <span className="tooltip-text-bottom">Logout</span>
             </div>
