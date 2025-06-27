@@ -8,7 +8,7 @@ const RedirectDashboard = () => {
 
   useEffect(() => {
     if (user?.role === "admin" || user?.role === "superadmin") {
-      navigate("/admin");
+      navigate("/dashboard");
     } else if (user?.role === "user") {
       navigate("/voice");
     } else {

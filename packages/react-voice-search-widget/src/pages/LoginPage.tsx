@@ -36,7 +36,7 @@ const Login: React.FC = () => {
       localStorage.setItem("isAuthenticated", "true");
       localStorage.setItem("user", JSON.stringify(userData));
       if (userData?.role === "admin" || userData?.role === "superadmin") {
-        navigate("/admin");
+        navigate("/dashboard");
       } else {
         navigate("/voice");
       }

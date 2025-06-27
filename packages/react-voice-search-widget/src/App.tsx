@@ -13,6 +13,7 @@ import { logout } from "./services/authService";
 import { showError } from "./utils/errorHandler";
 import "react-toastify/dist/ReactToastify.css";
 import RedirectDashboard from "./components/userManagement/RedirectDashboard";
+import AdminDashboard from "./pages/AdminDashboard";
 
 const App: React.FC = () => {
   const navigate = useNavigate();
@@ -40,7 +41,6 @@ const App: React.FC = () => {
               </PrivateRoute>
             }
           />
-
           {/* Admin Panel Route (role-based protection) */}
           <Route
             path="/admin"
@@ -50,7 +50,15 @@ const App: React.FC = () => {
               </PrivateRoute>
             }
           />
-
+          {/* Dasboard Panel Route (role-based protection) */}
+          <Route
+            path="/dashboard"
+            element={
+              <PrivateRoute role={["admin", "superadmin"]}>
+                <AdminDashboard />
+              </PrivateRoute>
+            }
+          />
           {/* Login */}
           <Route
             path="/voice"
