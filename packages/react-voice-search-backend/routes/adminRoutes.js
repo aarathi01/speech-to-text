@@ -19,40 +19,70 @@ import {
 
 import {
   idParamSchema,
-  updateUserSchema,
   historyIdParamSchema,
 } from "../validations/adminValidation.js";
 
 import {
   validateParams,
-  validateRequest,
+  validateQuery,
 } from "../middlewares/validateRequest.js";
 
 const router = express.Router();
 
 // GET /api/admin/users - List all users (superadmin only)
-router.get("/users", requireAdminOrSuperAdmin, validateParams(idParamSchema), listUsers);
+router.get(
+  "/users",
+  requireAdminOrSuperAdmin,
+  validateParams(idParamSchema),
+  listUsers
+);
 
 // PUT /api/admin/users/:id/promote - Promote user to admin
-router.put("/users/:id/promote", requireSuperAdmin,   validateParams(idParamSchema),promoteUserToAdmin);
+router.put(
+  "/users/:id/promote",
+  requireSuperAdmin,
+  validateParams(idParamSchema),
+  promoteUserToAdmin
+);
 
 // DELETE /api/admin/users/:id - Delete a user
-router.delete("/users/:id", requireAdminOrSuperAdmin,  validateParams(idParamSchema), deleteUserById);
+router.delete(
+  "/users/:id",
+  requireAdminOrSuperAdmin,
+  validateParams(idParamSchema),
+  deleteUserById
+);
 
 // Edit /api/users/:id - edit user info (name, country and phone)
-router.put("/users/:id", requireAdminOrSuperAdmin,   validateParams(idParamSchema),updateUserByAdmin);
+router.put(
+  "/users/:id",
+  requireAdminOrSuperAdmin,
+  validateParams(idParamSchema),
+  updateUserByAdmin
+);
 
 // block /api/users/:id/block - block a user
-router.put("/users/:id/block", requireAdminOrSuperAdmin,  validateParams(idParamSchema), blockUser);
+router.put(
+  "/users/:id/block",
+  requireAdminOrSuperAdmin,
+  validateParams(idParamSchema),
+  blockUser
+);
 
 // unblock /api/users/:id/unblock - unblock a user
-router.put("/users/:id/unblock", requireAdminOrSuperAdmin,  validateParams(idParamSchema),unblockUser);
+router.put(
+  "/users/:id/unblock",
+  requireAdminOrSuperAdmin,
+  validateParams(idParamSchema),
+  unblockUser
+);
 
 // get history /api/users/:id/history - history of a  user
 router.get(
   "/users/:id/history",
   requireAdminOrSuperAdmin,
-   validateParams(idParamSchema),
+  validateParams(idParamSchema),
+  validateQuery(paginationSchema),
   getUserSearchHistory
 );
 
@@ -60,7 +90,7 @@ router.get(
 router.delete(
   "/users/:id/history/:historyId",
   requireAdminOrSuperAdmin,
-   validateParams(historyIdParamSchema),
+  validateParams(historyIdParamSchema),
   deleteSearchHistoryEntry
 );
 
