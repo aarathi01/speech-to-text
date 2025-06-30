@@ -72,7 +72,7 @@ body {
 }
 
 .header-title {
-  font-size: 1.4rem;
+  font-size: 1.2rem;
 }
 
 .textarea-wrapper {
@@ -225,7 +225,7 @@ body {
 
 .search-result {
   padding: 0.5rem;
-  font-size:  1.2rem;
+  font-size:  1rem;
   border-bottom: 1px solid #ddd;
 }
 
@@ -266,7 +266,7 @@ body {
   background-color: #333;
   color: #fff;
   text-align: center;
-  font-size: 16px;
+  font-size: 14px;
   border-radius: 4px;
   padding: 4px 8px;
   position: absolute;
@@ -290,7 +290,7 @@ body {
   background-color: #333;
   color: #fff;
   text-align: center;
-  font-size: 16px;
+  font-size: 14px;
   border-radius: 4px;
   padding: 4px 8px;
   position: absolute;
@@ -328,7 +328,7 @@ body {
 
 .timestamp {
   color: #666;
-  font-size: 1rem;
+  font-size: 0.8rem;
   margin-bottom: 2px;
   padding-top: 5px;
   padding-left: 100px;
@@ -339,11 +339,11 @@ body {
   padding-left: 18px;
   margin: 0;
   margin-bottom: 5px;
-  font-size: 1rem;
+  font-size: 0.8rem;
 }
 
 .response-item {
-  font-size: 1.4rem;
+  font-size: 1.2rem;
   color: #444;
 }
 
