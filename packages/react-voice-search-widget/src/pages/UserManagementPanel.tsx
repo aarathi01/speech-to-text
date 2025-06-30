@@ -16,6 +16,7 @@ import HistoryModal from "../components/userManagement/SearchHistoryModal";
 import Sidebar from "../components/Sidebar";
 import { validateField } from "../utils/validators";
 import ConfirmDeleteModal from "../components/ConfirmActionModal";
+import UserActionDropdown from "../components/ui/UserActionDropdown";
 
 const UserManagementPanel: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
@@ -266,56 +267,22 @@ const UserManagementPanel: React.FC = () => {
                       {renderEditableCell(user, "country", styles.country)}
                       <td className={styles.role}>{user.role}</td>
                       <td className={styles.actions}>
-                        {currentUser.role === "superadmin" && (
-                          <button
-                            onClick={() => handlePromote(user._id)}
-                            className="px-2 py-1 bg-green-600 text-white rounded"
-                            disabled={["admin", "superadmin"].includes(
-                              user.role
-                            )}
-                          >
-                            Promote
-                          </button>
-                        )}
-
-                        <button
-                          onClick={() => setSelectedUserId(user._id)}
-                          className="bg-indigo-600 text-white px-2 py-1 rounded"
-                        >
-                          History
-                        </button>
-                        {(currentUser.role === "admin" ||
-                          currentUser.role === "superadmin") && (
-                          <>
-                            
-
-                            <button
-                              onClick={() =>
-                                handleBlockToggle(user._id, user.isBlocked)
-                              }
-                              className={`px-2 py-1 text-white rounded ${
-                                user.isBlocked ? "bg-blue-600" : "bg-yellow-600"
-                              }`}
-                              disabled={
-                                user.role === "superadmin" ||
-                                user._id === currentUser._id
-                              }
-                            >
-                              {user.isBlocked ? "Unblock" : "Block"}
-                            </button>
-
-                            <button
-                              onClick={() => confirmDeleteUser(user._id)}
-                              className="px-2 py-1 bg-red-600 text-white rounded"
-                              disabled={
-                                user.role === "superadmin" ||
-                                user._id === currentUser._id
-                              }
-                            >
-                              Delete
-                            </button>
-                          </>
-                        )}
+                        <UserActionDropdown
+                          onPromote={() => handlePromote(user._id)}
+                          onHistory={() => setSelectedUserId(user._id)}
+                          onBlockToggle={() =>
+                            handleBlockToggle(user._id, user.isBlocked)
+                          }
+                          onDelete={() => confirmDeleteUser(user._id)}
+                          role={currentUser.role}
+                          targetUserRole={user.role} // <--- important fix
+                          isBlocked={user.isBlocked}
+                          isCurrentUser={user._id === currentUser._id}
+                          canPromote={
+                            currentUser.role === "superadmin" &&
+                            !["admin", "superadmin"].includes(user.role)
+                          }
+                        />
                       </td>
                     </tr>
                   ))

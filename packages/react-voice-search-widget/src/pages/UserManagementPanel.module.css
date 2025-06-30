@@ -48,32 +48,32 @@
 
 .userTable th:nth-child(1),
 .userTable td:nth-child(1) {
-  width: 180px;
+  width: 200px;
 }
 
 .userTable th:nth-child(2),
 .userTable td:nth-child(2) {
-  width: 200px;
+  width: 250px;
 }
 
 .userTable th:nth-child(3),
 .userTable td:nth-child(3) {
-  width: 100px;
+  width: 120px;
 }
 
 .userTable th:nth-child(4),
 .userTable td:nth-child(4) {
-  width: 120px;
+  width: 150px;
 }
 
 .userTable th:nth-child(5),
 .userTable td:nth-child(5) {
-  width: 80px;
+  width: 100px;
 }
 
 .userTable th:nth-child(6),
 .userTable td:nth-child(6) {
-  width: 220px;
+  width: 5px;
 }
 
 .editInput {
