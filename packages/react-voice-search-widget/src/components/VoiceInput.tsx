@@ -35,15 +35,15 @@ const VoiceInput: React.FC = () => {
 
   const { searchResults, error, loading } = useSearch(fullTranscript);
 
+  const fetchHistory = async () => {
+    try {
+      const data = await getSearchHistory();
+      setHistory(data);
+    } catch (err) {
+      console.error("Failed to fetch history", err);
+    }
+  };
   useEffect(() => {
-    const fetchHistory = async () => {
-      try {
-        const data = await getSearchHistory();
-        setHistory(data);
-      } catch (err) {
-        console.error("Failed to fetch history", err);
-      }
-    };
     fetchHistory();
   }, []);
 
@@ -51,9 +51,14 @@ const VoiceInput: React.FC = () => {
     return <UnsupportedBrowserFallback />;
   }
 
-  const handleSaveSearch = () => {
+  const handleSaveSearch = async () => {
     if (searchResults.length === 0 || !fullTranscript.trim()) return;
-    saveSearch(fullTranscript.trim(), searchResults);
+    try {
+      await saveSearch(fullTranscript.trim(), searchResults);
+      fetchHistory();
+    } catch (err) {
+      console.error("Failed to save search", err);
+    }
   };
 
   const confirmDelete = (id: string) => {
@@ -78,7 +83,7 @@ const VoiceInput: React.FC = () => {
     <div className="app-container">
       <div className="main-layout">
         <div className="sidebar">
-          <h3>Recent Searches</h3>
+          <h3>Past Searches</h3>
 
           <ul className="history-list">
             {history.length > 0 ? (
