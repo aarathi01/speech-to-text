@@ -1,8 +1,16 @@
 import express from "express";
 import { searchHandler } from "../controllers/searchController.js";
 import { authMiddleware } from "../middlewares/authMiddleware.js";
+import { validateSearchQuery } from "../middlewares/validateRequest.js";
+import { searchSchema } from "../validations/searchValidation.js";
 
 const router = express.Router();
-router.get("/",authMiddleware, searchHandler);
+
+router.get(
+  "/",
+  authMiddleware,
+  validateSearchQuery(searchSchema),
+  searchHandler
+);
 
 export default router;

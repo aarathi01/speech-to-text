@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import DefaultAvatar from "../assets/avatar-default.svg";
+
 import styles from "./Sidebar.module.css";
 
 const Sidebar: React.FC = () => {
@@ -26,7 +26,7 @@ const Sidebar: React.FC = () => {
     <div className={styles.sidebar}>
       <div className={styles.userInfoBlock}>
         <div className={styles.profilePic}>
-           <img src={DefaultAvatar} alt="profile" />
+          {/* todo: add profile pic */}
         </div>
         <div className={styles.userText}>
           <strong>{currentUser.username}</strong>
