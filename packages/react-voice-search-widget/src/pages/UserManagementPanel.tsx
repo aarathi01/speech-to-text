@@ -278,19 +278,16 @@ const UserManagementPanel: React.FC = () => {
                           </button>
                         )}
 
+                        <button
+                          onClick={() => setSelectedUserId(user._id)}
+                          className="bg-indigo-600 text-white px-2 py-1 rounded"
+                        >
+                          History
+                        </button>
                         {(currentUser.role === "admin" ||
                           currentUser.role === "superadmin") && (
                           <>
-                            <button
-                              onClick={() => confirmDeleteUser(user._id)}
-                              className="px-2 py-1 bg-red-600 text-white rounded"
-                              disabled={
-                                user.role === "superadmin" ||
-                                user._id === currentUser._id
-                              }
-                            >
-                              Delete
-                            </button>
+                            
 
                             <button
                               onClick={() =>
@@ -306,15 +303,19 @@ const UserManagementPanel: React.FC = () => {
                             >
                               {user.isBlocked ? "Unblock" : "Block"}
                             </button>
+
+                            <button
+                              onClick={() => confirmDeleteUser(user._id)}
+                              className="px-2 py-1 bg-red-600 text-white rounded"
+                              disabled={
+                                user.role === "superadmin" ||
+                                user._id === currentUser._id
+                              }
+                            >
+                              Delete
+                            </button>
                           </>
                         )}
-
-                        <button
-                          onClick={() => setSelectedUserId(user._id)}
-                          className="bg-indigo-600 text-white px-2 py-1 rounded"
-                        >
-                          History
-                        </button>
                       </td>
                     </tr>
                   ))
