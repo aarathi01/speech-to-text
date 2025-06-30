@@ -7,14 +7,14 @@ export const verifyWebSocketToken = (req, ws) => {
   const token = cookies.token;
 
   if (!token) {
-    ws.close(401, "Missing authentication token");
+    ws.close(4001, "Missing authentication token"); 
     return null;
   }
 
   try {
     return jwt.verify(token, JWT_SECRET);
   } catch (err) {
-    ws.close(401, "Invalid or expired token");
+    ws.close(4002, "Invalid or expired token");
     return null;
   }
 };
