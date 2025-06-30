@@ -19,7 +19,7 @@ import {
 
 import {
   idParamSchema,
-  historyIdParamSchema,
+  adminDeleteHistorySchema,
 } from "../validations/adminValidation.js";
 
 import {
@@ -92,7 +92,7 @@ router.get(
 router.delete(
   "/users/:id/history/:historyId",
   requireAdminOrSuperAdmin,
-  validateParams(historyIdParamSchema),
+  validateParams(adminDeleteHistorySchema),
   deleteSearchHistoryEntry
 );
 
