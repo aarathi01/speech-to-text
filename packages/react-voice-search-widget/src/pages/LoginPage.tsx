@@ -43,7 +43,6 @@ const Login: React.FC = () => {
       showSuccess("Login successful");
     } catch (err) {
       console.error(err);
-      showError("Login failed");
     }
   };
 
