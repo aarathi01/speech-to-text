@@ -27,13 +27,15 @@ import {
   validateQuery,
 } from "../middlewares/validateRequest.js";
 
+import { paginationSchema } from "../validations/commonValidation.js";
+
 const router = express.Router();
 
 // GET /api/admin/users - List all users (superadmin only)
 router.get(
   "/users",
   requireAdminOrSuperAdmin,
-  validateParams(idParamSchema),
+  validateQuery(paginationSchema),
   listUsers
 );
 
