@@ -70,10 +70,6 @@ const RegisterPage: React.FC = () => {
       setUser(userData);
       localStorage.setItem("isAuthenticated", "true");
       localStorage.setItem("user", JSON.stringify(userData));
-
-      // Set auth flag to allow navigation to protected routes
-      localStorage.setItem("isAuthenticated", "true");
-
       showSuccess("Registration successful! You are now logged in.");
       navigate("/voice");
     } catch (err) {

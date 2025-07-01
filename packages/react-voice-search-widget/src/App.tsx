@@ -59,7 +59,7 @@ const App: React.FC = () => {
               </PrivateRoute>
             }
           />
-          {/* Login */}
+          {/* Voice search route*/}
           <Route
             path="/voice"
             element={
@@ -68,6 +68,7 @@ const App: React.FC = () => {
               </PrivateRoute>
             }
           />
+          {/* Admin-voice  */}
           <Route
             path="/admin-voice"
             element={
@@ -76,6 +77,7 @@ const App: React.FC = () => {
               </PrivateRoute>
             }
           />
+          {/* Login */}
           <Route
             path="/login"
             element={
