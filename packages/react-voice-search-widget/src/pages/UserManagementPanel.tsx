@@ -17,8 +17,10 @@ import Sidebar from "../components/Sidebar";
 import { validateField } from "../utils/validators";
 import ConfirmDeleteModal from "../components/ConfirmActionModal";
 import UserActionDropdown from "../components/ui/UserActionDropdown";
+import { useAuth } from "../context/useAuth";
 
 const UserManagementPanel: React.FC = () => {
+  const { user } = useAuth();
   const [users, setUsers] = useState<User[]>([]);
   const [editingField, setEditingField] = useState<{
     userId: string;
@@ -145,14 +147,13 @@ const UserManagementPanel: React.FC = () => {
 
   useEffect(() => {
     fetchUsers(currentPage);
-    const userInfo = JSON.parse(localStorage.getItem("user") || "{}");
     setCurrentUser({
-      _id: userInfo?._id || "",
-      role: userInfo?.role || "",
-      email: userInfo?.email || "",
-      username: userInfo?.username || "",
+      _id: user?._id || "",
+      role: user?.role || "",
+      email: user?.email || "",
+      username: user?.username || "",
     });
-  }, [currentPage]);
+  }, [currentPage, user]);
 
   const renderEditableCell = (
     user: User,

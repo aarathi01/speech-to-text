@@ -2,8 +2,10 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import styles from "./Sidebar.module.css";
+import { useAuth } from "../context/useAuth";
 
 const Sidebar: React.FC = () => {
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [currentUser, setCurrentUser] = useState({
     _id: "",
@@ -13,21 +15,18 @@ const Sidebar: React.FC = () => {
   });
 
   useEffect(() => {
-    const userInfo = JSON.parse(localStorage.getItem("user") || "{}");
     setCurrentUser({
-      _id: userInfo?._id || "",
-      role: userInfo?.role || "",
-      email: userInfo?.email || "",
-      username: userInfo?.username || "",
+      _id: user?._id || "",
+      role: user?.role || "",
+      email: user?.email || "",
+      username: user?.username || "",
     });
-  }, []);
+  }, [user]);
 
   return (
     <div className={styles.sidebar}>
       <div className={styles.userInfoBlock}>
-        <div className={styles.profilePic}>
-          {/* todo: add profile pic */}
-        </div>
+        <div className={styles.profilePic}>{/* todo: add profile pic */}</div>
         <div className={styles.userText}>
           <strong>{currentUser.username}</strong>
           <span>{currentUser.email}</span>
@@ -38,8 +37,7 @@ const Sidebar: React.FC = () => {
         <li onClick={() => navigate("/dashboard")}>Dashboard</li>
         <li
           onClick={() => {
-            const role = JSON.parse(localStorage.getItem("user") || "{}")?.role;
-            if (role === "admin" || role === "superadmin") {
+            if (user?.role === "admin" || user?.role === "superadmin") {
               navigate("/admin-voice");
             } else {
               navigate("/voice");
