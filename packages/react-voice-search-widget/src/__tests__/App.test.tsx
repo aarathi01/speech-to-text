@@ -27,9 +27,9 @@ vi.mock("../pages/RegisterPage", () => ({
 }));
 
 describe("App Routing", () => {
-  it("renders VoiceInput on '/' route", () => {
+  it("renders VoiceInput on '/voice' route", () => {
     render(
-      <MemoryRouter initialEntries={["/"]}>
+      <MemoryRouter initialEntries={["/voice"]}>
         <App />
       </MemoryRouter>
     );
