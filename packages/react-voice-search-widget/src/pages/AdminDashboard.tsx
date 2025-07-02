@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import Sidebar from "../components/Sidebar";
 import DashboardCard from "../components/DashboardCard";
 import LogoutIcon from "../assets/logout.svg";
-import styles from "../components/Dashboard.module.css";
+import styles from "./Dashboard.module.css";
 import { getDashboardStats } from "../services/dashboardService";
 import { logout } from "../services/authService";
 
