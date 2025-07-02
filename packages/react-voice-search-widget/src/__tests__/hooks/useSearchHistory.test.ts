@@ -14,8 +14,14 @@ describe("useSearchHistory", () => {
 
   it("fetches and sets history data successfully", async () => {
     const mockHistory: HistoryEntry[] = [
-      { query: "apple", timestamp: "2024-06-10T12:00:00Z", response: "" },
-      { query: "banana", timestamp: "2024-06-11T13:00:00Z", response: ""},
+      {
+        query: "iphone", timestamp: "2024-06-10T12:00:00Z", response: "",
+        _id: ""
+      },
+      {
+        query: "samsung", timestamp: "2024-06-11T13:00:00Z", response: "",
+        _id: ""
+      },
     ];
     mockGetHistory.mockResolvedValueOnce(mockHistory);
 
