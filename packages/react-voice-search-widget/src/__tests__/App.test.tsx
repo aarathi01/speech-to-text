@@ -25,6 +25,15 @@ vi.mock("../pages/LoginPage", () => ({
 vi.mock("../pages/RegisterPage", () => ({
   default: () => <div>Register</div>,
 }));
+vi.mock("../pages/AdminDashboard", () => ({
+  default: () => <div>Admin Dashboard</div>,
+}));
+vi.mock("../pages/UserManagementPanel", () => ({
+  default: () => <div>User Management</div>,
+}));
+vi.mock("../components/userManagement/RedirectDashboard", () => ({
+  default: () => <div>Redirecting based on role</div>,
+}));
 
 describe("App Routing", () => {
   it("renders VoiceInput on '/voice' route", () => {
@@ -54,13 +63,48 @@ describe("App Routing", () => {
     expect(screen.getByText("Register")).toBeInTheDocument();
   });
 
-  it("renders ToastContainer globally", () => {
+  it("renders Admin Dashboard on '/dashboard' route", () => {
+    render(
+      <MemoryRouter initialEntries={["/dashboard"]}>
+        <App />
+      </MemoryRouter>
+    );
+    expect(screen.getByText("Admin Dashboard")).toBeInTheDocument();
+  });
+
+  it("renders User Management Panel on '/admin' route", () => {
+    render(
+      <MemoryRouter initialEntries={["/admin"]}>
+        <App />
+      </MemoryRouter>
+    );
+    expect(screen.getByText("User Management")).toBeInTheDocument();
+  });
+
+  it("renders VoiceInput on '/admin-voice' route", () => {
+    render(
+      <MemoryRouter initialEntries={["/admin-voice"]}>
+        <App />
+      </MemoryRouter>
+    );
+    expect(screen.getByText("Mocked VoiceInput")).toBeInTheDocument();
+  });
+
+  it("renders RedirectDashboard on root '/' route", () => {
     render(
       <MemoryRouter initialEntries={["/"]}>
         <App />
       </MemoryRouter>
     );
-    // Check toast container by its role
+    expect(screen.getByText("Redirecting based on role")).toBeInTheDocument();
+  });
+
+  it("renders ToastContainer globally", () => {
+    render(
+      <MemoryRouter initialEntries={["/login"]}>
+        <App />
+      </MemoryRouter>
+    );
     expect(document.querySelector(".Toastify")).toBeInTheDocument();
   });
 });
