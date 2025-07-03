@@ -112,11 +112,11 @@ describe('Admin Controller', () => {
     it('should update valid fields', async () => {
       const req = {
         params: { id: '123' },
-        body: { phone: '1111', username: 'kunju' },
+        body: { phone: '1111', username: 'sampleusername' },
       };
       const res = mockRes();
 
-      const updatedUser = { _id: '123', username: 'kunju' };
+      const updatedUser = { _id: '123', username: 'sampleusername' };
       userService.updateUserFields.mockResolvedValue(updatedUser);
 
       await updateUserByAdmin(req, res);

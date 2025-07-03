@@ -52,9 +52,9 @@ describe("Integration: Validation Middleware", () => {
     });
 
     it("should return 200 for valid body", async () => {
-      const res = await request(app).post("/body").send({ name: "Kunju" });
+      const res = await request(app).post("/body").send({ name: "sampleusername" });
       expect(res.status).toBe(200);
-      expect(res.body).toEqual({ body: { name: "Kunju" } });
+      expect(res.body).toEqual({ body: { name: "sampleusername" } });
     });
 
     it("should return 400 for invalid body", async () => {

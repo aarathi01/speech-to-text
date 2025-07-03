@@ -76,8 +76,8 @@ describe("authService", () => {
     it("should register new user and return token", async () => {
       const newUser = {
         _id: "newuser123",
-        username: "kunju",
-        email: "kunju@example.com",
+        username: "sampleusername",
+        email: "sampleusername@example.com",
         phone: "1234567890",
         country: "India",
         role: "user",
@@ -89,18 +89,18 @@ describe("authService", () => {
       generateToken.mockReturnValue("newToken");
 
       const result = await registerUser({
-        username: "kunju",
-        email: "kunju@example.com",
+        username: "sampleusername",
+        email: "sampleusername@example.com",
         password: "rawpass",
         phone: "1234567890",
         country: "India",
       });
 
-      expect(User.findOne).toHaveBeenCalledWith({ email: "kunju@example.com" });
+      expect(User.findOne).toHaveBeenCalledWith({ email: "sampleusername@example.com" });
       expect(bcrypt.hash).toHaveBeenCalledWith("rawpass", 10);
       expect(User.create).toHaveBeenCalledWith({
-        username: "kunju",
-        email: "kunju@example.com",
+        username: "sampleusername",
+        email: "sampleusername@example.com",
         password: "hashedPassword",
         phone: "1234567890",
         country: "India",
@@ -115,7 +115,7 @@ describe("authService", () => {
 
       await expect(
         registerUser({
-          username: "kunju",
+          username: "sampleusername",
           email: "test@example.com",
           password: "pass",
           phone: "1111",
@@ -134,7 +134,7 @@ describe("authService", () => {
 
       await expect(
         registerUser({
-          username: "kunju",
+          username: "sampleusername",
           email: "fail@example.com",
           password: "pass",
           phone: "000",
