@@ -59,7 +59,7 @@ describe("transcriptionService - initializeWebSocket", () => {
 
     initializeWebSocket(serverMock, modelMock);
 
-    expect(clientMock.close).toHaveBeenCalledWith(401, "Missing authentication token");
+    expect(clientMock.close).toHaveBeenCalledWith(4002, "Missing authentication token");
   });
 
   it("rejects WebSocket with invalid token", () => {
@@ -76,7 +76,7 @@ describe("transcriptionService - initializeWebSocket", () => {
 
     initializeWebSocket(serverMock, modelMock);
 
-    expect(clientMock.close).toHaveBeenCalledWith(401, "Invalid or expired token");
+    expect(clientMock.close).toHaveBeenCalledWith(4002, "Invalid or expired token");
   });
 
   it("handles a final result", () => {
