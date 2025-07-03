@@ -2,121 +2,151 @@ import request from "supertest";
 import express from "express";
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
+import * as authService from "../../services/authService.js";
 import * as authController from "../../controllers/authController.js";
-import User from "../../models/User.js";
-import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
 
-let server;
+jest.mock("../../services/authService.js"); 
+//Mock only the service layer (authenticateUser, registerUser), not the controller itself
+
+const mockToken = "mocked-jwt-token";
+const mockUser = {
+  _id: "user123",
+  email: "testuser@gmail.com",
+  username: "testuser",
+  role: "user",
+  phone: "1234567890",
+  country: "India",
+};
+
+let app, server;
 const PORT = 5555; // Any available test port
 const baseURL = `http://localhost:${PORT}`;
 
-// Setup real app instance
-const app = express();
-app.use(bodyParser.json());
-app.use(cookieParser());
-app.post("/api/auth/login", authController.login);
-app.post("/api/auth/register", authController.register);
+beforeAll((done) => {
+  // Setup real app instance
+  app = express();
+  app.use(bodyParser.json());
+  app.use(cookieParser());
+  app.post("/api/auth/login", authController.login);
+  app.post("/api/auth/register", authController.register);
 
-// Mocks
-jest.mock("../../models/User.js");
-jest.mock("bcryptjs");
-jest.mock("jsonwebtoken");
-
-const mockToken = "mocked-token";
-
-describe("Auth Controller - Full Server Flow", () => {
-  const testEmail = "e2euser@test.com";
-
-  beforeAll((done) => {
-    server = app.listen(PORT, () => {
-      console.log(`Test server running on ${PORT}`);
-      done();
-    });
+  // GLOBAL ERROR HANDLER
+  app.use((err, req, res, next) => {
+    console.error("Test caught error:", err);
+    res
+      .status(err.statusCode || 500)
+      .json({ message: err.message || "Internal server error" });
   });
 
-  afterAll((done) => {
-    server.close(done);
+  server = app.listen(PORT, () => {
+    console.log(`Test server running on ${PORT}`);
+    done();
   });
+});
 
-  beforeEach(async () => {
-    jest.clearAllMocks();
-    await User.deleteMany?.({ email: testEmail });
-    jest.spyOn(console, "error").mockImplementation(() => {});
-  });
+afterAll((done) => {
+  server.close(done);
+});
 
+beforeEach(() => {
+  jest.clearAllMocks();
+  jest.spyOn(console, "error").mockImplementation(() => {});
+});
+
+describe("AuthController", () => {
   describe("POST /api/auth/register", () => {
-    it("should register user successfully", async () => {
-      User.findOne.mockResolvedValue(null);
-      bcrypt.hash.mockResolvedValue("hashed-pass");
-      User.create.mockResolvedValue({ _id: "user123" });
-      jwt.sign.mockReturnValue(mockToken);
+    it("should register successfully", async () => {
+      authService.registerUser.mockResolvedValue({
+        user: mockUser,
+        token: mockToken,
+      });
 
       const res = await request(baseURL).post("/api/auth/register").send({
-        email: "testuser@gmail.com",
+        email: mockUser.email,
         password: "testpass",
-        username: "testuser",
-        phone: "1234567890",
-        country: "India",
+        username: mockUser.username,
+        phone: mockUser.phone,
+        country: mockUser.country,
       });
 
       expect(res.status).toBe(201);
       expect(res.body.message).toBe("Registered and logged in successfully");
+      expect(res.body.user).toMatchObject({
+        id: mockUser._id,
+        email: mockUser.email,
+        role: mockUser.role,
+        username: mockUser.username,
+        phone: mockUser.phone,
+        country: mockUser.country,
+      });
       expect(res.headers["set-cookie"]).toBeDefined();
     });
 
-    it("should return 409 if email already exists", async () => {
-      User.findOne.mockResolvedValue({ email: "testuser@gmail.com" });
+    it("should return 409 if email exists", async () => {
+      authService.registerUser.mockRejectedValue({
+        statusCode: 409,
+        message: "Email already exists!",
+      });
 
       const res = await request(baseURL).post("/api/auth/register").send({
-        email: "testuser@gmail.com",
+        email: mockUser.email,
         password: "testpass",
-        username: "testuser",
-        phone: "1234567890",
-        country: "India",
+        username: mockUser.username,
+        phone: mockUser.phone,
+        country: mockUser.country,
       });
 
       expect(res.status).toBe(409);
       expect(res.body.message).toBe("Email already exists!");
     });
 
-    it("should handle registration errors", async () => {
-      User.findOne.mockRejectedValue(new Error("DB error"));
+    it("should return DB Error", async () => {
+      authService.registerUser.mockRejectedValue(new Error("DB Error"));
 
       const res = await request(baseURL).post("/api/auth/register").send({
-        email: "fail@gmail.com",
-        password: "pass",
-        username: "failuser",
+        email: "fail@test.com",
+        password: "123",
+        username: "fail",
         phone: "000",
         country: "Nowhere",
       });
 
       expect(res.status).toBe(500);
+      expect(res.body.message).toBe("DB Error");
     });
   });
 
   describe("POST /api/auth/login", () => {
     it("should login successfully", async () => {
-      User.findOne.mockResolvedValue({ _id: "user123", password: "hashedpass" });
-      bcrypt.compare.mockResolvedValue(true);
-      jwt.sign.mockReturnValue(mockToken);
+      authService.authenticateUser.mockResolvedValue({
+        user: mockUser,
+        token: mockToken,
+      });
 
       const res = await request(baseURL).post("/api/auth/login").send({
-        email: "testuser@gmail.com",
+        email: mockUser.email,
         password: "testpass",
       });
 
       expect(res.status).toBe(200);
       expect(res.body.message).toBe("Login successful");
+      expect(res.body.user).toMatchObject({
+        id: mockUser._id,
+        email: mockUser.email,
+        username: mockUser.username,
+        role: mockUser.role,
+      });
       expect(res.headers["set-cookie"]).toBeDefined();
     });
 
-    it("should fail login on invalid password", async () => {
-      User.findOne.mockResolvedValue({ _id: "user123", password: "hashedpass" });
-      bcrypt.compare.mockResolvedValue(false);
+    it("should return 400 if login fails due to invalid credentials", async () => {
+      authService.authenticateUser.mockRejectedValue({
+        statusCode: 400,
+        message: "Invalid email or password",
+      });
 
       const res = await request(baseURL).post("/api/auth/login").send({
-        email: "testuser@gmail.com",
+        email: mockUser.email,
         password: "wrongpass",
       });
 
@@ -124,27 +154,16 @@ describe("Auth Controller - Full Server Flow", () => {
       expect(res.body.message).toBe("Invalid email or password");
     });
 
-    it("should fail login when user not found", async () => {
-      User.findOne.mockResolvedValue(null);
+    it("should return 500 on internal login error", async () => {
+      authService.authenticateUser.mockRejectedValue(new Error("Internal server error"));
 
       const res = await request(baseURL).post("/api/auth/login").send({
-        email: "nouser@gmail.com",
+        email: "fail@test.com",
         password: "testpass",
       });
 
-      expect(res.status).toBe(400);
-      expect(res.body.message).toBe("Invalid email or password");
-    });
-
-    it("should handle login errors", async () => {
-      User.findOne.mockRejectedValue(new Error("DB down"));
-
-      const res = await request(baseURL).post("/api/auth/login").send({
-        email: "fail@gmail.com",
-        password: "test",
-      });
-
       expect(res.status).toBe(500);
+      expect(res.body.message).toBe("Internal server error");
     });
   });
 });
