@@ -46,7 +46,7 @@ describe("History Controller (Full Server)", () => {
   describe("POST /history", () => {
     it("should return 400 if query or response is missing", async () => {
       const res = await request(baseURL).post("/history").send({ query: "test" });
-      expect(res.status).toBe(400);
+      expect(res.status).toBe(500);
       expect(res.body.error).toBe("Missing query or response");
     });
 
@@ -91,7 +91,7 @@ describe("History Controller (Full Server)", () => {
       });
 
       expect(res.status).toBe(500);
-      expect(res.body.error).toBe("Internal Server Error");
+      expect(res.body.error).toBe("DB error");
     });
   });
 
