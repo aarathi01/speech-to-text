@@ -3,7 +3,7 @@ import { toast } from "react-toastify";
 
 // Mock toast methods
 vi.mock("react-toastify", async () => {
-  const actual: any = await vi.importActual("react-toastify");
+  const actual = await vi.importActual("react-toastify");
   return {
     ...actual,
     toast: {
@@ -21,7 +21,7 @@ describe("errorHandler utils", () => {
 
   describe("showError", () => {
     it("shows error with string message", () => {
-      (toast.error as any).mockImplementation((msg: string, options: any) => {
+      (toast.error as vi.mock).mockImplementation((msg: string, options: vi.mock) => {
         options.onClose();
         return "toast-id";
       });

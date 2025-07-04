@@ -73,7 +73,7 @@ describe("LoginPage", () => {
       user: null,
       loading: false
     });
-    (authService.login as any).mockResolvedValue(mockUser);
+    (authService.login as vi.Mock).mockResolvedValue(mockUser);
 
     renderWithRouter();
 
@@ -99,7 +99,7 @@ describe("LoginPage", () => {
   });
 
   it("does not log in if no role is returned", async () => {
-    (authService.login as any).mockResolvedValue({ email: "a@b.com" });
+    (authService.login as vi.mock).mockResolvedValue({ email: "a@b.com" });
 
     renderWithRouter();
 
@@ -118,7 +118,7 @@ describe("LoginPage", () => {
   });
 
   it("handles server error", async () => {
-    (authService.login as any).mockRejectedValue(new Error("Login failed"));
+    (authService.login as vi.mock).mockRejectedValue(new Error("Login failed"));
 
     renderWithRouter();
 

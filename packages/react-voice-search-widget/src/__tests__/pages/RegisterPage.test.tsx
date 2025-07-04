@@ -57,7 +57,7 @@ describe("RegisterPage", () => {
       loading: false
     });
 
-    (authService.register as any).mockResolvedValue(mockUser);
+    (authService.register as vi.mock).mockResolvedValue(mockUser);
 
     renderWithRouter();
 
@@ -89,7 +89,7 @@ describe("RegisterPage", () => {
   });
 
   it("shows registration error if backend fails", async () => {
-    (authService.register as any).mockRejectedValue({
+    (authService.register as vi.mock).mockRejectedValue({
       response: { data: { error: "Email already exists" } },
     });
 
