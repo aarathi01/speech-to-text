@@ -1,6 +1,7 @@
-import { authenticateUser, registerUser } from "../../services/authService.js";
-import User from "../../models/User.js";
 import bcrypt from "bcryptjs";
+
+import User from "../../models/User.js";
+import { authenticateUser, registerUser } from "../../services/authService.js";
 import { generateToken } from "../../utils/jwt.js";
 
 jest.mock("../../models/User.js");

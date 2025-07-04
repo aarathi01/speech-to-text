@@ -3,9 +3,10 @@ jest.mock("cookie", () => ({
   parse: jest.fn(),
 }));
 
+import { parse } from "cookie";
+
 import { verifyWebSocketToken } from "../../utils/authSocket.js";
 import * as jwtUtils from "../../utils/jwt.js";
-import { parse } from "cookie";
 
 describe("verifyWebSocketToken", () => {
   let ws;

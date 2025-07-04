@@ -1,5 +1,5 @@
-import fs from "fs";
 import dotenv from "dotenv";
+import fs from "fs";
 
 jest.mock("fs");
 jest.mock("dotenv");
@@ -17,8 +17,6 @@ describe("config.js", () => {
   afterAll(() => {
     process.env = ORIGINAL_ENV; // Restore env
   });
-
-
 
   it("logs a warning if env file does not exist", () => {
     process.env.NODE_ENV = "prod";

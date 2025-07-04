@@ -1,8 +1,8 @@
-import { verifyWebSocketToken } from "../utils/authSocket.js";
 import {
   createRecognizer,
   handleAudioMessage,
 } from "../services/voskService.js";
+import { verifyWebSocketToken } from "../utils/authSocket.js";
 
 export const initializeWebSocket = (wss, model) => {
   wss.on("connection", (ws, req) => {

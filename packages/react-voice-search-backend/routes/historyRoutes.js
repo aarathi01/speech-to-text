@@ -1,13 +1,14 @@
 import express from "express";
+
 import {
-  saveSearchQuery,
-  getSearchHistory,
   deleteOwnHistoryEntry,
+  getSearchHistory,
+  saveSearchQuery,
 } from "../controllers/historyController.js";
 import { authMiddleware } from "../middlewares/authMiddleware.js";
 import { validateParams, validateRequest } from "../middlewares/validateRequest.js";
-import { saveHistorySchema } from "../validations/historyValidation.js";
 import { historyIdParamSchema } from "../validations/adminValidation.js";
+import { saveHistorySchema } from "../validations/historyValidation.js";
 
 const router = express.Router();
 

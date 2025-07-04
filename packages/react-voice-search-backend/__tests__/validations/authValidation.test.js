@@ -1,4 +1,4 @@
-import { registerSchema, loginSchema } from "../../validations/authValidation.js";
+import { loginSchema,registerSchema } from "../../validations/authValidation.js";
 
 describe("Auth Validation Schemas", () => {
   describe("registerSchema", () => {

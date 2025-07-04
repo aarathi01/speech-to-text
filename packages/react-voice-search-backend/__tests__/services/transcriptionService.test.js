@@ -1,6 +1,7 @@
-import { initializeWebSocket } from "../../services/transcriptionService.js";
-import jwt from "jsonwebtoken";
 import cookie from "cookie";
+import jwt from "jsonwebtoken";
+
+import { initializeWebSocket } from "../../services/transcriptionService.js";
 
 // Mock config values
 jest.mock("../../utils/config.js", () => ({

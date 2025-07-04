@@ -1,11 +1,11 @@
-import User from "../models/User.js";
 import SearchHistory from "../models/SearchHistory.js";
+import User from "../models/User.js";
 import {
-  promoteToAdmin,
-  deleteUser,
-  updateUserFields,
   blockUserById,
+  deleteUser,
+  promoteToAdmin,
   unblockUserById,
+  updateUserFields,
 } from "../services/userService.js";
 
 export const listUsers = async (req, res) => {

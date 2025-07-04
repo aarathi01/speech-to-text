@@ -1,10 +1,11 @@
 import express from "express";
 import request from "supertest";
-import SearchHistory from "../../models/SearchHistory.js";
+
 import {
-  getUserSearchHistory,
   deleteSearchHistoryEntry,
+  getUserSearchHistory,
 } from "../../controllers/adminHistoryController.js";
+import SearchHistory from "../../models/SearchHistory.js";
 
 jest.mock("../../models/SearchHistory.js");
 

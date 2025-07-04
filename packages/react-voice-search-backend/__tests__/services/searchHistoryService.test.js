@@ -1,7 +1,7 @@
 import SearchHistory from "../../models/SearchHistory.js";
 import {
-  saveQueryToHistory,
   getHistoryByUser,
+  saveQueryToHistory,
 } from "../../services/searchHistoryService.js";
 
 jest.mock("../../models/SearchHistory.js");

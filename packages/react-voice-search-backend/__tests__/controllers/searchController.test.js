@@ -1,6 +1,7 @@
-import request from "supertest";
-import express from "express";
 import bodyParser from "body-parser";
+import express from "express";
+import request from "supertest";
+
 import * as searchController from "../../controllers/searchController.js";
 import { searchInDB } from "../../utils/db.js";
 

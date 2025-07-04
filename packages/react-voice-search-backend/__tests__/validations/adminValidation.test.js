@@ -1,7 +1,7 @@
 import {
-  idParamSchema,
   adminDeleteHistorySchema,
   historyIdParamSchema,
+  idParamSchema,
   updateUserSchema,
 } from "../../validations/adminValidation.js";
 

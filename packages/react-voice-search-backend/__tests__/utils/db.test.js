@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
-import * as db from "../../utils/db.js";
+
 import sampleData from "../../sampleData.js";
+import * as db from "../../utils/db.js";
 
 // Mocks
 jest.mock("mongoose", () => {

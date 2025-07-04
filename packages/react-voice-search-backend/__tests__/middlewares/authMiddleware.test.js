@@ -1,12 +1,12 @@
-import express from "express";
-import request from "supertest";
 import cookieParser from "cookie-parser";
+import express from "express";
 import jwt from "jsonwebtoken";
+import request from "supertest";
 
 import {
   authMiddleware,
-  requireSuperAdmin,
   requireAdminOrSuperAdmin,
+  requireSuperAdmin,
 } from "../../middlewares/authMiddleware.js";
 
 jest.mock("jsonwebtoken");

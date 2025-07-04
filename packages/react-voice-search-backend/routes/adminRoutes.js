@@ -1,32 +1,30 @@
 import express from "express";
+
 import {
+  blockUser,
+  deleteUserById,
+  getAdminStats,
   listUsers,
   promoteUserToAdmin,
-  deleteUserById,
-  updateUserByAdmin,
-  blockUser,
   unblockUser,
-  getAdminStats,
+  updateUserByAdmin,
 } from "../controllers/adminController.js";
 import {
-  requireSuperAdmin,
-  requireAdminOrSuperAdmin,
-} from "../middlewares/authMiddleware.js";
-import {
-  getUserSearchHistory,
   deleteSearchHistoryEntry,
+  getUserSearchHistory,
 } from "../controllers/adminHistoryController.js";
-
 import {
-  idParamSchema,
-  adminDeleteHistorySchema,
-} from "../validations/adminValidation.js";
-
+  requireAdminOrSuperAdmin,
+  requireSuperAdmin,
+} from "../middlewares/authMiddleware.js";
 import {
   validateParams,
   validateQuery,
 } from "../middlewares/validateRequest.js";
-
+import {
+  adminDeleteHistorySchema,
+  idParamSchema,
+} from "../validations/adminValidation.js";
 import { paginationSchema } from "../validations/commonValidation.js";
 
 const router = express.Router();

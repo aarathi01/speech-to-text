@@ -1,8 +1,9 @@
-import User from "../models/User.js";
 import bcrypt from "bcryptjs";
 
+import User from "../models/User.js";
+
 export const initSuperAdmin = async () => {
-    console.log('Inside initSuperAdmin ')
+  console.log("Inside initSuperAdmin ");
   const email = process.env.SUPERADMIN_EMAIL?.toLowerCase();
   const existing = await User.findOne({ email });
 
@@ -17,8 +18,8 @@ export const initSuperAdmin = async () => {
     username: process.env.SUPERADMIN_USERNAME || "Super Admin",
     email,
     password: hashedPassword,
-    phone: "9999999999", 
-    country: "India", 
+    phone: "9999999999",
+    country: "India",
     role: "superadmin",
   });
 

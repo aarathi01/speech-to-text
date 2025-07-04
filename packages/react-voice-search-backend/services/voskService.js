@@ -1,4 +1,5 @@
 import vosk from "vosk";
+
 import { SAMPLE_RATE } from "../utils/config.js";
 
 export const createRecognizer = (model) => {

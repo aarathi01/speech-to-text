@@ -1,12 +1,11 @@
-import {
-  promoteToAdmin,
-  deleteUser,
-  updateUserFields,
-  blockUserById,
-  unblockUserById,
-} from "../../services/userService.js";
-
 import User from "../../models/User.js";
+import {
+  blockUserById,
+  deleteUser,
+  promoteToAdmin,
+  unblockUserById,
+  updateUserFields,
+} from "../../services/userService.js";
 
 jest.mock("../../models/User.js");
 

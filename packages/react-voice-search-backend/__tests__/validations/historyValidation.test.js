@@ -1,4 +1,4 @@
-import { saveHistorySchema, historyIdParamSchema } from "../../validations/historyValidation.js";
+import { historyIdParamSchema,saveHistorySchema } from "../../validations/historyValidation.js";
 
 describe("saveHistorySchema", () => {
   it("should pass with valid query and response", () => {

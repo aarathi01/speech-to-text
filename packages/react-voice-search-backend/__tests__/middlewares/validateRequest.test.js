@@ -1,10 +1,11 @@
 import express from "express";
-import request from "supertest";
 import Joi from "joi";
+import request from "supertest";
+
 import {
   validateParams,
-  validateRequest,
   validateQuery,
+  validateRequest,
 } from "../../middlewares/validateRequest.js";
 
 let app;

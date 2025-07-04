@@ -1,7 +1,7 @@
 import SearchHistory from "../models/SearchHistory.js";
 import {
-  saveQueryToHistory,
   getHistoryByUser,
+  saveQueryToHistory,
 } from "../services/searchHistoryService.js";
 
 export const saveSearchQuery = async (req, res) => {

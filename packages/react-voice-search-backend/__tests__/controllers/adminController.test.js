@@ -1,16 +1,15 @@
 import {
+  blockUser,
+  deleteUserById,
+  getAdminStats,
   listUsers,
   promoteUserToAdmin,
-  deleteUserById,
-  updateUserByAdmin,
-  blockUser,
   unblockUser,
-  getAdminStats,
+  updateUserByAdmin,
 } from '../../controllers/adminController.js';
-
-import * as userService from '../../services/userService.js';
-import User from '../../models/User.js';
 import SearchHistory from '../../models/SearchHistory.js';
+import User from '../../models/User.js';
+import * as userService from '../../services/userService.js';
 
 jest.mock('../../models/User.js');
 jest.mock('../../models/SearchHistory.js');

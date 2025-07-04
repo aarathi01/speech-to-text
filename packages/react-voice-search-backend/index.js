@@ -1,21 +1,22 @@
-import express from "express";
+import cookieParser from "cookie-parser";
 import cors from "cors";
 import dotenv from "dotenv";
+import express from "express";
 import fs from "fs";
-import path from "path";
 import http from "http";
-import { WebSocketServer } from "ws";
-import connectToDB from "./utils/db.js";
-import searchRoutes from "./routes/searchRoutes.js";
-import historyRoutes from "./routes/historyRoutes.js";
-import adminRoutes from "./routes/adminRoutes.js";
-import { initSuperAdmin } from "./utils/initSuperAdmin.js";
-import { initializeWebSocket } from "./services/transcriptionService.js";
-import { errorHandler } from "./middlewares/errorHandler.js";
-import authRoutes from "./routes/authRoutes.js";
-import { MONGODB_URI, PORT, BASE_URL } from "./utils/config.js";
-import cookieParser from "cookie-parser";
+import path from "path";
 import vosk from "vosk";
+import { WebSocketServer } from "ws";
+
+import { errorHandler } from "./middlewares/errorHandler.js";
+import adminRoutes from "./routes/adminRoutes.js";
+import authRoutes from "./routes/authRoutes.js";
+import historyRoutes from "./routes/historyRoutes.js";
+import searchRoutes from "./routes/searchRoutes.js";
+import { initializeWebSocket } from "./services/transcriptionService.js";
+import { BASE_URL,MONGODB_URI, PORT } from "./utils/config.js";
+import connectToDB from "./utils/db.js";
+import { initSuperAdmin } from "./utils/initSuperAdmin.js";
 
 dotenv.config();
 export const CLIENT_ORIGIN = process.env.CLIENT_ORIGIN;

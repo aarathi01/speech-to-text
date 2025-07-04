@@ -1,7 +1,8 @@
-import request from "supertest";
-import express from "express";
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
+import express from "express";
+import request from "supertest";
+
 import * as historyController from "../../controllers/historyController.js";
 import SearchHistory from "../../models/SearchHistory.js";
 

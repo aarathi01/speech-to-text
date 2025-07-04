@@ -1,9 +1,10 @@
-import request from "supertest";
-import express from "express";
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
-import * as authService from "../../services/authService.js";
+import express from "express";
+import request from "supertest";
+
 import * as authController from "../../controllers/authController.js";
+import * as authService from "../../services/authService.js";
 
 jest.mock("../../services/authService.js"); 
 //Mock only the service layer (authenticateUser, registerUser), not the controller itself

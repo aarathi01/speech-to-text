@@ -1,21 +1,30 @@
 import js from "@eslint/js";
-import globals from "globals";
 import { defineConfig } from "eslint/config";
+import simpleImportSort from "eslint-plugin-simple-import-sort";
+import globals from "globals";
 
 export default defineConfig([
   {
     files: ["**/*.{js,ts,jsx,tsx}"],
+    plugins: {
+      "simple-import-sort": simpleImportSort,
+    },
     extends: [js.configs.recommended],
     languageOptions: {
       globals: {
         ...globals.browser,
         ...globals.node,
-          ...globals.jest,
+        ...globals.jest,
       },
       parserOptions: {
         ecmaVersion: "latest",
         sourceType: "module",
       },
+    },
+    rules: {
+      // Enable import sorting
+      "simple-import-sort/imports": "error",
+      "simple-import-sort/exports": "error",
     },
   },
   {
@@ -23,6 +32,7 @@ export default defineConfig([
     languageOptions: {
       globals: {
         ...globals.vitest,
+        ...globals.jest,
       },
     },
   },
