@@ -1,17 +1,17 @@
-export const errorHandler = (err, req, res, next) => {
-  console.error('ErrorHandler:', err);
+export const errorHandler = (err, _req, res) => {
+  console.error("ErrorHandler:", err);
   let statusCode = 500;
-  let message = 'Internal Server Error';
+  let message = "Internal Server Error";
 
-  if (err.name === 'ValidationError') {
+  if (err.name === "ValidationError") {
     statusCode = 400;
     message = err.message;
-  } else if (err.name === 'UnauthorizedError') {
+  } else if (err.name === "UnauthorizedError") {
     statusCode = 401;
-    message = 'Unauthorized';
+    message = "Unauthorized";
   } else if (err.code === 11000) {
     statusCode = 409; // Duplicate key in MongoDB (e.g., email already registered)
-    message = 'Duplicate entry';
+    message = "Duplicate entry";
   } else if (err.statusCode && err.message) {
     statusCode = err.statusCode;
     message = err.message;

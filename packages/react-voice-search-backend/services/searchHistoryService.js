@@ -7,7 +7,7 @@ export const saveQueryToHistory = async (userId, query, response) => {
 
   // Remove volatile fields
   const filteredResponse = response.map((item) => {
-    const { id, matchedWords, ...rest } = item;
+    const { ...rest } = item;
     return rest;
   });
 

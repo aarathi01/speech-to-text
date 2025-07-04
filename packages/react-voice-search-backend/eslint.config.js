@@ -4,38 +4,25 @@ import { defineConfig } from "eslint/config";
 
 export default defineConfig([
   {
-    files: ["**/*.{js,mjs,cjs}"],
-    plugins: { js },
-    extends: ["js/recommended"],
+    files: ["**/*.{js,ts,jsx,tsx}"],
+    extends: [js.configs.recommended],
     languageOptions: {
       globals: {
+        ...globals.browser,
         ...globals.node,
-        process: "readonly",
-        __dirname: "readonly",
-        __filename: "readonly",
+          ...globals.jest,
       },
       parserOptions: {
-        ecmaVersion: 2021,
+        ecmaVersion: "latest",
         sourceType: "module",
       },
     },
   },
   {
-    files: ["packages/react-voice-search-backend/**/*.{js,mjs,cjs}"],
-    plugins: { js },
-    extends: ["eslint:recommended", "js/recommended"],
+    files: ["**/*.test.{js,ts,jsx,tsx}", "**/__tests__/**/*.{js,ts,jsx,tsx}"],
     languageOptions: {
       globals: {
-        ...globals.node,
-        process: "readonly", // explicitly add process
-        require: "readonly", // explicitly add require
-        module: "readonly", // explicitly add module
-        __dirname: "readonly",
-        __filename: "readonly",
-      },
-      parserOptions: {
-        ecmaVersion: 2021,
-        sourceType: "script", // or "module" if you use ES modules
+        ...globals.vitest,
       },
     },
   },

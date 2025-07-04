@@ -21,6 +21,7 @@ export const listUsers = async (req, res) => {
 
     res.json({ users, page, totalPages });
   } catch (err) {
+    console.error("Error inside listusers : ", err);
     res.status(500).json({ message: "Failed to fetch users" });
   }
 };
@@ -30,6 +31,7 @@ export const promoteUserToAdmin = async (req, res) => {
     await promoteToAdmin(req.params.id);
     res.json({ message: "User promoted to admin" });
   } catch (err) {
+    console.error("Error inside promoteUserToAdmin : ", err);
     res.status(500).json({ message: "Failed to promote user" });
   }
 };
@@ -39,6 +41,7 @@ export const deleteUserById = async (req, res) => {
     await deleteUser(req.params.id);
     res.json({ message: "User deleted successfully" });
   } catch (err) {
+    console.error("Error inside deleteUserById : ", err);
     res.status(500).json({ message: "Failed to delete user" });
   }
 };
@@ -74,6 +77,7 @@ export const blockUser = async (req, res) => {
     if (!user) return res.status(404).json({ message: "User not found" });
     res.json({ message: "User blocked", user });
   } catch (err) {
+    console.error("Error inside blockUser : ", err);
     res.status(500).json({ message: "Failed to block user" });
   }
 };
@@ -84,6 +88,7 @@ export const unblockUser = async (req, res) => {
     if (!user) return res.status(404).json({ message: "User not found" });
     res.json({ message: "User unblocked", user });
   } catch (err) {
+    console.error("Error inside unblockUser : ", err);
     res.status(500).json({ message: "Failed to unblock user" });
   }
 };
@@ -106,7 +111,7 @@ export const getAdminStats = async (req, res) => {
   res.json({
     totalUsers,
     blockedUsers,
-    totalSearches,  
+    totalSearches,
     adminCount,
     superadminCount,
     recentQueries,

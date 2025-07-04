@@ -1,6 +1,5 @@
 import { initializeWebSocket } from "../../services/transcriptionService.js";
 import jwt from "jsonwebtoken";
-import { WebSocketServer } from "ws";
 import cookie from "cookie";
 
 // Mock config values

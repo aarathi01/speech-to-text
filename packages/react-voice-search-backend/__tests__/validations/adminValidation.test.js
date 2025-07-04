@@ -1,4 +1,3 @@
-import Joi from "joi";
 import {
   idParamSchema,
   adminDeleteHistorySchema,
@@ -29,9 +28,13 @@ describe("Validation Schemas", () => {
     });
 
     it("should fail when id or historyId is missing", () => {
-      const result = adminDeleteHistorySchema.validate({ id: "60c72b2f9b1d4a3f8e3d3b45" });
+      const result = adminDeleteHistorySchema.validate({
+        id: "60c72b2f9b1d4a3f8e3d3b45",
+      });
       expect(result.error).toBeDefined();
-      expect(result.error.details[0].message).toContain("History ID is required");
+      expect(result.error.details[0].message).toContain(
+        "History ID is required"
+      );
     });
 
     it("should fail on invalid id format", () => {
@@ -45,7 +48,9 @@ describe("Validation Schemas", () => {
 
   describe("historyIdParamSchema", () => {
     it("should pass with valid history id", () => {
-      const result = historyIdParamSchema.validate({ id: "abcdefabcdefabcdefabcdef" });
+      const result = historyIdParamSchema.validate({
+        id: "abcdefabcdefabcdefabcdef",
+      });
       expect(result.error).toBeUndefined();
     });
 

@@ -31,7 +31,7 @@ beforeAll((done) => {
   app.post("/api/auth/register", authController.register);
 
   // GLOBAL ERROR HANDLER
-  app.use((err, req, res, next) => {
+  app.use((err, _req, res) => {
     console.error("Test caught error:", err);
     res
       .status(err.statusCode || 500)
