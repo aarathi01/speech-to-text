@@ -72,13 +72,21 @@ const Login: React.FC = () => {
               onChange={(e) => setPassword(e.target.value)}
             />
           </div>
-          <button className={styles.button} type="submit">
+          <button
+            aria-label="Submit action"
+            className={styles.button}
+            type="submit"
+          >
             Sign-In
           </button>
         </form>
-        <p className={styles.toggle} onClick={() => navigate("/register")}>
-          Don’t have an account? Register
-        </p>
+        <button
+          type="button"
+          className={styles.toggle}
+          onClick={() => navigate("/register")}
+        >
+          Already have an account? Login
+        </button>
       </div>
     </div>
   );

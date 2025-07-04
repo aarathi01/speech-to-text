@@ -54,16 +54,20 @@
 }
 
 .toggle {
+  all: unset; /* Reset button styles */
   margin-top: 10px;
   text-align: center;
   color: #161819;
   cursor: pointer;
   font-size: 14px;
+  display: block;
+  width: 100%;
 }
 
 .toggle:hover {
   text-decoration: underline;
 }
+
 
 .error {
   color: #e53935;

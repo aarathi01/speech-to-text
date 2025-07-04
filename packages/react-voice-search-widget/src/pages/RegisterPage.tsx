@@ -6,7 +6,6 @@ import { validateField } from "../utils/validators";
 import { showError, showSuccess } from "../utils/errorHandler";
 import { useAuth } from "../context/useAuth";
 
-
 const RegisterPage: React.FC = () => {
   const { setUser } = useAuth();
   const [formData, setFormData] = useState({
@@ -111,13 +110,21 @@ const RegisterPage: React.FC = () => {
             ))}
           </div>
 
-          <button className={styles.button} type="submit">
+          <button
+            aria-label="Submit action"
+            className={styles.button}
+            type="submit"
+          >
             Sign-Up
           </button>
         </form>
-        <p className={styles.toggle} onClick={() => navigate("/login")}>
+        <button
+          type="button"
+          className={styles.toggle}
+          onClick={() => navigate("/login")}
+        >
           Already have an account? Login
-        </p>
+        </button>
       </div>
     </div>
   );
