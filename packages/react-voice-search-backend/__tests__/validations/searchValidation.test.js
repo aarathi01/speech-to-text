@@ -1,4 +1,3 @@
-/* eslint-env jest */
 import { searchSchema } from "../../validations/searchValidation.js";
 
 describe("searchSchema", () => {
