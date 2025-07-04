@@ -7,7 +7,7 @@ interface Props {
   onBlockToggle: () => void;
   onDelete: () => void;
   role: string;
-  targetUserRole: string; 
+  targetUserRole: string;
   isBlocked: boolean;
   isCurrentUser: boolean;
   canPromote: boolean;
@@ -53,21 +53,33 @@ const UserActionDropdown: React.FC<Props> = ({
     >
       <button className={styles.dropbtn}>⋮</button>
       <div className={styles.dropdownContent}>
-        <button onClick={onHistory}>View History</button>
+        <button aria-label="View History action" onClick={onHistory}>
+          View History
+        </button>
 
         {(role === "admin" || role === "superadmin") && (
           <>
-            <button onClick={onBlockToggle} disabled={isActionDisabled}>
+            <button
+              aria-label="Block unblock action"
+              onClick={onBlockToggle}
+              disabled={isActionDisabled}
+            >
               {isBlocked ? "Unblock" : "Block"}
             </button>
-            <button onClick={onDelete} disabled={isActionDisabled}>
+            <button
+              aria-label="Delete action"
+              onClick={onDelete}
+              disabled={isActionDisabled}
+            >
               Delete
             </button>
           </>
         )}
 
         {canPromote && onPromote && (
-          <button onClick={onPromote}>Promote to Admin</button>
+          <button aria-label="Promote action" onClick={onPromote}>
+            Promote to Admin
+          </button>
         )}
       </div>
     </div>

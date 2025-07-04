@@ -230,12 +230,12 @@ const UserManagementPanel: React.FC = () => {
           <h2 className="header-title">All Users</h2>
           <div className="logged-info">
             <div className="icon-with-tooltip">
-                <img
-                  className="logout-icon"
-                  src={LogoutIcon}
-                  alt="Logout"
+              <img
+                className="logout-icon"
+                src={LogoutIcon}
+                alt="Logout"
                 onClick={logout}
-                />
+              />
               <span className="tooltip-text-bottom">Logout</span>
             </div>
           </div>

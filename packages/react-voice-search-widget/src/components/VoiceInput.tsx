@@ -104,7 +104,10 @@ const VoiceInput: React.FC = () => {
                       />
                       {activeMenuIndex === index && (
                         <div className="dropdown-menu">
-                          <button onClick={() => confirmDelete(item._id)}>
+                          <button
+                            aria-label="Delete action"
+                            onClick={() => confirmDelete(item._id)}
+                          >
                             Delete
                           </button>
                         </div>

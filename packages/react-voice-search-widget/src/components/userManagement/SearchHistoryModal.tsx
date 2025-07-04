@@ -46,20 +46,30 @@ const SearchHistoryModal: React.FC<Props> = ({ userId, onClose }) => {
             history.map((entry) => (
               <div key={entry._id} className={styles.historyItem}>
                 <div>
-                <div>
-                  <strong>Query:</strong> {entry.query}
+                  <div>
+                    <strong>Query:</strong> {entry.query}
+                  </div>
+                  <div>
+                    <strong>Date:</strong>{" "}
+                    {new Date(entry.timestamp).toLocaleString()}
+                  </div>
+                  <button
+                    aria-label="Delete action"
+                    className={styles.deleteButton}
+                    onClick={() => handleDelete(entry._id)}
+                  >
+                    Delete
+                  </button>
                 </div>
-                <div>
-                  <strong>Date:</strong>{" "}
-                  {new Date(entry.timestamp).toLocaleString()}
-                </div>
-                <button className={styles.deleteButton} onClick={() => handleDelete(entry._id)}>Delete</button>
-              </div>
               </div>
             ))
           )}
         </div>
-        <button className={styles.closeButton} onClick={onClose}>
+        <button
+          aria-label="Close action"
+          className={styles.closeButton}
+          onClick={onClose}
+        >
           Close
         </button>
       </div>

@@ -1,12 +1,12 @@
 import React from "react";
-import styles from "./ConfirmActionModal.module.css"; 
+import styles from "./ConfirmActionModal.module.css";
 
 interface ConfirmActionModalProps {
   message: string;
   onCancel: () => void;
   onConfirm: () => void;
   confirmLabel?: string;
-  cancelLabel?: string;  
+  cancelLabel?: string;
   confirmStyle?: "danger" | "primary";
 }
 
@@ -23,10 +23,15 @@ const ConfirmActionModal: React.FC<ConfirmActionModalProps> = ({
       <div className={styles.modalContent}>
         <p>{message}</p>
         <div className={styles.buttonGroup}>
-          <button onClick={onCancel} className={styles.cancelButton}>
+          <button
+            aria-label="Cancel action"
+            onClick={onCancel}
+            className={styles.cancelButton}
+          >
             {cancelLabel}
           </button>
           <button
+            aria-label="Confirm action"
             onClick={onConfirm}
             className={
               confirmStyle === "danger"
