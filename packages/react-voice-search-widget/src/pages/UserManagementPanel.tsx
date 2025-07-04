@@ -1,4 +1,11 @@
 import React, { useEffect, useState } from "react";
+import LogoutIcon from "../assets/logout.svg";
+import Sidebar from "../components/Sidebar";
+import ConfirmDeleteModal from "../components/ConfirmActionModal";
+import HistoryModal from "../components/userManagement/SearchHistoryModal";
+import UserActionDropdown from "../components/ui/UserActionDropdown";
+import { useAuth } from "../context/useAuth";
+import { logout } from "../services/authService";
 import {
   getAllUsers,
   promoteToAdmin,
@@ -7,17 +14,10 @@ import {
   unblockUser,
   blockUser,
 } from "../services/userService";
-import LogoutIcon from "../assets/logout.svg";
-import { logout } from "../services/authService";
 import { showError, showSuccess } from "../utils/errorHandler";
-import styles from "./UserManagementPanel.module.css";
-import { User } from "../types/userTypes";
-import HistoryModal from "../components/userManagement/SearchHistoryModal";
-import Sidebar from "../components/Sidebar";
 import { validateField } from "../utils/validators";
-import ConfirmDeleteModal from "../components/ConfirmActionModal";
-import UserActionDropdown from "../components/ui/UserActionDropdown";
-import { useAuth } from "../context/useAuth";
+import { User } from "../types/userTypes";
+import styles from "./UserManagementPanel.module.css";
 
 const UserManagementPanel: React.FC = () => {
   const { user } = useAuth();

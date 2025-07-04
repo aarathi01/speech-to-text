@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
-import styles from "./SearchHistoryModal.module.css";
 import {
   getUserSearchHistory,
   deleteUserSearchEntry,
 } from "../../services/historyService";
+import styles from "./SearchHistoryModal.module.css";
 
 interface Props {
   userId: string;

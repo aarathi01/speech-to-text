@@ -1,6 +1,6 @@
 import { useCallback } from "react";
-import { saveSearchHistory } from "../services/historyService";
 import { Result } from "../types/types";
+import { saveSearchHistory } from "../services/historyService";
 
 export const useSaveSearch = () => {
   const saveSearch = useCallback(async (query: string, response: Result[]) => {

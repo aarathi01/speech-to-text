@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-
-import styles from "./Sidebar.module.css";
 import { useAuth } from "../context/useAuth";
+import styles from "./Sidebar.module.css";
 
 const Sidebar: React.FC = () => {
   const { user } = useAuth();

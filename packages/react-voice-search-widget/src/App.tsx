@@ -1,19 +1,19 @@
 import React from "react";
 import { Routes, Route, useNavigate } from "react-router-dom";
-import VoiceInput from "./components/VoiceInput";
+import { IdleTimerProvider } from "react-idle-timer";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import Login from "./pages/LoginPage";
 import Register from "./pages/RegisterPage";
 import UserManagementPanel from "./pages/UserManagementPanel";
-import AuthProvider from "./context/AuthProvider";
+import AdminDashboard from "./pages/AdminDashboard";
+import VoiceInput from "./components/VoiceInput";
 import PrivateRoute from "./components/PrivateRoute";
 import PublicRoute from "./components/PublicRoute";
-import { IdleTimerProvider } from "react-idle-timer";
-import { ToastContainer } from "react-toastify";
+import RedirectDashboard from "./components/userManagement/RedirectDashboard";
+import AuthProvider from "./context/AuthProvider";
 import { logout } from "./services/authService";
 import { showError } from "./utils/errorHandler";
-import "react-toastify/dist/ReactToastify.css";
-import RedirectDashboard from "./components/userManagement/RedirectDashboard";
-import AdminDashboard from "./pages/AdminDashboard";
 
 const App: React.FC = () => {
   const navigate = useNavigate();

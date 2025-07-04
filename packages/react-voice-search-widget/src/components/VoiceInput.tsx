@@ -4,17 +4,17 @@ import ClearIcon from "../assets/clear.svg";
 import SaveIcon from "../assets/save.svg";
 import LogoutIcon from "../assets/logout.svg";
 import MoreIcon from "../assets/more.svg";
-import SearchResults from "./SearchResults";
-import UnsupportedBrowserFallback from "./UnsupportedBrowserFallback";
+import { HistoryEntry } from "../types/types";
 import { useVoiceRecorder } from "../hooks/useVoiceRecorder";
 import { useSearch } from "../hooks/useSearch";
-import { logout } from "../services/authService";
 import { useSaveSearch } from "../hooks/useSaveSearch";
+import { logout } from "../services/authService";
 import {
   getSearchHistory,
   deleteOwnSearchEntry,
 } from "../services/historyService";
-import { HistoryEntry } from "../types/types";
+import SearchResults from "./SearchResults";
+import UnsupportedBrowserFallback from "./UnsupportedBrowserFallback";
 import ConfirmDeleteModal from "./ConfirmActionModal";
 
 const VoiceInput: React.FC = () => {

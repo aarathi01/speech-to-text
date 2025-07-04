@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./RegisterPage.module.css";
-import { validateField } from "../utils/validators";
 import { register } from "../services/authService";
+import { validateField } from "../utils/validators";
 import { showError, showSuccess } from "../utils/errorHandler";
 import { useAuth } from "../context/useAuth";
+
 
 const RegisterPage: React.FC = () => {
   const { setUser } = useAuth();

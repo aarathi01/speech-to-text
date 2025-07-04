@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
+import { HistoryEntry } from "../types/types";
 import {
   getSearchHistory,
   deleteOwnSearchEntry,
 } from "../services/historyService";
-import { HistoryEntry } from "../types/types";
 
 export const useSearchHistory = () => {
   const [history, setHistory] = useState<HistoryEntry[]>([]);
