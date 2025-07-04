@@ -170,6 +170,7 @@ const UserManagementPanel: React.FC = () => {
             <input
               className={styles.editInput}
               value={editedValue}
+              role="button"
               onChange={(e) => {
                 setEditedValue(e.target.value);
                 const validationKey = field === "username" ? "name" : field;
@@ -222,101 +223,108 @@ const UserManagementPanel: React.FC = () => {
   return (
     <div className={styles.pageContainer}>
       <Sidebar />
+
       <div className={styles.container}>
+        {/* Header */}
         <div className="header-row">
           <h2 className="header-title">All Users</h2>
           <div className="logged-info">
-            <div>
-              <div className="icon-with-tooltip">
+            <div className="icon-with-tooltip">
                 <img
                   className="logout-icon"
                   src={LogoutIcon}
                   alt="Logout"
-                  onClick={logout}
+                onClick={logout}
                 />
-                <span className="tooltip-text-bottom">Logout</span>
-              </div>
+              <span className="tooltip-text-bottom">Logout</span>
             </div>
           </div>
         </div>
-        <div>
-          <div className={styles.tableWrapper}>
-            <table className={styles.userTable}>
-              <thead>
+
+        {/* Table */}
+        <div className={styles.tableWrapper}>
+          <table className={styles.userTable} role="table">
+            <thead>
+              <tr>
+                <th scope="col">Username</th>
+                <th scope="col">Email</th>
+                <th scope="col">Phone</th>
+                <th scope="col">Country</th>
+                <th scope="col">Role</th>
+                <th scope="col">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {users.length === 0 ? (
                 <tr>
-                  <th>Username</th>
-                  <th>Email</th>
-                  <th>Phone</th>
-                  <th>Country</th>
-                  <th>Role</th>
-                  <th>Actions</th>
+                  <td colSpan={6} className="text-center p-4">
+                    No users found
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {users.length === 0 ? (
-                  <tr>
-                    <td colSpan={6} className="text-center p-4">
-                      No users found
+              ) : (
+                users.map((user) => (
+                  <tr key={user._id}>
+                    {renderEditableCell(user, "username", styles.userName)}
+                    <td className={styles.email}>{user.email}</td>
+                    {renderEditableCell(user, "phone", styles.phoneNumber)}
+                    {renderEditableCell(user, "country", styles.country)}
+                    <td className={styles.role}>{user.role}</td>
+                    <td className={styles.actions}>
+                      <UserActionDropdown
+                        onPromote={() => handlePromote(user._id)}
+                        onHistory={() => setSelectedUserId(user._id)}
+                        onBlockToggle={() =>
+                          handleBlockToggle(user._id, user.isBlocked)
+                        }
+                        onDelete={() => confirmDeleteUser(user._id)}
+                        role={currentUser.role}
+                        targetUserRole={user.role}
+                        isBlocked={user.isBlocked}
+                        isCurrentUser={user._id === currentUser._id}
+                        canPromote={
+                          currentUser.role === "superadmin" &&
+                          !["admin", "superadmin"].includes(user.role)
+                        }
+                      />
                     </td>
                   </tr>
-                ) : (
-                  users.map((user) => (
-                    <tr key={user._id}>
-                      {renderEditableCell(user, "username", styles.userName)}
-                      <td className={styles.email}>{user.email}</td>
-                      {renderEditableCell(user, "phone", styles.phoneNumber)}
-                      {renderEditableCell(user, "country", styles.country)}
-                      <td className={styles.role}>{user.role}</td>
-                      <td className={styles.actions}>
-                        <UserActionDropdown
-                          onPromote={() => handlePromote(user._id)}
-                          onHistory={() => setSelectedUserId(user._id)}
-                          onBlockToggle={() =>
-                            handleBlockToggle(user._id, user.isBlocked)
-                          }
-                          onDelete={() => confirmDeleteUser(user._id)}
-                          role={currentUser.role}
-                          targetUserRole={user.role} // <--- important fix
-                          isBlocked={user.isBlocked}
-                          isCurrentUser={user._id === currentUser._id}
-                          canPromote={
-                            currentUser.role === "superadmin" &&
-                            !["admin", "superadmin"].includes(user.role)
-                          }
-                        />
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-
-          <div className={styles.pagination}>
-            <button
-              onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
-              disabled={currentPage === 1}
-            >
-              Previous
-            </button>
-            <span>
-              Page {currentPage} of {totalPages}
-            </span>
-            <button
-              onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
-              disabled={currentPage === totalPages}
-            >
-              Next
-            </button>
-          </div>
+                ))
+              )}
+            </tbody>
+          </table>
         </div>
 
+        {/* Pagination */}
+        <div className={styles.pagination}>
+          <button
+            type="button"
+            aria-label="Previous Page"
+            onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+            disabled={currentPage === 1}
+          >
+            Previous
+          </button>
+          <span>
+            Page {currentPage} of {totalPages}
+          </span>
+          <button
+            type="button"
+            aria-label="Next Page"
+            onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+            disabled={currentPage === totalPages}
+          >
+            Next
+          </button>
+        </div>
+
+        {/* Modals */}
         {selectedUserId && (
           <HistoryModal
             userId={selectedUserId}
             onClose={() => setSelectedUserId(null)}
           />
         )}
+
         {showApplyModal && (
           <ConfirmDeleteModal
             message="Apply changes to this field?"
@@ -330,6 +338,7 @@ const UserManagementPanel: React.FC = () => {
             confirmStyle="primary"
           />
         )}
+
         {deleteUserId && (
           <ConfirmDeleteModal
             onCancel={() => setDeleteUserId(null)}
