@@ -1,123 +1,148 @@
 /// <reference types="vitest/globals" />
 
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import { MemoryRouter } from "react-router-dom";
-import Login from "../../pages/LoginPage";
-import { login } from "../../services/authService";
-import { validateField } from "../../utils/validators";
-import { showError, showSuccess } from "../../utils/errorHandler";
-
-// Mocking showError and showSuccess
-vi.mock("../../utils/errorHandler", () => ({
-  showError: vi.fn(),
-  showSuccess: vi.fn(),
-}));
+import { BrowserRouter } from "react-router-dom";
+import LoginPage from "../../pages/LoginPage";
+import * as authService from "../../services/authService";
+import * as errorHandler from "../../utils/errorHandler";
+import * as authContext from "../../context/useAuth";
 
 // Mock services and utilities
-vi.mock("../../services/authService", () => ({
-  login: vi.fn(),
-}));
-
-// Mocking validateField
-vi.mock("../../utils/validators", () => ({
-  validateField: vi.fn(),
-}));
-
+vi.mock("../../services/authService");
+// Mocking errorHandler
+vi.mock("../../utils/errorHandler");
 // Mock useAuth
-const mockSetUser = vi.fn();
-vi.mock("../../context/useAuth", () => ({
-  useAuth: () => ({
-    setUser: mockSetUser,
-  }),
-}));
-
-// Mock useNavigate
-const mockNavigate = vi.fn();
-vi.mock("react-router-dom", async () => {
-  const actual = await vi.importActual("react-router-dom");
+vi.mock("../../context/useAuth", async () => {
+  const actual = await vi.importActual("../../context/useAuth");
   return {
     ...actual,
-    useNavigate: () => mockNavigate,
+    useAuth: () => ({ setUser: vi.fn() }),
   };
 });
+
+const renderWithRouter = () =>
+  render(
+    <BrowserRouter>
+      <LoginPage />
+    </BrowserRouter>
+  );
 
 describe("LoginPage", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    localStorage.clear();
   });
 
-  it("renders login form", () => {
-    render(<Login />, { wrapper: MemoryRouter });
+  it("renders email and password input fields", () => {
+    renderWithRouter();
     expect(screen.getByPlaceholderText("Email")).toBeInTheDocument();
     expect(screen.getByPlaceholderText("Password")).toBeInTheDocument();
-    expect(screen.getByText("Sign-In")).toBeInTheDocument();
   });
 
-  it("shows error if email or password is missing", () => {
-    render(<Login />, { wrapper: MemoryRouter });
+  it("shows error if fields are empty", async () => {
+    renderWithRouter();
+    fireEvent.click(screen.getByRole("button", { name: /sign-in/i }));
 
-    fireEvent.click(screen.getByText("Sign-In"));
-    expect(showError).toHaveBeenCalledWith("Email and password are required.");
+    await waitFor(() => {
+      expect(errorHandler.showError).toHaveBeenCalledWith("Email and password are required.");
+    });
   });
 
-  it("shows email validation error", () => {
-    (validateField as any).mockReturnValue("Invalid email");
-
-    render(<Login />, { wrapper: MemoryRouter });
+  it("shows error for invalid email format", async () => {
+    renderWithRouter();
 
     fireEvent.change(screen.getByPlaceholderText("Email"), {
-      target: { value: "wrong" },
-    });
-    fireEvent.change(screen.getByPlaceholderText("Password"), {
-      target: { value: "123456" },
-    });
-    fireEvent.click(screen.getByText("Sign-In"));
-
-    expect(validateField).toHaveBeenCalledWith("email", "wrong");
-    expect(showError).toHaveBeenCalledWith("Invalid email");
-  });
-
-  it("successful login navigates to /voice for user role", async () => {
-    (validateField as any).mockReturnValue(null);
-    (login as any).mockResolvedValue({
-      email: "test@example.com",
-      role: "user",
-      token: "mock-token",
-      username: "Test User",
-    });
-
-    render(<Login />, { wrapper: MemoryRouter });
-
-    fireEvent.change(screen.getByPlaceholderText("Email"), {
-      target: { value: "test@example.com" },
+      target: { value: "invalid-email" },
     });
     fireEvent.change(screen.getByPlaceholderText("Password"), {
       target: { value: "password123" },
     });
 
-    fireEvent.click(screen.getByText("Sign-In"));
+    fireEvent.click(screen.getByRole("button", { name: /sign-in/i }));
 
     await waitFor(() => {
-      expect(login).toHaveBeenCalledWith({
-        email: "test@example.com",
-        password: "password123",
-      });
-      expect(mockSetUser).toHaveBeenCalledWith(
-        expect.objectContaining({
-          email: "test@example.com",
-          role: "user",
-        })
-      );
-      expect(showSuccess).toHaveBeenCalledWith("Login successful");
-      // to-do
-      // expect(mockNavigate).toHaveBeenCalledWith("/");
+      expect(errorHandler.showError).toHaveBeenCalledWith("Invalid email format");
     });
   });
 
-  it("navigates to register page on click", () => {
-    render(<Login />, { wrapper: MemoryRouter });
+  it("handles successful login and stores user data", async () => {
+    const mockUser = { id: "1", email: "a@b.com", role: "user", username: "testUser" };
+    const setUser = vi.fn();
+    vi.spyOn(authContext, "useAuth").mockReturnValue({
+      setUser,
+      user: null,
+      loading: false
+    });
+    (authService.login as any).mockResolvedValue(mockUser);
 
+    renderWithRouter();
+
+    fireEvent.change(screen.getByPlaceholderText("Email"), {
+      target: { value: "a@b.com" },
+    });
+    fireEvent.change(screen.getByPlaceholderText("Password"), {
+      target: { value: "password123" },
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /sign-in/i }));
+
+    await waitFor(() => {
+      expect(authService.login).toHaveBeenCalledWith({
+        email: "a@b.com",
+        password: "password123",
+      });
+      expect(setUser).toHaveBeenCalledWith(mockUser);
+      expect(localStorage.getItem("isAuthenticated")).toBe("true");
+      expect(localStorage.getItem("user")).toContain("a@b.com");
+      expect(errorHandler.showSuccess).toHaveBeenCalledWith("Login successful");
+    });
+  });
+
+  it("does not log in if no role is returned", async () => {
+    (authService.login as any).mockResolvedValue({ email: "a@b.com" });
+
+    renderWithRouter();
+
+    fireEvent.change(screen.getByPlaceholderText("Email"), {
+      target: { value: "a@b.com" },
+    });
+    fireEvent.change(screen.getByPlaceholderText("Password"), {
+      target: { value: "password123" },
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /sign-in/i }));
+
+    await waitFor(() => {
+      expect(errorHandler.showError).toHaveBeenCalledWith("Invalid user role.");
+    });
+  });
+
+  it("handles server error", async () => {
+    (authService.login as any).mockRejectedValue(new Error("Login failed"));
+
+    renderWithRouter();
+
+    fireEvent.change(screen.getByPlaceholderText("Email"), {
+      target: { value: "a@b.com" },
+    });
+    fireEvent.change(screen.getByPlaceholderText("Password"), {
+      target: { value: "wrongpass" },
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /sign-in/i }));
+
+    await waitFor(() => {
+      // console.error is invoked inside the component, no UI error shown
+      expect(authService.login).toHaveBeenCalled();
+    });
+  });
+
+  it("navigates to /register when clicking toggle text", async () => {
+    renderWithRouter();
     fireEvent.click(screen.getByText(/don’t have an account/i));
-    expect(mockNavigate).toHaveBeenCalledWith("/register");
+
+    await waitFor(() => {
+      expect(window.location.pathname).toBe("/register");
+    });
   });
 });
