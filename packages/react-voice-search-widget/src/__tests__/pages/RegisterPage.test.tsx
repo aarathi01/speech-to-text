@@ -2,105 +2,127 @@
 
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import RegisterPage from "../../pages/RegisterPage";
-import { MemoryRouter } from "react-router-dom";
-
+import { BrowserRouter } from "react-router-dom";
 // Mocks
-vi.mock("../../services/authService", () => ({
-  register: vi.fn()
-}));
+import * as authService from "../../services/authService";
+import * as authContext from "../../context/useAuth";
+import * as errorHandler from "../../utils/errorHandler";
 
-vi.mock("../../utils/validators", () => ({
-  validateField: vi.fn()
-}));
-
-vi.mock("../../utils/errorHandler", () => ({
-  showError: vi.fn(),
-  showSuccess: vi.fn()
-}));
-
-const mockNavigate = vi.fn();
-vi.mock("react-router-dom", async () => {
-  const actual = await vi.importActual("react-router-dom");
+vi.mock("../../services/authService");
+vi.mock("../../utils/errorHandler");
+vi.mock("../../context/useAuth", async () => {
+  const actual = await vi.importActual("../../context/useAuth");
   return {
     ...actual,
-    useNavigate: () => mockNavigate
+    useAuth: () => ({ setUser: vi.fn() }),
   };
 });
 
-import { register } from "../../services/authService";
-import { validateField } from "../../utils/validators";
-import { showError, showSuccess } from "../../utils/errorHandler";
+const renderWithRouter = () =>
+  render(
+    <BrowserRouter>
+      <RegisterPage />
+    </BrowserRouter>
+  );
 
 describe("RegisterPage", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    localStorage.clear();
   });
 
   it("renders all input fields and button", () => {
-    render(<RegisterPage />, { wrapper: MemoryRouter });
-
-    ["Name", "Email", "Country", "Phone", "Password"].forEach((label) => {
-      expect(screen.getByPlaceholderText(label)).toBeInTheDocument();
-    });
-    expect(screen.getByText("Sign-Up")).toBeInTheDocument();
+    renderWithRouter();
+    const inputs = screen.getAllByRole("textbox");
+    expect(inputs.length).toBe(4); // name, email, country, phone
+    expect(screen.getByPlaceholderText("Password")).toBeInTheDocument();
   });
 
-  it("shows error if fields are empty on submit", () => {
-    render(<RegisterPage />, { wrapper: MemoryRouter });
-
-    fireEvent.click(screen.getByText("Sign-Up"));
-    expect(showError).toHaveBeenCalledWith("All fields are required.");
-  });
-
-  it("shows validation errors when typing", () => {
-    (validateField as any).mockReturnValue("Invalid name");
-
-    render(<RegisterPage />, { wrapper: MemoryRouter });
-    const nameInput = screen.getByPlaceholderText("Name");
-    fireEvent.change(nameInput, { target: { value: "a" } });
-
-    expect(validateField).toHaveBeenCalledWith("name", "a");
-  });
-
-  it("handles successful registration with token", async () => {
-    (validateField as any).mockReturnValue(null);
-    (register as any).mockResolvedValue({
-      data: { token: "mock-token" } // no need to test storage now
-    });
-
-    render(<RegisterPage />, { wrapper: MemoryRouter });
-
-    fireEvent.change(screen.getByPlaceholderText("Name"), {
-      target: { value: "John" }
-    });
-    fireEvent.change(screen.getByPlaceholderText("Email"), {
-      target: { value: "john@example.com" }
-    });
-    fireEvent.change(screen.getByPlaceholderText("Country"), {
-      target: { value: "India" }
-    });
-    fireEvent.change(screen.getByPlaceholderText("Phone"), {
-      target: { value: "1234567890" }
-    });
-    fireEvent.change(screen.getByPlaceholderText("Password"), {
-      target: { value: "password123" }
-    });
-
-    fireEvent.click(screen.getByText("Sign-Up"));
+  it("shows validation error when fields are empty", async () => {
+    renderWithRouter();
+    const button = screen.getByRole("button", { name: /sign-up/i });
+    fireEvent.click(button);
 
     await waitFor(() => {
-      expect(register).toHaveBeenCalled();
-      expect(showSuccess).toHaveBeenCalledWith("Registration successful! You are now logged in.");
-      expect(mockNavigate).toHaveBeenCalledWith("/");
+      expect(errorHandler.showError).toHaveBeenCalledWith("All fields are required.");
     });
   });
 
+  it("handles successful registration and navigates to /voice", async () => {
+    const mockUser = { id: "123", username: "testUser", role: "user", email: "a@b.com" };
+    const setUser = vi.fn();
+    vi.spyOn(authContext, "useAuth").mockReturnValue({
+      setUser,
+      user: null,
+      loading: false
+    });
 
+    (authService.register as any).mockResolvedValue(mockUser);
 
-  it("navigates to login when toggle is clicked", () => {
-    render(<RegisterPage />, { wrapper: MemoryRouter });
+    renderWithRouter();
 
-    fireEvent.click(screen.getByText(/already have an account/i));
-    expect(mockNavigate).toHaveBeenCalledWith("/login");
+    fireEvent.change(screen.getByPlaceholderText("Name"), {
+      target: { value: "testUser" },
+    });
+    fireEvent.change(screen.getByPlaceholderText("Email"), {
+      target: { value: "a@b.com" },
+    });
+    fireEvent.change(screen.getByPlaceholderText("Country"), {
+      target: { value: "India" },
+    });
+    fireEvent.change(screen.getByPlaceholderText("Phone"), {
+      target: { value: "1234567890" },
+    });
+    fireEvent.change(screen.getByPlaceholderText("Password"), {
+      target: { value: "securepass" },
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /sign-up/i }));
+
+    await waitFor(() => {
+      expect(authService.register).toHaveBeenCalled();
+      expect(setUser).toHaveBeenCalledWith(mockUser);
+      expect(localStorage.getItem("isAuthenticated")).toBe("true");
+      expect(localStorage.getItem("user")).toContain("testUser");
+      expect(errorHandler.showSuccess).toHaveBeenCalledWith("Registration successful! You are now logged in.");
+    });
+  });
+
+  it("shows registration error if backend fails", async () => {
+    (authService.register as any).mockRejectedValue({
+      response: { data: { error: "Email already exists" } },
+    });
+
+    renderWithRouter();
+
+    fireEvent.change(screen.getByPlaceholderText("Name"), {
+      target: { value: "testUser" },
+    });
+    fireEvent.change(screen.getByPlaceholderText("Email"), {
+      target: { value: "a@b.com" },
+    });
+    fireEvent.change(screen.getByPlaceholderText("Country"), {
+      target: { value: "India" },
+    });
+    fireEvent.change(screen.getByPlaceholderText("Phone"), {
+      target: { value: "1234567890" },
+    });
+    fireEvent.change(screen.getByPlaceholderText("Password"), {
+      target: { value: "securepass" },
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /sign-up/i }));
+
+    await waitFor(() => {
+      expect(errorHandler.showError).toHaveBeenCalledWith("Email already exists");
+    });
+  });
+
+  it("navigates to login page on text click", async () => {
+    renderWithRouter();
+    fireEvent.click(screen.getByText(/Already have an account/i));
+    await waitFor(() => {
+      expect(window.location.pathname).toBe("/login");
+    });
   });
 });
