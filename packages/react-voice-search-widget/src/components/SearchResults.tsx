@@ -1,10 +1,6 @@
 import React from "react";
-import type { Result } from "../types/types";
+import type { SearchResultsProps } from "../types/types";
 
-interface Props {
-  results: Result[];
-  transcript: string;
-}
 
 const highlight = (text: string, words: string[]) => {
   if (!words || words.length === 0) return text;
@@ -21,7 +17,7 @@ const highlight = (text: string, words: string[]) => {
   );
 };
 
-const SearchResults: React.FC<Props> = ({ results }) => {
+const SearchResults: React.FC<SearchResultsProps> = ({ results }) => {
   if (!results.length) return null;
   return (
     <div>

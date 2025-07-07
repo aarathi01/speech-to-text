@@ -40,18 +40,43 @@ export type HistoryPayload = {
   response: Result[];
 };
 
-export type HistoryEntry =  {
+export type HistoryEntry = {
   _id: string;
   query: string;
   response: string;
   timestamp: string;
-}
+};
 
-export type  ResponseItem = {
+export type ResponseItem = {
   name: string;
   category: string;
-}
+};
 
-export type  Item = {
+export type Item = {
   response: ResponseItem[];
-}
+};
+
+export type ConfirmActionModalProps = {
+  message: string;
+  onCancel: () => void;
+  onConfirm: () => void;
+  confirmLabel?: string;
+  cancelLabel?: string;
+  confirmStyle?: "danger" | "primary";
+};
+
+export type SearchHistoryModalProps = {
+  userId: string;
+  onClose: () => void;
+};
+
+export type DashboardCardProps = {
+  title: string;
+  value: number;
+  infoText?: string;
+};
+
+export type SearchResultsProps = {
+  results: Result[];
+  transcript: string;
+};

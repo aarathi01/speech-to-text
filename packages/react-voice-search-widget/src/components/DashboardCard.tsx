@@ -1,11 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import styles from "./DashboardCard.module.css";
-
-interface DashboardCardProps {
-  title: string;
-  value: number;
-  infoText?: string;
-}
+import { DashboardCardProps } from "../types/types";
 
 const DashboardCard: React.FC<DashboardCardProps> = ({ title, value, infoText }) => {
   const [showTooltip, setShowTooltip] = useState(false);

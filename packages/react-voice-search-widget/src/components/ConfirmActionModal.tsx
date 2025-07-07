@@ -1,14 +1,6 @@
 import React from "react";
 import styles from "./ConfirmActionModal.module.css";
-
-interface ConfirmActionModalProps {
-  message: string;
-  onCancel: () => void;
-  onConfirm: () => void;
-  confirmLabel?: string;
-  cancelLabel?: string;
-  confirmStyle?: "danger" | "primary";
-}
+import { ConfirmActionModalProps } from "../types/types";
 
 const ConfirmActionModal: React.FC<ConfirmActionModalProps> = ({
   message,

@@ -4,13 +4,12 @@ import {
   deleteUserSearchEntry,
 } from "../../services/historyService";
 import styles from "./SearchHistoryModal.module.css";
+import { SearchHistoryModalProps } from "../../types/types";
 
-interface Props {
-  userId: string;
-  onClose: () => void;
-}
-
-const SearchHistoryModal: React.FC<Props> = ({ userId, onClose }) => {
+const SearchHistoryModal: React.FC<SearchHistoryModalProps> = ({
+  userId,
+  onClose,
+}) => {
   const [history, setHistory] = useState([]);
 
   const handleDelete = async (historyId: string) => {
