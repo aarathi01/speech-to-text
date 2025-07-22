@@ -48,6 +48,8 @@ export async function connectToDB(uri) {
   }
 }
 
+// Accepts an array of keywords
+// Searches MongoDB (or other DB) for documents that contain any of those keywords, Possibly uses text index, regex, or $in conditions for matching
 export async function searchInDB(filteredQuery, queryWords) {
   const results = await Item.aggregate([
     {

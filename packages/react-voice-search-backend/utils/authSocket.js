@@ -1,7 +1,10 @@
 import cookie from "cookie";
 
-import { verifyToken } from "./jwt.js"; 
+import { verifyToken } from "./jwt.js";
 
+// This ensures only authenticated users can stream audio for transcription.
+// It's a custom function, likely decoding a JWT or cookie and mapping it to a user.
+// Without this, anyone could flood your backend with fake audio.
 export const verifyWebSocketToken = (req, ws) => {
   const cookies = cookie.parse(req.headers.cookie || "");
   const token = cookies.token;

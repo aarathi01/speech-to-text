@@ -1,3 +1,7 @@
+// Joi is a powerful schema description and data validation library for JavaScript.
+// It helps ensure that the incoming request data (from body, params, or query) is exactly what your backend expects.
+// It prevents bad data, saves time debugging, and avoids security issues.
+
 import Joi from "joi";
 
 // MongoDB ObjectId validator (24 hex chars)

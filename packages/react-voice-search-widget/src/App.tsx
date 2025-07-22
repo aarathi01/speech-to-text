@@ -26,9 +26,9 @@ const App: React.FC = () => {
 
   return (
     <IdleTimerProvider
-      timeout={1000 * 60 * 15} // 15 minutes of inactivity
+      timeout={1000 * 60 * 15} // 15 minutes of inactivity (in milliseconds)
       onIdle={handleIdle}
-      crossTab // sync across tabs
+      crossTab // sync across tabs, ensures logout occurs across tabs, not just the current one
     >
       <AuthProvider>
         <Routes>
